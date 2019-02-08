@@ -3,6 +3,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     `maven-publish`
+    `java-gradle-plugin`
     kotlin("jvm") version "1.3.21"
     id("org.jetbrains.dokka") version "0.9.17"
 }
