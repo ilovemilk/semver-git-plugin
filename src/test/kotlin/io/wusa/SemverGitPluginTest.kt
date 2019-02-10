@@ -19,7 +19,7 @@ class SemverGitPluginTest {
     }
 
     @Test
-    fun bumpVersionMinorTest() {
+    fun testBumpVersionMinor() {
         val version = Version(1, 1, 1, "")
         val nextVersion = "minor"
         assertEquals(SemverGitPlugin().bumpVersion(version, nextVersion, "SNAPSHOT"), Version(1, 2, 0, "SNAPSHOT"))
@@ -27,7 +27,7 @@ class SemverGitPluginTest {
     }
 
     @Test
-    fun bumpVersionPatchTest() {
+    fun testBumpVersionPatch() {
         val version = Version(1, 1, 1, "")
         val nextVersion = "patch"
         assertEquals(SemverGitPlugin().bumpVersion(version, nextVersion, "SNAPSHOT"), Version(1, 1, 2, "SNAPSHOT"))
