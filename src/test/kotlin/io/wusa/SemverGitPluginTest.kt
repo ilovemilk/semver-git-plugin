@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test
 
 class SemverGitPluginTest {
     @Test
-    fun parseVersionTest() {
+    fun testParseVersion() {
         assertEquals(SemverGitPlugin().parseVersion("1.1.1"), Version(1, 1, 1, ""))
         assertEquals(SemverGitPlugin().parseVersion("1.0.0-5-g5242341"), Version(1, 0, 0, "-5-g5242341"))
     }
 
     @Test
-    fun bumpVersionMajorTest() {
+    fun testBumpVersionMajor() {
         val version = Version(1, 1, 1, "")
         val nextVersion = "major"
         assertEquals(SemverGitPlugin().bumpVersion(version, nextVersion, "SNAPSHOT"), Version(2, 0, 0, "SNAPSHOT"))
