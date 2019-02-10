@@ -1,11 +1,7 @@
-import org.gradle.jvm.tasks.Jar
-import org.jetbrains.dokka.gradle.DokkaTask
-
 plugins {
     `maven-publish`
     `java-gradle-plugin`
     kotlin("jvm") version "1.3.21"
-    id("org.jetbrains.dokka") version "0.9.17"
 }
 
 group = "io.wusa"
@@ -20,25 +16,23 @@ repositories {
     mavenCentral()
 }
 
-// Create dokka Jar task from dokka task output
-val dokkaJar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
-    classifier = "javadoc"
-    // dependsOn(tasks.dokka) not needed; dependency automatically inferred by from(tasks.dokka)
-    from((tasks.getByName("dokka") as DokkaTask).outputDirectory)
+gradlePlugin {
+    plugins {
+        create("semverGitPlugin") {
+            id = "io.wusa.semver-git-plugin"
+            implementationClass = "io.wusa.SemverGitPlugin"
+        }
+    }
 }
 
 publishing {
     publications {
-        create<MavenPublication>("default") {
+        create<MavenPublication>("maven") {
+            groupId = "io.wusa"
+            artifactId = "semver-git-plugin"
+            version = "0.0.1-SNAPSHOT"
+
             from(components["java"])
-            artifact(dokkaJar)
-        }
-    }
-    repositories {
-        maven {
-            url = uri("$buildDir/repository")
         }
     }
 }
