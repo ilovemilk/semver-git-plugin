@@ -10,6 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
 }
@@ -20,13 +21,19 @@ repositories {
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {
     reports.xml.isEnabled = true
-    reports.html.isEnabled = true
+    reports.html.isEnabled = false
     dependsOn(tasks.named("test"))
 }
 
-tasks.getting(Test::class) {
+tasks.withType<Test> {
     useJUnitPlatform()
-    dependsOn(tasks.named("cleanTest"))
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+tasks.withType<Wrapper> {
+    gradleVersion = "5.1.1"
 }
 
 gradlePlugin {
