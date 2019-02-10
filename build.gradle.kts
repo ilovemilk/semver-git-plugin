@@ -3,10 +3,11 @@ plugins {
     `java-gradle-plugin`
     `jacoco`
     kotlin("jvm") version "1.3.21"
+    id("com.gradle.plugin-publish") version "0.10.0"
 }
 
 group = "io.wusa"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -40,9 +41,18 @@ gradlePlugin {
     plugins {
         create("semverGitPlugin") {
             id = "io.wusa.semver-git-plugin"
+            displayName = "semver-git-plugin"
+            description = "Project versioning based on semantic versioning via git tags"
             implementationClass = "io.wusa.SemverGitPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/ilovemilk/semver-git-plugin"
+    vcsUrl = "https://github.com/ilovemilk/semver-git-plugin"
+    description = "Project versioning based on semantic versioning via git tags"
+    tags = listOf("git", "kotlin", "semver", "semantic-versioning", "version", "semantic", "release")
 }
 
 publishing {
