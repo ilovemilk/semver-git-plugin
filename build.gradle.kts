@@ -30,7 +30,6 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "io.wusa"
             artifactId = "semver-git-plugin"
-            version = "0.0.1-SNAPSHOT"
 
             from(components["java"])
         }
