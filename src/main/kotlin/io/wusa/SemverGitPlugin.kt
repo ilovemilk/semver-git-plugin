@@ -4,16 +4,22 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
 
-data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: String)
+data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: String) {
+    override fun toString(): String {
+        return when (suffix.isEmpty()) {
+            true -> "$major.$minor.$patch"
+            false -> "$major.$minor.$patch-$suffix"
+        }
+    }
+}
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val nextVersion = "minor"
-        val snapshotSuffix = "SNAPSHOT"
-        val dirtyMarker = "-dirty"
-        val gitDescribeArgs = "--match *[0-9].[0-9]*.[0-9]*"
+        val semverGitPluginExtension = project.extensions.create("semverGitPlugin", SemverGitPluginExtension::class.java)
 
-        project.version = getGitVersion(nextVersion, snapshotSuffix, dirtyMarker, gitDescribeArgs, project.projectDir)
+        println(semverGitPluginExtension.nextVersion)
+        val version = getGitVersion(semverGitPluginExtension.nextVersion, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker, semverGitPluginExtension.gitDescribeArgs, project.projectDir)
+        project.version = version.toString()
         project.task("showVersion") {
             it.group = "Help"
             it.description = "Show the project version"
