@@ -15,7 +15,7 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: S
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val semverGitPluginExtension = project.extensions.create("semverGitPlugin", SemverGitPluginExtension::class.java)
+        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java)
 
         project.afterEvaluate {
             val version = getGitVersion(semverGitPluginExtension.nextVersion, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker, semverGitPluginExtension.gitDescribeArgs, project.projectDir)
