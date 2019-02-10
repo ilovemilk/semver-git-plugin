@@ -17,9 +17,11 @@ class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val semverGitPluginExtension = project.extensions.create("semverGitPlugin", SemverGitPluginExtension::class.java)
 
-        println(semverGitPluginExtension.nextVersion)
-        val version = getGitVersion(semverGitPluginExtension.nextVersion, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker, semverGitPluginExtension.gitDescribeArgs, project.projectDir)
-        project.version = version.toString()
+        project.afterEvaluate {
+            val version = getGitVersion(semverGitPluginExtension.nextVersion, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker, semverGitPluginExtension.gitDescribeArgs, project.projectDir)
+            project.version = version.toString()
+        }
+
         project.task("showVersion") {
             it.group = "Help"
             it.description = "Show the project version"
