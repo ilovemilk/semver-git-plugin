@@ -11,6 +11,10 @@ class SemverGitPluginTest {
         assertEquals(SemverGitPlugin().parseVersion("1.1.1"), Version(1, 1, 1, null))
         assertEquals(SemverGitPlugin().parseVersion("1.0.0-dirty-5-g5242341"), Version(1, 0, 0, Suffix(5, "5242341", true)))
         assertEquals(SemverGitPlugin().parseVersion("1.0.0-5-g5242341"), Version(1, 0, 0, Suffix(5, "5242341", false)))
+        assertEquals(SemverGitPlugin().parseVersion("1.0.0-5"), Version(1, 0, 0, Suffix(5, "", false)))
+        assertEquals(SemverGitPlugin().parseVersion("1.0.0-dirty-5"), Version(1, 0, 0, Suffix(5, "", true)))
+        assertEquals(SemverGitPlugin().parseVersion("0.0.0-dirty-5"), Version(0, 0, 0, Suffix(5, "", true)))
+        assertEquals(SemverGitPlugin().parseVersion("5000.1.1000000-dirty-5"), Version(5000, 1, 1000000, Suffix(5, "", true)))
         assertThrows(IllegalArgumentException::class.java) {
             SemverGitPlugin().parseVersion("")
         }
@@ -21,6 +25,9 @@ class SemverGitPluginTest {
             SemverGitPlugin().parseVersion("v1.0.0")
         }
         assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("a.b.c")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
             SemverGitPlugin().parseVersion("1.0.0--dirty-5-g5242341")
         }
         assertThrows(IllegalArgumentException::class.java) {
@@ -28,6 +35,24 @@ class SemverGitPluginTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             SemverGitPlugin().parseVersion("1.0.0-dirty-5--g5242341")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0--g5242341")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0-")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0-g")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0--g")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0-g123-5")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.0.0-5-dirty")
         }
     }
 
