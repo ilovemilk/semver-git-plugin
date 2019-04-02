@@ -13,6 +13,6 @@ open class SemverGitPluginExtension {
         const val DEFAULT_NEXT_VERSION = "minor"
         const val DEFAULT_SNAPSHOT_SUFFIX = "SNAPSHOT"
         const val DEFAULT_DIRTY_MARKER = "-dirty"
-        const val DEFAULT_GIT_DESCRIBE_ARGS = "--match *[0-9].[0-9]*.[0-9]*"
+        const val DEFAULT_GIT_DESCRIBE_ARGS = "--match [0-9]*.[0-9]*.[0-9]*"
     }
 }
