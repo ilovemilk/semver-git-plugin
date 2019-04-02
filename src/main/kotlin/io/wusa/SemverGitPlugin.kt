@@ -30,19 +30,14 @@ data class Suffix(var count: Int, var sha: String, var dirty: Boolean) {
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java)
-
-        project.afterEvaluate {
-            val version = parseGitDescribe(semverGitPluginExtension.nextVersion, semverGitPluginExtension.gitDescribeArgs, project.projectDir)
-            project.version = version.format(semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
-        }
+        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project.projectDir)
 
         project.task("showVersion") {
             it.group = "Help"
             it.description = "Show the project version"
         }
         project.tasks.getByName("showVersion").doLast {
-            println("Version: " + project.version)
+            println("Version: " + semverGitPluginExtension.version)
         }
     }
 
