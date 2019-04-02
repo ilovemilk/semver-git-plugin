@@ -47,10 +47,10 @@ class SemverGitPlugin : Plugin<Project> {
     }
 
     fun parseVersion(describe: String): Version {
-        val regex = """^([0-9]+)\.([0-9]+)\.([0-9]+)(-dirty)?(?:-([0-9]+))?(?:-g([0-9a-f]+))?$""".toRegex()
+        val regex = """^([0-9]+)\.([0-9]+)\.([0-9]+)(?:(?:-([0-9]+))+(?:-g([0-9a-f]+))+(-dirty)?)?""".toRegex()
         return regex.matchEntire(describe)
                 ?.destructured
-                ?.let { (major, minor, patch, dirty, count, sha) ->
+                ?.let { (major, minor, patch, count, sha, dirty) ->
                     when (dirty.isEmpty() && count.isEmpty() && sha.isEmpty()) {
                         true -> Version(major.toInt(), minor.toInt(), patch.toInt(), null)
                         false -> Version(major.toInt(), minor.toInt(), patch.toInt(), Suffix(count.toInt(), sha, dirty.isNotEmpty()))
