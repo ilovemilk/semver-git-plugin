@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 class SemverGitPluginExtensionTest {
 
     @Test
-    fun testExtensionDefaults() {
+    fun testDefaults() {
         val testProjectDirectory = createTempDir()
 
         val extension = SemverGitPluginExtension(testProjectDirectory)

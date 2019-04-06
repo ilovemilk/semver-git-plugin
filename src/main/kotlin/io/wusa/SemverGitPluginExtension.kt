@@ -12,7 +12,7 @@ open class SemverGitPluginExtension(private var projectDir: File) {
     var gitDescribeArgs: String = DEFAULT_GIT_DESCRIBE_ARGS
 
     val version: String
-        get() = SemverGitPlugin().parseGitDescribe(nextVersion, gitDescribeArgs, projectDir).format(snapshotSuffix, dirtyMarker)
+        get() = GitService.describe(nextVersion, gitDescribeArgs, projectDir).format(snapshotSuffix, dirtyMarker)
 
     companion object {
         const val DEFAULT_NEXT_VERSION = "minor"

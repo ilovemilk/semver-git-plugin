@@ -3,30 +3,6 @@ package io.wusa
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import java.io.File
-import java.lang.IllegalArgumentException
-
-data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: Suffix?) {
-    fun format(suffixFormat: String, dirtyMarker: String): String {
-        return if (suffix != null) {
-            "$major.$minor.$patch-${suffix!!.format(suffixFormat, dirtyMarker)}"
-        } else {
-            "$major.$minor.$patch"
-        }
-    }
-}
-
-data class Suffix(var count: Int, var sha: String, var dirty: Boolean) {
-    fun format(format: String, dirtyMarker: String): String {
-        var formattedSuffix = format
-        formattedSuffix = formattedSuffix.replace("<count>", count.toString())
-        formattedSuffix = formattedSuffix.replace("<sha>", sha)
-        formattedSuffix = if (dirty)
-            formattedSuffix.replace("<dirty>", dirtyMarker)
-        else
-            formattedSuffix.replace("<dirty>", "")
-        return formattedSuffix
-    }
-}
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -39,69 +15,5 @@ class SemverGitPlugin : Plugin<Project> {
         project.tasks.getByName("showVersion").doLast {
             println("Version: " + semverGitPluginExtension.version)
         }
-    }
-
-    fun parseVersion(describe: String): Version {
-        val regex = """^([0-9]+)\.([0-9]+)\.([0-9]+)(?:(?:-([0-9]+))+(?:-g([0-9a-f]+))+(-dirty)?)?$""".toRegex()
-        return regex.matchEntire(describe)
-                ?.destructured
-                ?.let { (major, minor, patch, count, sha, dirty) ->
-                    when (dirty.isEmpty() && count.isEmpty() && sha.isEmpty()) {
-                        true -> Version(major.toInt(), minor.toInt(), patch.toInt(), null)
-                        false -> Version(major.toInt(), minor.toInt(), patch.toInt(), Suffix(count.toInt(), sha, dirty.isNotEmpty()))
-                    }
-                }
-                ?: throw IllegalArgumentException("Bad input '$describe'")
-    }
-
-    fun bumpVersion(version: Version, nextVersion: String): Version {
-        when (nextVersion) {
-            "major" -> {
-                version.major += 1
-                version.minor = 0
-                version.patch = 0
-                return version
-            }
-            "minor" -> {
-                version.minor += 1
-                version.patch = 0
-                return version
-            }
-            "patch" -> {
-                version.patch += 1
-                return version
-            }
-            "none" -> {
-                return version
-            }
-            else -> {
-                return version
-            }
-        }
-    }
-
-    fun parseGitDescribe(nextVersion: String, gitArgs: String, projectDir: File): Version {
-        val splitGitArgs = gitArgs.split(" ").toTypedArray()
-        var process = ProcessBuilder("git", "describe", "--exact-match", *splitGitArgs)
-                .directory(projectDir)
-                .redirectError(ProcessBuilder.Redirect.INHERIT)
-                .start()
-        process.waitFor()
-        if (process.exitValue() == 0) {
-            val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
-            return parseVersion(describe)
-        }
-        process = ProcessBuilder("git", "describe", "--dirty", "--abbrev=7", *splitGitArgs)
-                .directory(projectDir)
-                .redirectError(ProcessBuilder.Redirect.INHERIT)
-                .start()
-        process.waitFor()
-        if (process.exitValue() == 0) {
-            val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
-            val version = parseVersion(describe)
-
-            return bumpVersion(version, nextVersion)
-        }
-        return bumpVersion(Version(0, 0, 0, null), nextVersion)
     }
 }
