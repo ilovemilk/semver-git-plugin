@@ -7,10 +7,10 @@ import java.lang.IllegalArgumentException
 
 data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: Suffix?) {
     fun format(suffixFormat: String, dirtyMarker: String): String {
-        if (suffix != null) {
-            return "$major.$minor.$patch-${suffix!!.format(suffixFormat, dirtyMarker)}"
+        return if (suffix != null) {
+            "$major.$minor.$patch-${suffix!!.format(suffixFormat, dirtyMarker)}"
         } else {
-            return "$major.$minor.$patch"
+            "$major.$minor.$patch"
         }
     }
 }
@@ -42,7 +42,7 @@ class SemverGitPlugin : Plugin<Project> {
     }
 
     fun parseVersion(describe: String): Version {
-        val regex = """^([0-9]+)\.([0-9]+)\.([0-9]+)(?:(?:-([0-9]+))+(?:-g([0-9a-f]+))+(-dirty)?)?""".toRegex()
+        val regex = """^([0-9]+)\.([0-9]+)\.([0-9]+)(?:(?:-([0-9]+))+(?:-g([0-9a-f]+))+(-dirty)?)?$""".toRegex()
         return regex.matchEntire(describe)
                 ?.destructured
                 ?.let { (major, minor, patch, count, sha, dirty) ->
@@ -71,6 +71,9 @@ class SemverGitPlugin : Plugin<Project> {
                 version.patch += 1
                 return version
             }
+            "none" -> {
+                return version
+            }
             else -> {
                 return version
             }
@@ -78,23 +81,23 @@ class SemverGitPlugin : Plugin<Project> {
     }
 
     fun parseGitDescribe(nextVersion: String, gitArgs: String, projectDir: File): Version {
-        val splittedGitArgs = gitArgs.split(" ").toTypedArray()
-        var process = ProcessBuilder("git", "describe", "--exact-match", *splittedGitArgs)
+        val splitGitArgs = gitArgs.split(" ").toTypedArray()
+        var process = ProcessBuilder("git", "describe", "--exact-match", *splitGitArgs)
                 .directory(projectDir)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .start()
         process.waitFor()
         if (process.exitValue() == 0) {
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            return parseVersion(output)
+            val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return parseVersion(describe)
         }
-        process = ProcessBuilder("git", "describe", "--dirty", "--abbrev=7", *splittedGitArgs)
+        process = ProcessBuilder("git", "describe", "--dirty", "--abbrev=7", *splitGitArgs)
                 .directory(projectDir)
                 .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .start()
         process.waitFor()
         if (process.exitValue() == 0) {
-            var describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
+            val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
             val version = parseVersion(describe)
 
             return bumpVersion(version, nextVersion)

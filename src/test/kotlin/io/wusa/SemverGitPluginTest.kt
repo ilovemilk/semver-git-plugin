@@ -13,6 +13,9 @@ class SemverGitPluginTest {
         assertEquals(SemverGitPlugin().parseVersion("1.0.0-5-g5242341"), Version(1, 0, 0, Suffix(5, "5242341", false)))
         assertEquals(SemverGitPlugin().parseVersion("5000.1.1000000-5-g5242341-dirty"), Version(5000, 1, 1000000, Suffix(5, "5242341", true)))
         assertThrows(IllegalArgumentException::class.java) {
+            SemverGitPlugin().parseVersion("1.1.1 ")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
             SemverGitPlugin().parseVersion("")
         }
         assertThrows(IllegalArgumentException::class.java) {

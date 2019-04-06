@@ -27,6 +27,52 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
+    fun testPatchReleaseWithConfiguration() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = '<count>-g<sha>'
+                nextVersion = 'patch'
+            }
+        """)
+        initializeGit(testProjectDirectory)
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        assertTrue(result.output.contains("Version: 0.0.1"))
+    }
+
+    @Test
+    fun testMinorReleaseWithConfiguration() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = '<count>-g<sha>'
+                nextVersion = 'minor'
+            }
+        """)
+        initializeGit(testProjectDirectory, "0.1.0")
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        assertTrue(result.output.contains("Version: 0.1.0"))
+    }
+
+    @Test
     fun testSnapshotSuffix() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
