@@ -17,7 +17,7 @@ class SemverGitPluginFunctionalTest {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        initializeGit(testProjectDirectory)
+        initializeGitWithoutBranch(testProjectDirectory)
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -40,7 +40,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'patch'
             }
         """)
-        initializeGit(testProjectDirectory)
+        initializeGitWithoutBranch(testProjectDirectory)
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -63,7 +63,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'minor'
             }
         """)
-        initializeGit(testProjectDirectory, "0.1.0")
+        initializeGitWithoutBranch(testProjectDirectory, "0.1.0")
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -86,7 +86,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'major'
             }
         """)
-        initializeGit(testProjectDirectory, "1.0.0")
+        initializeGitWithoutBranch(testProjectDirectory, "1.0.0")
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -109,7 +109,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'patch'
             }
         """)
-        val git = initializeGit(testProjectDirectory)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
@@ -133,7 +133,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'minor'
             }
         """)
-        val git = initializeGit(testProjectDirectory)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
@@ -157,7 +157,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'major'
             }
         """)
-        val git = initializeGit(testProjectDirectory)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
@@ -181,7 +181,7 @@ class SemverGitPluginFunctionalTest {
                 nextVersion = 'none'
             }
         """)
-        val git = initializeGit(testProjectDirectory)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
@@ -191,7 +191,39 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Version: 0.0.1-1-g"))
     }
 
-    private fun initializeGit(directory: File, tag: String = "0.0.1"): Git {
+    @Test
+    fun testInfo() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+        """)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
+        git.commit().setMessage("").call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        assertTrue(result.output.contains("[semver] branch name: master"))
+        assertTrue(result.output.contains("[semver] branch group: test"))
+        assertTrue(result.output.contains("[semver] commit: test"))
+        assertTrue(result.output.contains("[semver] tag: test"))
+        assertTrue(result.output.contains("[semver] last tag: test"))
+        assertTrue(result.output.contains("[semver] dirty: test"))
+    }
+
+    private fun initializeGitWithBranch(directory: File, tag: String = "0.0.1", branch: String = "develop"): Git {
+        val git = Git.init().setDirectory(directory).call()
+        val commit = git.commit().setMessage("").call()
+        git.checkout().setCreateBranch(true).setName(branch).call()
+        git.tag().setName(tag).setObjectId(commit).call()
+        return git
+    }
+
+    private fun initializeGitWithoutBranch(directory: File, tag: String = "0.0.1"): Git {
         val git = Git.init().setDirectory(directory).call()
         val commit = git.commit().setMessage("").call()
         git.tag().setName(tag).setObjectId(commit).call()

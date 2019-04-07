@@ -28,5 +28,17 @@ class GitService {
             }
             return VersionService.bumpVersion(Version(0, 0, 0, null), nextVersion)
         }
+
+        fun currentBranch(projectDir: File): String {
+            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD")
+                    .directory(projectDir)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start()
+            process.waitFor()
+            if (process.exitValue() == 0) {
+                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            }
+            return ""
+        }
     }
 }
