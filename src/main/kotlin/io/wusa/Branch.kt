@@ -9,4 +9,7 @@ class Branch(private var projectDir: File) {
 
     val name: String
         get() = GitService.currentBranch(projectDir)
+
+    val id: String
+        get() = name.replace("/", "-")
 }

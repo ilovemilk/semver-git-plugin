@@ -22,6 +22,7 @@ class SemverGitPlugin : Plugin<Project> {
         project.tasks.getByName("showInfo").doLast {
             println("[semver] branch name: " + semverGitPluginExtension.info.branch.name)
             println("[semver] branch group: " + semverGitPluginExtension.info.branch.group)
+            println("[semver] branch id: " + semverGitPluginExtension.info.branch.id)
             println("[semver] commit: " + semverGitPluginExtension.info.commit)
             println("[semver] tag: " + semverGitPluginExtension.info.tag)
             println("[semver] last tag: " + semverGitPluginExtension.info.lastTag)
