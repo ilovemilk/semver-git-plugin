@@ -192,7 +192,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testInfo() {
+    fun testMasterWithCommitAfterTagInfo() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -202,17 +202,70 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
+        val head = git.repository.allRefs["HEAD"]
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("[semver] branch name: master"))
-        assertTrue(result.output.contains("[semver] branch group: test"))
-        assertTrue(result.output.contains("[semver] commit: test"))
-        assertTrue(result.output.contains("[semver] tag: test"))
-        assertTrue(result.output.contains("[semver] last tag: test"))
-        assertTrue(result.output.contains("[semver] dirty: test"))
+        assertTrue(result.output.contains("[semver] branch group: master"))
+        assertTrue(result.output.contains("[semver] commit: " + head?.objectId?.name))
+        assertTrue(result.output.contains("[semver] tag: none"))
+        assertTrue(result.output.contains("[semver] last tag: 0.0.1"))
+        assertTrue(result.output.contains("[semver] dirty: false"))
+    }
+
+    @Test
+    fun testFeatureTestWithCommitAfterTagInfo() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val head = git.repository.allRefs["HEAD"]
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("[semver] branch name: feature/test"))
+        assertTrue(result.output.contains("[semver] branch group: feature"))
+        assertTrue(result.output.contains("[semver] commit: " + head?.objectId?.name))
+        assertTrue(result.output.contains("[semver] tag: none"))
+        assertTrue(result.output.contains("[semver] last tag: 0.0.1"))
+        assertTrue(result.output.contains("[semver] dirty: false"))
+    }
+
+    @Test
+    fun testFeatureTestWithTagInfo() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        val head = git.repository.allRefs["HEAD"]
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("[semver] branch name: feature/test"))
+        assertTrue(result.output.contains("[semver] branch group: feature"))
+        assertTrue(result.output.contains("[semver] commit: " + head?.objectId?.name))
+        assertTrue(result.output.contains("[semver] tag: 0.0.1"))
+        assertTrue(result.output.contains("[semver] last tag: 0.0.1"))
+        assertTrue(result.output.contains("[semver] dirty: false"))
     }
 
     private fun initializeGitWithBranch(directory: File, tag: String = "0.0.1", branch: String = "develop"): Git {

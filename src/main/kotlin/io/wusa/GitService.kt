@@ -40,5 +40,56 @@ class GitService {
             }
             return ""
         }
+
+        fun currentCommitChecksum(projectDir: File): String {
+            val process = ProcessBuilder("git", "rev-parse", "HEAD")
+                    .directory(projectDir)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start()
+            process.waitFor()
+            if (process.exitValue() == 0) {
+                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            }
+            return ""
+        }
+
+        fun currentTag(projectDir: File, gitArgs: String): String {
+            val splitGitArgs = gitArgs.split(" ").toTypedArray()
+            val process = ProcessBuilder("git", "describe", "--tags", "--exact-match", *splitGitArgs)
+                    .directory(projectDir)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start()
+            process.waitFor()
+            if (process.exitValue() == 0) {
+                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            }
+            return "none"
+        }
+
+        fun lastTag(projectDir: File, gitArgs: String): String {
+            val splitGitArgs = gitArgs.split(" ").toTypedArray()
+            val process = ProcessBuilder("git", "describe", "--tags", "--abbrev=0", *splitGitArgs)
+                    .directory(projectDir)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start()
+            process.waitFor()
+            if (process.exitValue() == 0) {
+                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            }
+            return "none"
+        }
+
+        fun isDirty(projectDir: File): Boolean {
+            val process = ProcessBuilder("git", "diff", "--stat")
+                    .directory(projectDir)
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start()
+            process.waitFor()
+            if (process.exitValue() == 0) {
+                return process.inputStream.bufferedReader().use { it.readText() }.trim() != ""
+            }
+            return false
+        }
+
     }
 }

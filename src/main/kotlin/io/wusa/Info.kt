@@ -8,16 +8,16 @@ class Info (private var nextVersion: String, private var snapshotSuffix: String,
         get() = Branch(projectDir)
 
     val commit: String
-        get() = "test"
+        get() = GitService.currentCommitChecksum(projectDir)
 
     val tag: String
-        get() = "test"
+        get() = GitService.currentTag(projectDir, gitDescribeArgs)
 
     val lastTag: String
-        get() = "test"
+        get() = GitService.lastTag(projectDir, gitDescribeArgs)
 
-    val dirty: String
-        get() = "test"
+    val dirty: Boolean
+        get() = GitService.isDirty(projectDir)
 
     val version: String
         get() = GitService.describe(nextVersion, gitDescribeArgs, projectDir).format(snapshotSuffix, dirtyMarker)
