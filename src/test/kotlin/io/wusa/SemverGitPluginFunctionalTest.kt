@@ -9,7 +9,7 @@ import java.io.File
 class SemverGitPluginFunctionalTest {
 
     @Test
-    fun testDefaults() {
+    fun `defaults`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -27,7 +27,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testPatchReleaseWithConfiguration() {
+    fun `patch release with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -50,7 +50,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testMinorReleaseWithConfiguration() {
+    fun `minor release with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -73,7 +73,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testMajorReleaseWithConfiguration() {
+    fun `major release with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -96,7 +96,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testPatchBump() {
+    fun `bump patch version`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -120,7 +120,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testMinorBump() {
+    fun `bump minor version`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -144,7 +144,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testMajorBump() {
+    fun `bump major version`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -168,7 +168,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testNoneBump() {
+    fun `don't bump version`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -192,7 +192,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testMasterWithCommitAfterTagInfo() {
+    fun `full info of master branch with one commit after the tag`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -219,7 +219,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testFeatureTestWithCommitAfterTagInfo() {
+    fun `full info of feature-test branch with one commit after the tag`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -246,7 +246,7 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    fun testFeatureTestWithTagInfo() {
+    fun `full info of feature-test branch with no commit after the tag`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""

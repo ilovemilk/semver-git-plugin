@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class VersionTest {
     @Test
-    fun testVersionFormat() {
+    fun `version formatting`() {
         Assertions.assertEquals(Version(1, 1, 1, null).format("", ""), "1.1.1")
         Assertions.assertEquals(Version(1, 1, 1, Suffix(0, "123", true)).format("<count>-<sha>", ""), "1.1.1-0-123")
         Assertions.assertEquals(Version(1, 1, 1, Suffix(0, "123", false)).format("<count>-<sha>", ""), "1.1.1-0-123")

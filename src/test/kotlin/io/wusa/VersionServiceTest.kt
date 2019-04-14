@@ -6,7 +6,7 @@ import java.lang.IllegalArgumentException
 
 class VersionServiceTest {
     @Test
-    fun testParseVersion() {
+    fun `parse version`() {
         Assertions.assertEquals(VersionService.parseVersion("1.1.1"), Version(1, 1, 1, null))
         Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-g5242341-dirty"), Version(1, 0, 0, Suffix(5, "5242341", true)))
         Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-g5242341"), Version(1, 0, 0, Suffix(5, "5242341", false)))
@@ -62,7 +62,7 @@ class VersionServiceTest {
     }
 
     @Test
-    fun testBumpVersionMajor() {
+    fun `bump major version`() {
         val version = Version(1, 1, 1, null)
         val nextVersion = "major"
         Assertions.assertEquals(VersionService.bumpVersion(version, nextVersion), Version(2, 0, 0, null))
@@ -70,7 +70,7 @@ class VersionServiceTest {
     }
 
     @Test
-    fun testBumpVersionMinor() {
+    fun `bump minor version`() {
         val version = Version(1, 1, 1, null)
         val nextVersion = "minor"
         Assertions.assertEquals(VersionService.bumpVersion(version, nextVersion), Version(1, 2, 0, null))
@@ -78,7 +78,7 @@ class VersionServiceTest {
     }
 
     @Test
-    fun testBumpVersionPatch() {
+    fun `bump patch version`() {
         val version = Version(1, 1, 1, null)
         val nextVersion = "patch"
         Assertions.assertEquals(VersionService.bumpVersion(version, nextVersion), Version(1, 1, 2, null))
@@ -93,7 +93,7 @@ class VersionServiceTest {
     }
 
     @Test
-    fun testBumpVersionNone() {
+    fun `don't bump version`() {
         val version = Version(1, 1, 1, null)
         val nextVersion = "none"
         Assertions.assertEquals(VersionService.bumpVersion(version, nextVersion), Version(1, 1, 1, null))
