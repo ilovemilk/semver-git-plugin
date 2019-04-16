@@ -42,18 +42,27 @@ class GitService {
         }
 
         fun currentCommit(projectDir: File, isShort: Boolean): String {
-            var shortGitArg = ""
-            if (isShort)
-                shortGitArg = "--short"
-            val process = ProcessBuilder("git", "rev-parse", shortGitArg, "HEAD")
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            if (isShort) {
+                val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+                        .directory(projectDir)
+                        .redirectError(ProcessBuilder.Redirect.INHERIT)
+                        .start()
+                process.waitFor()
+                if (process.exitValue() == 0) {
+                    return process.inputStream.bufferedReader().use { it.readText() }.trim()
+                }
+                return ""
+            } else {
+                val process = ProcessBuilder("git", "rev-parse", "HEAD")
+                        .directory(projectDir)
+                        .redirectError(ProcessBuilder.Redirect.INHERIT)
+                        .start()
+                process.waitFor()
+                if (process.exitValue() == 0) {
+                    return process.inputStream.bufferedReader().use { it.readText() }.trim()
+                }
+                return ""
             }
-            return ""
         }
 
         fun currentTag(projectDir: File, gitArgs: String): String {
