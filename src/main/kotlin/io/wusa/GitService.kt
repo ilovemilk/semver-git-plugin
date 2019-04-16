@@ -41,8 +41,11 @@ class GitService {
             return ""
         }
 
-        fun currentCommitChecksum(projectDir: File): String {
-            val process = ProcessBuilder("git", "rev-parse", "HEAD")
+        fun currentCommit(projectDir: File, isShort: Boolean): String {
+            var shortGitArg = ""
+            if (isShort)
+                shortGitArg = "--short"
+            val process = ProcessBuilder("git", "rev-parse", shortGitArg, "HEAD")
                     .directory(projectDir)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
                     .start()

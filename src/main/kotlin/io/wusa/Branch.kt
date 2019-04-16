@@ -2,7 +2,7 @@ package io.wusa
 
 import java.io.File
 
-class Branch(private var projectDir: File) {
+data class Branch(private var projectDir: File) {
     val group: String
         get() = this.name.split("/")[0]
 

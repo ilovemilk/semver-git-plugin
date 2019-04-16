@@ -7,13 +7,13 @@ plugins {
 }
 
 group = "io.wusa"
-version = "0.1.0"
+version = "1.0.0"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
-    testImplementation("org.mockito:mockito-inline:2.13.0")
+    testImplementation("io.mockk:mockk:1.9")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
 }
 

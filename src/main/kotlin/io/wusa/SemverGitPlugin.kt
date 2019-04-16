@@ -24,6 +24,7 @@ class SemverGitPlugin : Plugin<Project> {
             println("[semver] branch group: " + semverGitPluginExtension.info.branch.group)
             println("[semver] branch id: " + semverGitPluginExtension.info.branch.id)
             println("[semver] commit: " + semverGitPluginExtension.info.commit)
+            println("[semver] short commit: " + semverGitPluginExtension.info.shortCommit)
             println("[semver] tag: " + semverGitPluginExtension.info.tag)
             println("[semver] last tag: " + semverGitPluginExtension.info.lastTag)
             println("[semver] dirty: " + semverGitPluginExtension.info.dirty)
