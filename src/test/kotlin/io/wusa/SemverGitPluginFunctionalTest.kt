@@ -323,7 +323,6 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
-        val head = git.repository.allRefs["HEAD"]
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
@@ -332,7 +331,7 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("[semver] branch name: master"))
         assertTrue(result.output.contains("[semver] branch group: master"))
         assertTrue(result.output.contains("[semver] branch id: master"))
-        assertTrue(result.output.contains("[semver] commit: " + head?.objectId?.name))
+        assertTrue(result.output.contains("[semver] commit: " + commit.id.name()))
         assertTrue(result.output.contains("[semver] short commit: " + commit.id.abbreviate( 7 ).name()))
         assertTrue(result.output.contains("[semver] tag: none"))
         assertTrue(result.output.contains("[semver] last tag: 0.0.1"))
@@ -350,7 +349,6 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
         val commit = git.commit().setMessage("").call()
-        val head = git.repository.allRefs["HEAD"]
         val result = GradleRunner.create()
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
@@ -359,7 +357,7 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("[semver] branch name: feature/test"))
         assertTrue(result.output.contains("[semver] branch group: feature"))
         assertTrue(result.output.contains("[semver] branch id: feature-test"))
-        assertTrue(result.output.contains("[semver] commit: " + head?.objectId?.name))
+        assertTrue(result.output.contains("[semver] commit: " + commit.id.name()))
         assertTrue(result.output.contains("[semver] short commit: " + commit.id.abbreviate( 7 ).name()))
         assertTrue(result.output.contains("[semver] tag: none"))
         assertTrue(result.output.contains("[semver] last tag: 0.0.1"))
