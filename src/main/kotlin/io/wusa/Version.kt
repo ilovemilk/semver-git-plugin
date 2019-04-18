@@ -1,11 +1,17 @@
 package io.wusa
 
-data class Version(var major: Int, var minor: Int, var patch: Int, var suffix: Suffix?) {
+data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?) {
     fun format(suffixFormat: String, dirtyMarker: String): String {
-        return if (suffix != null) {
-            "$major.$minor.$patch-${suffix!!.format(suffixFormat, dirtyMarker)}"
-        } else {
-            "$major.$minor.$patch"
+        var version = "$major.$minor.$patch"
+        if (prerelease != "") {
+            version += "-$prerelease"
         }
+        if (build != "") {
+            version += "+$build"
+        }
+        if (suffix != null) {
+            version+= "-${suffix!!.format(suffixFormat, dirtyMarker)}"
+        }
+        return version
     }
 }

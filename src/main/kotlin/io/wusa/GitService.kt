@@ -26,7 +26,7 @@ class GitService {
 
                 return VersionService.bumpVersion(version, nextVersion)
             }
-            return VersionService.bumpVersion(Version(0, 0, 0, null), nextVersion)
+            return VersionService.bumpVersion(Version(0, 0, 0, "", "", null), nextVersion)
         }
 
         fun currentBranch(projectDir: File): String {
