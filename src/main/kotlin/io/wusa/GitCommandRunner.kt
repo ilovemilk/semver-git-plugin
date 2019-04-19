@@ -2,7 +2,6 @@ package io.wusa
 
 import io.wusa.exception.GitException
 import java.io.File
-import java.util.concurrent.ExecutionException
 
 class GitCommandRunner {
     companion object {
