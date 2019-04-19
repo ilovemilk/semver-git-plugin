@@ -97,7 +97,6 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    @Disabled
     fun `release alpha with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
@@ -121,7 +120,6 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    @Disabled
     fun `release alpha beta with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
@@ -145,7 +143,6 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    @Disabled
     fun `release alpha 1 with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
@@ -169,7 +166,6 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    @Disabled
     fun `release beta with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
@@ -193,7 +189,6 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
-    @Disabled
     fun `release rc with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
