@@ -13,7 +13,9 @@ class GitService {
             process.waitFor()
             if (process.exitValue() == 0) {
                 val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
-                return VersionService.parseVersion(describe)
+                val versionFactory: VersionFactory = SemanticVersionFactory()
+
+                return versionFactory.createFromString(describe)
             }
             process = ProcessBuilder("git", "describe", "--dirty", "--abbrev=7", *splitGitArgs)
                     .directory(projectDir)
@@ -22,11 +24,11 @@ class GitService {
             process.waitFor()
             if (process.exitValue() == 0) {
                 val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
-                val version = VersionService.parseVersion(describe)
+                val versionFactory: VersionFactory = SemanticVersionFactory()
 
-                return VersionService.bumpVersion(version, nextVersion)
+                return versionFactory.createFromString(describe).bump(nextVersion)
             }
-            return VersionService.bumpVersion(Version(0, 0, 0, "", "", null), nextVersion)
+            return Version(0, 0, 0, "", "", null).bump(nextVersion)
         }
 
         fun currentBranch(projectDir: File): String {

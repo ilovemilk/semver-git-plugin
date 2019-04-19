@@ -43,154 +43,154 @@ class SemanticVersionFactoryTest {
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0+0.build.1-rc.10000aaa-kk-0.1"), Version(1, 0, 0, "", "0.build.1-rc.10000aaa-kk-0.1", null))
         Assertions.assertEquals(semanticVersionFactory.createFromString("9999999.9999999.9999999"), Version(9999999, 9999999, 9999999, "", "", null))
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-0A.is.legal"), Version(1, 0, 0, "0A.is.legal", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.1.1"), Version(1, 1, 1, "", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-g5242341-dirty"), Version(1, 0, 0, "", "", Suffix(5, "5242341", true)))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-g5242341"), Version(1, 0, 0, "", "", Suffix(5, "5242341", false)))
-        Assertions.assertEquals(VersionService.parseVersion("5000.1.1000000-5-g5242341-dirty"), Version(5000, 1, 1000000, "", "", Suffix(5, "5242341", true)))
-        Assertions.assertEquals(VersionService.parseVersion("v1.0.0"), Version(1, 0, 0, "", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("V1.0.0"), Version(1, 0, 0, "", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0--dirty-5-g5242341"), Version(1, 0, 0, "-dirty", "", Suffix(5, "5242341", false)))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-dirty--5-g5242341"), Version(1, 0, 0, "dirty-", "", Suffix(5, "5242341", false)))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-dirty-5--g5242341"), Version(1, 0, 0, "dirty-5--g5242341", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0--g5242341"), Version(1, 0, 0, "-g5242341", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-g"), Version(1, 0, 0, "g", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0--g"), Version(1, 0, 0, "-g", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-g123-5"), Version(1, 0, 0, "g123-5", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-dirty"), Version(1, 0, 0, "5-dirty", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-5"), Version(1, 0, 0, "5", "", null))
-        Assertions.assertEquals(VersionService.parseVersion("1.0.0-5-g"), Version(1, 0, 0, "5-g", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.1.1"), Version(1, 1, 1, "", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5-g5242341-dirty"), Version(1, 0, 0, "", "", Suffix(5, "5242341", true)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5-g5242341"), Version(1, 0, 0, "", "", Suffix(5, "5242341", false)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("5000.1.1000000-5-g5242341-dirty"), Version(5000, 1, 1000000, "", "", Suffix(5, "5242341", true)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("v1.0.0"), Version(1, 0, 0, "", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("V1.0.0"), Version(1, 0, 0, "", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0--dirty-5-g5242341"), Version(1, 0, 0, "-dirty", "", Suffix(5, "5242341", false)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-dirty--5-g5242341"), Version(1, 0, 0, "dirty-", "", Suffix(5, "5242341", false)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-dirty-5--g5242341"), Version(1, 0, 0, "dirty-5--g5242341", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0--g5242341"), Version(1, 0, 0, "-g5242341", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-g"), Version(1, 0, 0, "g", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0--g"), Version(1, 0, 0, "-g", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-g123-5"), Version(1, 0, 0, "g123-5", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5-dirty"), Version(1, 0, 0, "5-dirty", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5"), Version(1, 0, 0, "5", "", null))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5-g"), Version(1, 0, 0, "5-g", "", null))
 
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1")
+            semanticVersionFactory.createFromString("1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2")
+            semanticVersionFactory.createFromString("1.2")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2.3-0123")
+            semanticVersionFactory.createFromString("1.2.3-0123")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2.3-0123.0123")
+            semanticVersionFactory.createFromString("1.2.3-0123.0123")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.1.2+.123")
+            semanticVersionFactory.createFromString("1.1.2+.123")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("+invalid")
+            semanticVersionFactory.createFromString("+invalid")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("-invalid")
+            semanticVersionFactory.createFromString("-invalid")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("-invalid+invalid")
+            semanticVersionFactory.createFromString("-invalid+invalid")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("-invalid.01")
+            semanticVersionFactory.createFromString("-invalid.01")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha")
+            semanticVersionFactory.createFromString("alpha")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha.beta")
+            semanticVersionFactory.createFromString("alpha.beta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha.beta.1")
+            semanticVersionFactory.createFromString("alpha.beta.1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha.1")
+            semanticVersionFactory.createFromString("alpha.1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha+beta")
+            semanticVersionFactory.createFromString("alpha+beta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha_beta")
+            semanticVersionFactory.createFromString("alpha_beta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("alpha..")
+            semanticVersionFactory.createFromString("alpha..")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("beta")
+            semanticVersionFactory.createFromString("beta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha_beta")
+            semanticVersionFactory.createFromString("1.0.0-alpha_beta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("-")
+            semanticVersionFactory.createFromString("-")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha..")
+            semanticVersionFactory.createFromString("1.0.0-alpha..")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha..1")
+            semanticVersionFactory.createFromString("1.0.0-alpha..1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha...1")
+            semanticVersionFactory.createFromString("1.0.0-alpha...1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha....1")
+            semanticVersionFactory.createFromString("1.0.0-alpha....1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha.....1")
+            semanticVersionFactory.createFromString("1.0.0-alpha.....1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha......1")
+            semanticVersionFactory.createFromString("1.0.0-alpha......1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-alpha.......1")
+            semanticVersionFactory.createFromString("1.0.0-alpha.......1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("01.1.1")
+            semanticVersionFactory.createFromString("01.1.1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.01.1")
+            semanticVersionFactory.createFromString("1.01.1")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.1.01")
+            semanticVersionFactory.createFromString("1.1.01")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2")
+            semanticVersionFactory.createFromString("1.2")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2.3.DEV")
+            semanticVersionFactory.createFromString("1.2.3.DEV")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2-SNAPSHOT")
+            semanticVersionFactory.createFromString("1.2-SNAPSHOT")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788")
+            semanticVersionFactory.createFromString("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.2-RC-SNAPSHOT")
+            semanticVersionFactory.createFromString("1.2-RC-SNAPSHOT")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("-1.0.3-gamma+b7718")
+            semanticVersionFactory.createFromString("-1.0.3-gamma+b7718")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("+justmeta")
+            semanticVersionFactory.createFromString("+justmeta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("9.8.7+meta+meta")
+            semanticVersionFactory.createFromString("9.8.7+meta+meta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("9.8.7-whatever+meta+meta")
+            semanticVersionFactory.createFromString("9.8.7-whatever+meta+meta")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("9999999.9999999.9999999----RC-SNAPSHOT.12.09.1--------------------------------..12")
+            semanticVersionFactory.createFromString("9999999.9999999.9999999----RC-SNAPSHOT.12.09.1--------------------------------..12")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.1.1 ")
+            semanticVersionFactory.createFromString("1.1.1 ")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("")
+            semanticVersionFactory.createFromString("")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("111")
+            semanticVersionFactory.createFromString("111")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("a.b.c")
+            semanticVersionFactory.createFromString("a.b.c")
         }
         Assertions.assertThrows(IllegalArgumentException::class.java) {
-            VersionService.parseVersion("1.0.0-")
+            semanticVersionFactory.createFromString("1.0.0-")
         }
     }
 }

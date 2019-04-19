@@ -14,4 +14,30 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         }
         return version
     }
+
+    fun bump(nextVersion: String): Version {
+        when (nextVersion) {
+            "major" -> {
+                this.major += 1
+                this.minor = 0
+                this.patch = 0
+                return this
+            }
+            "minor" -> {
+                this.minor += 1
+                this.patch = 0
+                return this
+            }
+            "patch" -> {
+                this.patch += 1
+                return this
+            }
+            "none" -> {
+                return this
+            }
+            else -> {
+                return this
+            }
+        }
+    }
 }
