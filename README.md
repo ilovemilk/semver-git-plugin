@@ -2,6 +2,7 @@
 *Version your gradle projects with git tags and semantic versioning.*
 
 [![Build Status](https://travis-ci.com/ilovemilk/semver-git-plugin.svg)](https://travis-ci.com/ilovemilk/semver-git-plugin)
+[![codecov](https://codecov.io/gh/ilovemilk/semver-git-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/ilovemilk/semver-git-plugin)
 
 ## Apply the plugin
 
@@ -36,7 +37,6 @@ semver {
     nextVersion = "major", "minor" (default), "patch" or "none"
     snapshotSuffix = "SNAPSHOT" (default) or a pattern, e.g. "<count>.g<sha><dirty>"
     dirtyMarker = "-dirty" (default) replaces <dirty> in snapshotSuffix
-    gitDescribeArgs = "--match *[0-9].[0-9]*.[0-9]*" (default) or other arguments for git describe.
 }
 ```
 

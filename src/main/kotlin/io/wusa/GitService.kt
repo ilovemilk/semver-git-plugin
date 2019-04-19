@@ -5,15 +5,14 @@ import java.io.File
 
 class GitService {
     companion object {
-        fun describe(nextVersion: String, gitArgs: String, projectDir: File): Version {
-            val splitGitArgs = gitArgs.split(" ").toTypedArray()
+        fun describe(nextVersion: String, projectDir: File): Version {
             return try {
-                val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match", *splitGitArgs))
+                val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match"))
                 val versionFactory: VersionFactory = SemanticVersionFactory()
                 versionFactory.createFromString(describe)
             } catch (ex: GitException) {
                 try {
-                    val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7", *splitGitArgs))
+                    val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
                     val versionFactory: VersionFactory = SemanticVersionFactory()
                     versionFactory.createFromString(describe).bump(nextVersion)
                 } catch (ex: GitException) {
@@ -46,19 +45,17 @@ class GitService {
             }
         }
 
-        fun currentTag(projectDir: File, gitArgs: String): String {
-            val splitGitArgs = gitArgs.split(" ").toTypedArray()
+        fun currentTag(projectDir: File): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--exact-match", *splitGitArgs))
+                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--exact-match"))
             } catch (ex: GitException) {
                 "none"
             }
         }
 
-        fun lastTag(projectDir: File, gitArgs: String): String {
-            val splitGitArgs = gitArgs.split(" ").toTypedArray()
+        fun lastTag(projectDir: File): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--abbrev=0", *splitGitArgs))
+                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--abbrev=0"))
             } catch (ex: GitException) {
                 "none"
             }

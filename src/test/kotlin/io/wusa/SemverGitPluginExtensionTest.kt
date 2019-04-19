@@ -14,6 +14,5 @@ class SemverGitPluginExtensionTest {
         assertEquals(extension.nextVersion, "minor")
         assertEquals(extension.snapshotSuffix, "SNAPSHOT")
         assertEquals(extension.dirtyMarker, "-dirty")
-        assertEquals(extension.gitDescribeArgs, "--match *[0-9].[0-9]*.[0-9]*")
     }
 }

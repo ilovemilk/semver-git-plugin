@@ -329,7 +329,7 @@ class SemverGitPluginFunctionalTest {
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
-        assertTrue(result.output.contains("Version: 0.0.1-1-g"))
+        assertTrue(result.output.contains("Version: The current or last tag is not a semantic version."))
     }
 
     @Test

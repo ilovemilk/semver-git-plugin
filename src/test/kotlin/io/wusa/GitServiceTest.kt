@@ -5,6 +5,7 @@ import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import io.wusa.exception.GitException
 import org.junit.jupiter.api.*
+import java.lang.IllegalArgumentException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GitServiceTest {
@@ -33,25 +34,25 @@ class GitServiceTest {
     @Test
     fun `get last tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "modified"
-        Assertions.assertEquals("modified", GitService.lastTag(createTempDir(), ""))
+        Assertions.assertEquals("modified", GitService.lastTag(createTempDir()))
     }
 
     @Test
     fun `no last tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("none", GitService.lastTag(createTempDir(), ""))
+        Assertions.assertEquals("none", GitService.lastTag(createTempDir()))
     }
 
     @Test
     fun `get current tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "modified"
-        Assertions.assertEquals("modified", GitService.currentTag(createTempDir(), ""))
+        Assertions.assertEquals("modified", GitService.currentTag(createTempDir()))
     }
 
     @Test
     fun `no current tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("none", GitService.currentTag(createTempDir(), ""))
+        Assertions.assertEquals("none", GitService.currentTag(createTempDir()))
     }
 
     @Test
@@ -91,21 +92,29 @@ class GitServiceTest {
     }
 
     @Test
-    fun `get describe for tagged commit`() {
+    fun `get describe for tagged semver commit`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "1.0.0"
-        Assertions.assertEquals(Version(1, 0, 0, "", "", null), GitService.describe("none", "", createTempDir()))
+        Assertions.assertEquals(Version(1, 0, 0, "", "", null), GitService.describe("none", createTempDir()))
+    }
+
+    @Test
+    fun `get describe for tagged non-semver commit`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "test-tag"
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            GitService.describe("none", createTempDir())
+        }
     }
 
     @Test
     fun `get describe for not tagged commit`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--dirty", "--abbrev=7", "")) } returns "1.0.0-0-g1234567-dirty"
-        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--exact-match", "")) } throws GitException("error")
-        Assertions.assertEquals(Version(1, 0, 0, "", "", Suffix(0, "1234567", true)), GitService.describe("none", "", createTempDir()))
+        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--dirty", "--abbrev=7")) } returns "1.0.0-0-g1234567-dirty"
+        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--exact-match")) } throws GitException("error")
+        Assertions.assertEquals(Version(1, 0, 0, "", "", Suffix(0, "1234567", true)), GitService.describe("none", createTempDir()))
     }
 
     @Test
     fun `get describe without tags`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals(Version(0, 0, 0, "", "", null), GitService.describe("none", "", createTempDir()))
+        Assertions.assertEquals(Version(0, 0, 0, "", "", null), GitService.describe("none", createTempDir()))
     }
 }
