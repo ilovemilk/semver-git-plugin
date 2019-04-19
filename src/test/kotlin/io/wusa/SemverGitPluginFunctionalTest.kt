@@ -308,6 +308,31 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
+    fun `non-semver tag`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = '<count>-g<sha>'
+                nextVersion = 'none'
+            }
+        """)
+        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val commit = git.commit().setMessage("").call()
+        git.tag().setName("test-tag").setObjectId(commit).call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        assertTrue(result.output.contains("Version: 0.0.1-1-g"))
+    }
+
+    @Test
     fun `full info of master branch with one commit after the tag`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
