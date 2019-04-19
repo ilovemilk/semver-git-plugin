@@ -1,109 +1,75 @@
 package io.wusa
 
+import io.wusa.exception.GitException
 import java.io.File
 
 class GitService {
     companion object {
         fun describe(nextVersion: String, gitArgs: String, projectDir: File): Version {
             val splitGitArgs = gitArgs.split(" ").toTypedArray()
-            var process = ProcessBuilder("git", "describe", "--exact-match", *splitGitArgs)
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return try {
+                val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match", *splitGitArgs))
                 val versionFactory: VersionFactory = SemanticVersionFactory()
-
-                return versionFactory.createFromString(describe)
+                versionFactory.createFromString(describe)
+            } catch (ex: GitException) {
+                try {
+                    val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7", *splitGitArgs))
+                    val versionFactory: VersionFactory = SemanticVersionFactory()
+                    versionFactory.createFromString(describe).bump(nextVersion)
+                } catch (ex: GitException) {
+                    return Version(0, 0, 0, "", "", null).bump(nextVersion)
+                }
             }
-            process = ProcessBuilder("git", "describe", "--dirty", "--abbrev=7", *splitGitArgs)
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                val describe = process.inputStream.bufferedReader().use { it.readText() }.trim()
-                val versionFactory: VersionFactory = SemanticVersionFactory()
-
-                return versionFactory.createFromString(describe).bump(nextVersion)
-            }
-            return Version(0, 0, 0, "", "", null).bump(nextVersion)
         }
 
         fun currentBranch(projectDir: File): String {
-            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD")
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return try {
+                GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "--abbrev-ref", "HEAD"))
+            } catch (ex: GitException) {
+                ""
             }
-            return ""
         }
 
         fun currentCommit(projectDir: File, isShort: Boolean): String {
-            if (isShort) {
-                val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
-                        .directory(projectDir)
-                        .redirectError(ProcessBuilder.Redirect.INHERIT)
-                        .start()
-                process.waitFor()
-                if (process.exitValue() == 0) {
-                    return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return if (isShort) {
+                try {
+                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "--short", "HEAD"))
+                } catch (ex: GitException) {
+                    ""
                 }
-                return ""
             } else {
-                val process = ProcessBuilder("git", "rev-parse", "HEAD")
-                        .directory(projectDir)
-                        .redirectError(ProcessBuilder.Redirect.INHERIT)
-                        .start()
-                process.waitFor()
-                if (process.exitValue() == 0) {
-                    return process.inputStream.bufferedReader().use { it.readText() }.trim()
+                try {
+                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "HEAD"))
+                } catch (ex: GitException) {
+                    ""
                 }
-                return ""
             }
         }
 
         fun currentTag(projectDir: File, gitArgs: String): String {
             val splitGitArgs = gitArgs.split(" ").toTypedArray()
-            val process = ProcessBuilder("git", "describe", "--tags", "--exact-match", *splitGitArgs)
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return try {
+                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--exact-match", *splitGitArgs))
+            } catch (ex: GitException) {
+                "none"
             }
-            return "none"
         }
 
         fun lastTag(projectDir: File, gitArgs: String): String {
             val splitGitArgs = gitArgs.split(" ").toTypedArray()
-            val process = ProcessBuilder("git", "describe", "--tags", "--abbrev=0", *splitGitArgs)
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                return process.inputStream.bufferedReader().use { it.readText() }.trim()
+            return try {
+                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--abbrev=0", *splitGitArgs))
+            } catch (ex: GitException) {
+                "none"
             }
-            return "none"
         }
 
         fun isDirty(projectDir: File): Boolean {
-            val process = ProcessBuilder("git", "diff", "--stat")
-                    .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
-                    .start()
-            process.waitFor()
-            if (process.exitValue() == 0) {
-                return process.inputStream.bufferedReader().use { it.readText() }.trim() != ""
+            return try {
+                GitCommandRunner.execute(projectDir, arrayOf("diff", "--stat")) != ""
+            } catch (ex: GitException) {
+                false
             }
-            return false
         }
-
     }
 }
