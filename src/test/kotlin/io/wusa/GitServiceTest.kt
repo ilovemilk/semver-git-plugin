@@ -26,7 +26,7 @@ class GitServiceTest {
 
     @Test
     fun `git is not dirty`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals(false, GitService.isDirty(createTempDir()))
     }
 
@@ -38,8 +38,8 @@ class GitServiceTest {
 
     @Test
     fun `no last tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
-        Assertions.assertEquals("", GitService.lastTag(createTempDir(), ""))
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        Assertions.assertEquals("none", GitService.lastTag(createTempDir(), ""))
     }
 
     @Test
@@ -50,8 +50,8 @@ class GitServiceTest {
 
     @Test
     fun `no current tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
-        Assertions.assertEquals("", GitService.currentTag(createTempDir(), ""))
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        Assertions.assertEquals("none", GitService.currentTag(createTempDir(), ""))
     }
 
     @Test
@@ -62,7 +62,7 @@ class GitServiceTest {
 
     @Test
     fun `no current commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals("", GitService.currentCommit(createTempDir(), false))
     }
 
@@ -74,7 +74,7 @@ class GitServiceTest {
 
     @Test
     fun `no current short commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals("", GitService.currentCommit(createTempDir(), true))
     }
 
@@ -86,7 +86,7 @@ class GitServiceTest {
 
     @Test
     fun `no current branch`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns ""
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals("", GitService.currentBranch(createTempDir()))
     }
 
