@@ -98,7 +98,8 @@ class GitServiceTest {
 
     @Test
     fun `get describe for not tagged commit`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "1.0.0-0-g1234567-dirty"
+        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--dirty", "--abbrev=7", "")) } returns "1.0.0-0-g1234567-dirty"
+        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--exact-match", "")) } throws GitException("error")
         Assertions.assertEquals(Version(1, 0, 0, "", "", Suffix(0, "1234567", true)), GitService.describe("none", "", createTempDir()))
     }
 
