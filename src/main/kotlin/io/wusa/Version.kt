@@ -10,7 +10,8 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
             version += "+$build"
         }
         if (suffix != null) {
-            version+= "-${suffix!!.format(suffixFormat, dirtyMarker)}"
+            if (suffix!!.format(suffixFormat, dirtyMarker) != "")
+                version+= "-${suffix!!.format(suffixFormat, dirtyMarker)}"
         }
         return version
     }

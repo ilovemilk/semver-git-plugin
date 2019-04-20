@@ -16,7 +16,10 @@ class GitService {
                     val versionFactory: VersionFactory = SemanticVersionFactory()
                     versionFactory.createFromString(describe).bump(nextVersion)
                 } catch (ex: GitException) {
-                    return Version(0, 0, 0, "", "", null).bump(nextVersion)
+                    val sha = GitService.currentCommit(projectDir, true)
+                    val isDirty = GitService.isDirty(projectDir)
+                    val count = GitService.count(projectDir)
+                    return Version(0, 1, 0, "", "", Suffix(count, sha, isDirty))
                 }
             }
         }
@@ -66,6 +69,14 @@ class GitService {
                 GitCommandRunner.execute(projectDir, arrayOf("diff", "--stat")) != ""
             } catch (ex: GitException) {
                 false
+            }
+        }
+
+        private fun count(projectDir: File): Int {
+            return try {
+                GitCommandRunner.execute(projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
+            } catch (ex: GitException) {
+                0
             }
         }
     }

@@ -56,6 +56,21 @@ allprojects {
 project.version = semver.info.version
 ```
 
+## Release
+
+The versions have to be stored as annotated git tags in the format of [semantic versioning](https://semver.org/).
+
+To create a new annotated release tag:
+
+```bash
+git tag -a 1.0.0-alpha.1 -m "new alpha release of version 1.0.0"
+git push -- tags
+```
+
+Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
+and the version number bumped according to `nextVersion` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
+
+
 ## Version information
 
 Accessing the following information via `semver.info.*` e.g., `semver.info.version`.
@@ -75,26 +90,13 @@ Accessing the following information via `semver.info.*` e.g., `semver.info.versi
 
 The `version` is based on the current or last tag.
 
-* If the last tag is the current tag then the current tag is the current version.
-* If the last tag isn't the current tag the version is build based `nextVersion`, which bumps the version accordingly by one, and on the `snapshotSuffix`:
+* If the current commit has an annotated tag this tag will be the version.
+* If the current commit has no annotated tag the version takes the last tag and builds the new version based on `nextVersion`, which bumps the version accordingly by one, and on the `snapshotSuffix`:
     * `<count>` corresponds to the number of commits after the last tag.
     * `<sha>` is the current short commit sha.
     * `<dirty>` is the customizable dirty flag.
-    
-## Release
-
-The versions have to be stored as annotated git tags in the format of [semantic versioning](https://semver.org/).
-
-To create a new annotated release tag:
-
-```bash
-git tag -a 1.0.0-alpha.1 -m "new alpha release of version 1.0.0"
-git push -- tags
-```
-
-Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
-and the version number bumped according to `nextVersion` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
-
+* If no annotated tag exists the initial commit will be version 0.1.0 as recommended by [Semantic Versioning 2.0.0](https://semver.org/).
+  The following commits will be build based on this version until a annotated tag is created.
 ## Tasks
 
 The semver plugin offers two tasks.

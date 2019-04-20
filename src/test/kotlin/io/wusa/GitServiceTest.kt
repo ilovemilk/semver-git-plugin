@@ -115,6 +115,6 @@ class GitServiceTest {
     @Test
     fun `get describe without tags`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals(Version(0, 0, 0, "", "", null), GitService.describe("none", createTempDir()))
+        Assertions.assertEquals(Version(0, 1, 0, "", "", Suffix(0, "", false)), GitService.describe("none", createTempDir()))
     }
 }

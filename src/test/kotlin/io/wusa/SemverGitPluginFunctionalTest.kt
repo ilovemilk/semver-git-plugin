@@ -28,6 +28,75 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
+    fun `no existing tag`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+        """)
+        val git = Git.init().setDirectory(testProjectDirectory).call()
+        git.commit().setMessage("").call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
+    }
+
+    @Test
+    fun `no existing tag with configuration without commits`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = '<count>-g<sha>'
+                nextVersion = 'patch'
+            }
+        """)
+        Git.init().setDirectory(testProjectDirectory).call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0"))
+    }
+
+    @Test
+    fun `no existing tag with configuration`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = '<count>-g<sha>'
+                nextVersion = 'patch'
+            }
+        """)
+        val git = Git.init().setDirectory(testProjectDirectory).call()
+        git.commit().setMessage("").call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0-1-g"))
+    }
+
+    @Test
     fun `patch release with custom configuration`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
