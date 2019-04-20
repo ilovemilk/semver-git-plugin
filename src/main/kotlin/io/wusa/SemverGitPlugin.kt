@@ -20,14 +20,14 @@ class SemverGitPlugin : Plugin<Project> {
             it.description = "Show the git info"
         }
         project.tasks.getByName("showInfo").doLast {
-            println("[semver] branch name: " + semverGitPluginExtension.info.branch.name)
-            println("[semver] branch group: " + semverGitPluginExtension.info.branch.group)
-            println("[semver] branch id: " + semverGitPluginExtension.info.branch.id)
-            println("[semver] commit: " + semverGitPluginExtension.info.commit)
-            println("[semver] short commit: " + semverGitPluginExtension.info.shortCommit)
-            println("[semver] tag: " + semverGitPluginExtension.info.tag)
-            println("[semver] last tag: " + semverGitPluginExtension.info.lastTag)
-            println("[semver] dirty: " + semverGitPluginExtension.info.dirty)
+            println("Branch name: " + semverGitPluginExtension.info.branch.name)
+            println("Branch group: " + semverGitPluginExtension.info.branch.group)
+            println("Branch id: " + semverGitPluginExtension.info.branch.id)
+            println("Commit: " + semverGitPluginExtension.info.commit)
+            println("Short commit: " + semverGitPluginExtension.info.shortCommit)
+            println("Tag: " + semverGitPluginExtension.info.tag)
+            println("Last tag: " + semverGitPluginExtension.info.lastTag)
+            println("Dirty: " + semverGitPluginExtension.info.dirty)
         }
     }
 }

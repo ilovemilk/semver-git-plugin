@@ -116,14 +116,14 @@ Displays the full info:
 
 ```bash
 > Task :showInfo
-[semver] branch name: feature/test
-[semver] branch group: feature
-[semver] branch id: feature-test
-[semver] commit: f4470859c24c031276e94eab81ed6bff5d7abd40
-[semver] short commit: f447085
-[semver] tag: 0.0.1
-[semver] last tag: 0.0.1
-[semver] dirty: false
+Branch name: feature/test
+Branch group: feature
+Branch id: feature-test
+Commit: ca836f6e43b679867293ec23f0ca382bd5027e86
+Short commit: ca836f6
+Tag: none
+Last tag: 0.0.1
+Dirty: false
 ```
 
 ## License
