@@ -126,8 +126,7 @@ Displays the full info:
 [semver] dirty: false
 ```
 
-
-### License
+## License
 
 The MIT License (MIT)
 
