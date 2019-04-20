@@ -73,9 +73,9 @@ Accessing the following information via `semver.info.*` e.g., `semver.info.versi
 
 ## Display version
 
-The `version` is based on the last tag which corresponds to the match paramter e.g., the default one `*[0-9].[0-9]*.[0-9]*`.
+The `version` is based on the current or last tag.
 
-* If the last tag is the current tag then the current tag is the current version
+* If the last tag is the current tag then the current tag is the current version.
 * If the last tag isn't the current tag the version is build based `nextVersion`, which bumps the version accordingly by one, and on the `snapshotSuffix`:
     * `<count>` corresponds to the number of commits after the last tag.
     * `<sha>` is the current short commit sha.
@@ -99,8 +99,15 @@ Version: 0.0.1
 Displays the full info:
 
 ```bash
-> Task :showVersion
-Version: 0.0.1
+> Task :showInfo
+[semver] branch name: feature/test
+[semver] branch group: feature
+[semver] branch id: feature-test
+[semver] commit: f4470859c24c031276e94eab81ed6bff5d7abd40
+[semver] short commit: f447085
+[semver] tag: 0.0.1
+[semver] last tag: 0.0.1
+[semver] dirty: false
 ```
 
 
