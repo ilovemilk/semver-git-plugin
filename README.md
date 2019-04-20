@@ -32,7 +32,7 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ## Configure the plugin
 
-```kotlin
+```text
 semver {
     nextVersion = "major", "minor" (default), "patch" or "none"
     snapshotSuffix = "SNAPSHOT" (default) or a pattern, e.g. "<count>.g<sha><dirty>"
@@ -79,7 +79,21 @@ The `version` is based on the current or last tag.
 * If the last tag isn't the current tag the version is build based `nextVersion`, which bumps the version accordingly by one, and on the `snapshotSuffix`:
     * `<count>` corresponds to the number of commits after the last tag.
     * `<sha>` is the current short commit sha.
-    * `<dirty>` is the customizable dirty flag. 
+    * `<dirty>` is the customizable dirty flag.
+    
+## Release
+
+The versions have to be stored as annotated git tags in the format of [semantic versioning](https://semver.org/).
+
+To create a new annotated release tag:
+
+```bash
+git tag -a 1.0.0-alpha.1 -m "new alpha release of version 1.0.0"
+git push -- tags
+```
+
+Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
+and the version number bumped according to `nextVersion` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
 
 ## Tasks
 
