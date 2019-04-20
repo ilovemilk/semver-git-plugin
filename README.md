@@ -8,14 +8,14 @@
 
 Gradle 2.1 and higher
 
-```kotlin
+```
 plugins {
     id("io.wusa.semver-git-plugin").version("1.0.0")
 }
 ```
 
 Gradle 1.x and 2.0
-```kotlin
+```
 buildscript {
    repositories {
       maven {
@@ -32,28 +32,12 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ## Configure the plugin
 
-```text
+```
 semver {
     nextVersion = "major", "minor" (default), "patch" or "none"
     snapshotSuffix = "SNAPSHOT" (default) or a pattern, e.g. "<count>.g<sha><dirty>"
     dirtyMarker = "-dirty" (default) replaces <dirty> in snapshotSuffix
 }
-```
-
-## Version usage
-
-Then you can access the version of your project via `semver.info.version`.
-
-Examples:
-
-```kotlin
-allprojects {
-    version = semver.info.version
-}
-```
-
-```kotlin
-project.version = semver.info.version
 ```
 
 ## Release
@@ -70,6 +54,21 @@ git push -- tags
 Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
 and the version number bumped according to `nextVersion` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
 
+## Version usage
+
+Then you can access the version of your project via `semver.info.version`.
+
+Examples:
+
+```kotlin
+allprojects {
+    version = semver.info.version
+}
+```
+
+```kotlin
+project.version = semver.info.version
+```
 
 ## Version information
 
