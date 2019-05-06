@@ -1,6 +1,8 @@
 # :ghost: __semver-git-plugin__
 *Version your gradle projects with git tags and semantic versioning.*
 
+[![GitHub version](https://img.shields.io/github/tag/ilovemilk/semver-git-plugin.svg)](https://img.shields.io/github/tag/ilovemilk/semver-git-plugin.svg)
+[![License](https://img.shields.io/github/license/ilovemilk/semver-git-plugin.svg)](https://img.shields.io/github/license/ilovemilk/semver-git-plugin.svg)
 [![Build Status](https://travis-ci.com/ilovemilk/semver-git-plugin.svg)](https://travis-ci.com/ilovemilk/semver-git-plugin)
 [![codecov](https://codecov.io/gh/ilovemilk/semver-git-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/ilovemilk/semver-git-plugin)
 
