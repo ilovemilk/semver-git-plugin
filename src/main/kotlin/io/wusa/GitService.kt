@@ -5,21 +5,22 @@ import java.io.File
 
 class GitService {
     companion object {
-        fun describe(nextVersion: String, projectDir: File): Version {
+        fun describe(initialVersion: String, nextVersion: String, projectDir: File): Version {
+            val versionFactory: VersionFactory = SemanticVersionFactory()
             return try {
                 val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match"))
-                val versionFactory: VersionFactory = SemanticVersionFactory()
                 versionFactory.createFromString(describe)
             } catch (ex: GitException) {
                 try {
                     val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
-                    val versionFactory: VersionFactory = SemanticVersionFactory()
                     versionFactory.createFromString(describe).bump(nextVersion)
                 } catch (ex: GitException) {
-                    val sha = GitService.currentCommit(projectDir, true)
-                    val isDirty = GitService.isDirty(projectDir)
-                    val count = GitService.count(projectDir)
-                    return Version(0, 1, 0, "", "", Suffix(count, sha, isDirty))
+                    val sha = currentCommit(projectDir, true)
+                    val isDirty = isDirty(projectDir)
+                    val count = count(projectDir)
+                    val version = versionFactory.createFromString(initialVersion)
+                    version.suffix  = Suffix(count, sha, isDirty)
+                    return version
                 }
             }
         }

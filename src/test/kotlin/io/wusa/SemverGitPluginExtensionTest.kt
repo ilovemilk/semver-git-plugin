@@ -14,6 +14,6 @@ class SemverGitPluginExtensionTest {
         assertEquals(extension.nextVersion, "minor")
         assertEquals(extension.snapshotSuffix, "SNAPSHOT")
         assertEquals(extension.dirtyMarker, "-dirty")
-        assertEquals(extension.info, Info("minor", "SNAPSHOT", "-dirty", testProjectDirectory))
+        assertEquals(extension.info, Info("minor", "SNAPSHOT", "-dirty", "0.1.0", testProjectDirectory))
     }
 }

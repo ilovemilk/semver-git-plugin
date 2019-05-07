@@ -48,6 +48,30 @@ class SemverGitPluginFunctionalTest {
     }
 
     @Test
+    fun `no existing tag with custom initial version`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                initialVersion = '1.0.0'
+            }
+        """)
+        val git = Git.init().setDirectory(testProjectDirectory).call()
+        git.commit().setMessage("").call()
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 1.0.0-SNAPSHOT"))
+    }
+
+    @Test
     fun `no existing tag with configuration without commits`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")

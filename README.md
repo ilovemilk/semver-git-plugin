@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("1.0.0")
+    id("io.wusa.semver-git-plugin").version("1.1.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:1.0.0'
+      classpath 'io.wusa:semver-git-plugin:1.1.0'
    }
 }
 
@@ -39,6 +39,7 @@ semver {
     nextVersion = "major", "minor" (default), "patch" or "none"
     snapshotSuffix = "SNAPSHOT" (default) or a pattern, e.g. "<count>.g<sha><dirty>"
     dirtyMarker = "-dirty" (default) replaces <dirty> in snapshotSuffix
+    initialVersion = "0.1.0" (default) initial version in semantic versioning
 }
 ```
 
