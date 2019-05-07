@@ -7,12 +7,17 @@ jobs:
   include:
     - stage: test
       script: "./gradlew check"
-    -
+    - stage: report
       script: "./gradlew jacocoTestReport"
-    -
-      script: "bash <(curl -s https://codecov.io/bash)"
     - stage: build
       script: "./gradlew build"
+    - stage: deploy
+      script: "./gradlew publishPlugins -Pgradle.publish.key=${GRADLE_PUBLISH_KEY} -Pgradle.publish.secret=${GRADLE_PUBLISH_SECRET}"
 stages:
   - test
+  - report
   - build
+  - name: deploy
+    if: tag =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$
+after_script:
+  - bash <(curl -s https://codecov.io/bash)
