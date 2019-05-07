@@ -11,3 +11,6 @@ jobs:
     script: bash <(curl -s https://codecov.io/bash)
     - stage: build
     script: ./gradlew build
+stages:
+  - test
+  - build
