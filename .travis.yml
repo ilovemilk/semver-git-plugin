@@ -1,14 +1,13 @@
 language: java
-
 jdk:
   - oraclejdk8
-
 before_script:
   - chmod +x gradlew
-
 jobs:
   include:
     - stage: test
     script: ./gradlew check
     script: ./gradlew jacocoTestReport
     script: bash <(curl -s https://codecov.io/bash)
+    - stage: build
+    script: ./gradlew build
