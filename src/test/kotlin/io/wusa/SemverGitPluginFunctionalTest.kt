@@ -459,8 +459,8 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Version major: 0"))
         assertTrue(result.output.contains("Version minor: 1"))
         assertTrue(result.output.contains("Version patch: 0"))
-        assertTrue(result.output.contains("Version pre release: "))
-        assertTrue(result.output.contains("Version build: "))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
     }
 
     @Test
@@ -488,6 +488,11 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Tag: none"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version major: 0"))
+        assertTrue(result.output.contains("Version minor: 1"))
+        assertTrue(result.output.contains("Version patch: 0"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
     }
 
     @Test
@@ -513,6 +518,11 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Tag: 0.0.1"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version major: 0"))
+        assertTrue(result.output.contains("Version minor: 0"))
+        assertTrue(result.output.contains("Version patch: 1"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
     }
 
     private fun initializeGitWithBranch(directory: File, tag: String = "0.0.1", branch: String = "develop"): Git {

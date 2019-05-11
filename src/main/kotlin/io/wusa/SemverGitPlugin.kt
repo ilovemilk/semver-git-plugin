@@ -32,8 +32,8 @@ class SemverGitPlugin : Plugin<Project> {
             println("Version major: " + semverGitPluginExtension.info.version.major)
             println("Version minor: " + semverGitPluginExtension.info.version.minor)
             println("Version patch: " + semverGitPluginExtension.info.version.patch)
-            println("Version pre release: " + semverGitPluginExtension.info.version.prerelease)
-            println("Version build: " + semverGitPluginExtension.info.version.build)
+            println("Version pre release: " + if (semverGitPluginExtension.info.version.prerelease.isEmpty()) "none" else semverGitPluginExtension.info.version.prerelease)
+            println("Version build: " + if (semverGitPluginExtension.info.version.build.isEmpty()) "none" else semverGitPluginExtension.info.version.build)
         }
     }
 }
