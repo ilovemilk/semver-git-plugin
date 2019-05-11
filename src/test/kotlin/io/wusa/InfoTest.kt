@@ -3,6 +3,7 @@ package io.wusa
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import org.gradle.api.GradleException
 import org.junit.jupiter.api.*
 import java.lang.IllegalArgumentException
 
@@ -22,15 +23,17 @@ class InfoTest {
     @Test
     fun `get version of non-semver tag`() {
         val info = Info("none", "", "", "0.1.0", createTempDir())
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any()) } throws IllegalArgumentException("error")
-        Assertions.assertEquals("The current or last tag is not a semantic version.", info.version)
+        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any(), snapshotSuffix = any(), dirtyMarker = any()) } throws IllegalArgumentException("error")
+        Assertions.assertThrows(GradleException::class.java) {
+            info.version
+        }
     }
 
     @Test
     fun `get version`() {
         val info = Info("none", "", "", "0.1.0", createTempDir())
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any()) } returns Version(1, 0, 0, "", "", null)
-        Assertions.assertEquals("1.0.0", info.version)
+        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any(), snapshotSuffix = any(), dirtyMarker = any()) } returns Version(1, 0, 0, "", "", null)
+        Assertions.assertEquals(Version(1, 0, 0, "", "", null), info.version)
     }
 
     @Test

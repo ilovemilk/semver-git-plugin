@@ -1,7 +1,10 @@
 package io.wusa
 
+import org.gradle.api.GradleException
 import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.UnexpectedBuildFailure
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -24,6 +27,7 @@ class SemverGitPluginFunctionalTest {
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.0.1"))
     }
 
@@ -373,6 +377,7 @@ class SemverGitPluginFunctionalTest {
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 1.0.0-1-g"))
     }
 
@@ -417,12 +422,13 @@ class SemverGitPluginFunctionalTest {
         val git = initializeGitWithoutBranch(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
         git.tag().setName("test-tag").setObjectId(commit).call()
-        val result = GradleRunner.create()
-                .withProjectDir(testProjectDirectory)
-                .withArguments("showVersion")
-                .withPluginClasspath()
-                .build()
-        assertTrue(result.output.contains("Version: The current or last tag is not a semantic version."))
+        Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
+            GradleRunner.create()
+                    .withProjectDir(testProjectDirectory)
+                    .withArguments("showVersion")
+                    .withPluginClasspath()
+                    .build()
+        }
     }
 
     @Test
@@ -441,6 +447,7 @@ class SemverGitPluginFunctionalTest {
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Branch name: master"))
         assertTrue(result.output.contains("Branch group: master"))
         assertTrue(result.output.contains("Branch id: master"))
@@ -449,6 +456,11 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Tag: none"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version major: 0"))
+        assertTrue(result.output.contains("Version minor: 1"))
+        assertTrue(result.output.contains("Version patch: 0"))
+        assertTrue(result.output.contains("Version pre release: "))
+        assertTrue(result.output.contains("Version build: "))
     }
 
     @Test

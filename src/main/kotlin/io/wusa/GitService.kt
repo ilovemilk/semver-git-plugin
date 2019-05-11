@@ -5,8 +5,8 @@ import java.io.File
 
 class GitService {
     companion object {
-        fun describe(initialVersion: String, nextVersion: String, projectDir: File): Version {
-            val versionFactory: VersionFactory = SemanticVersionFactory()
+        fun describe(initialVersion: String, nextVersion: String, projectDir: File, snapshotSuffix: String = SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX, dirtyMarker: String = SemverGitPluginExtension.DEFAULT_DIRTY_MARKER): Version {
+            val versionFactory: VersionFactory = SemanticVersionFactory(snapshotSuffix, dirtyMarker)
             return try {
                 val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match"))
                 versionFactory.createFromString(describe)

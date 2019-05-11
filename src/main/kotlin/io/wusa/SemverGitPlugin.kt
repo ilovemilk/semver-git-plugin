@@ -28,6 +28,12 @@ class SemverGitPlugin : Plugin<Project> {
             println("Tag: " + semverGitPluginExtension.info.tag)
             println("Last tag: " + semverGitPluginExtension.info.lastTag)
             println("Dirty: " + semverGitPluginExtension.info.dirty)
+            println("Version: " + semverGitPluginExtension.info.version)
+            println("Version major: " + semverGitPluginExtension.info.version.major)
+            println("Version minor: " + semverGitPluginExtension.info.version.minor)
+            println("Version patch: " + semverGitPluginExtension.info.version.patch)
+            println("Version pre release: " + semverGitPluginExtension.info.version.prerelease)
+            println("Version build: " + semverGitPluginExtension.info.version.build)
         }
     }
 }

@@ -10,6 +10,7 @@ class SemanticVersionFactoryTest {
     fun `parse version`() {
         val semanticVersionFactory: VersionFactory = SemanticVersionFactory()
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-0-g123-dirty"), Version(1, 0, 0, "", "", Suffix(0, "123", true)))
+        Assertions.assertEquals(semanticVersionFactory.createFromString("0.0.1-1-gfe17e7f"), Version(0, 0, 1, "", "", Suffix(1, "fe17e7f", false)))
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-2-g123-dirty"), Version(1, 0, 0, "", "", Suffix(2, "123", true)))
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-0"), Version(1, 0, 0, "0", "", null))
         Assertions.assertEquals(semanticVersionFactory.createFromString("0.0.4"), Version(0, 0, 4, "", "", null))
