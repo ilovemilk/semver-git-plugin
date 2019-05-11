@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("1.1.0")
+    id("io.wusa.semver-git-plugin").version("1.2.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:1.1.0'
+      classpath 'io.wusa:semver-git-plugin:1.2.0'
    }
 }
 
@@ -87,7 +87,12 @@ Accessing the following information via `semver.info.*` e.g., `semver.info.versi
 | tag          | Current tag | If any name of the tag else none | If any name of the tag else none |
 | lastTag      | Last tag    | If any name of the tag else none | If any name of the tag else none |
 | dirty        | Current state of the working copy | `true` if the working copy contains uncommitted files | `true` if the working copy contains uncommitted files |
-
+| version      | Formatted version | 0.1.0 | 0.1.0 |
+| version.major | Major version of 2.0.0-rc.1+build.123 | 2 | 2 |
+| version.minor | Minor version of 2.0.0-rc.1+build.123 | 0 | 0 |
+| version.patch | Patch version of 2.0.0-rc.1+build.123 | 0 | 0 |
+| version.build | Build number of 2.0.0-rc.1+build.123 | build.123 | build.123 |
+| version.prerelease | Pre release of 2.0.0-rc.1+build.123 | rc.1 | rc.1 |
 ## Display version
 
 The `version` is based on the current or last tag.
@@ -121,11 +126,17 @@ Displays the full info:
 Branch name: feature/test
 Branch group: feature
 Branch id: feature-test
-Commit: ca836f6e43b679867293ec23f0ca382bd5027e86
-Short commit: ca836f6
+Commit: fd132d87d51cee610c5b273050625850e1d62a3b
+Short commit: fd132d8
 Tag: none
 Last tag: 0.0.1
 Dirty: false
+Version: 0.1.0-SNAPSHOT
+Version major: 0
+Version minor: 1
+Version patch: 0
+Version pre release: none
+Version build: none
 ```
 
 ## License

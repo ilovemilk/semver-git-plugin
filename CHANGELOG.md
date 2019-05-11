@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2019-05-11
+### Added
+- Detailed version info to info task
+
+### Fixed
+- Regex for parsing version string
+
 ## [1.1.0] - 2019-05-07
 ### Added
 - Custom initial version.
