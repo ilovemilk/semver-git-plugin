@@ -1,23 +1,9 @@
 package io.wusa
 
-data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?, var suffixFormat: String = SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX, var dirtyMarker: String = SemverGitPluginExtension.DEFAULT_DIRTY_MARKER) {
+data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?) {
     override fun toString(): String {
-        return format(suffixFormat, dirtyMarker)
-    }
-
-    fun format(suffixFormat: String, dirtyMarker: String): String {
-        var version = "$major.$minor.$patch"
-        if (prerelease != "") {
-            version += "-$prerelease"
-        }
-        if (build != "") {
-            version += "+$build"
-        }
-        if (suffix != null) {
-            if (suffix!!.format(suffixFormat, dirtyMarker) != "")
-                version+= "-${suffix!!.format(suffixFormat, dirtyMarker)}"
-        }
-        return version
+        VersionFormatter.DEFAULT.format(this, "")
+        return super.toString()
     }
 
     fun bump(nextVersion: String): Version {

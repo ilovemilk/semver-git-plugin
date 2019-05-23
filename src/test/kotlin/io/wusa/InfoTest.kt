@@ -23,7 +23,7 @@ class InfoTest {
     @Test
     fun `get version of non-semver tag`() {
         val info = Info("none", "", "", "0.1.0", createTempDir())
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any(), snapshotSuffix = any(), dirtyMarker = any()) } throws IllegalArgumentException("error")
+        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any()) } throws IllegalArgumentException("error")
         Assertions.assertThrows(GradleException::class.java) {
             info.version
         }
@@ -32,7 +32,7 @@ class InfoTest {
     @Test
     fun `get version`() {
         val info = Info("none", "", "", "0.1.0", createTempDir())
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any(), snapshotSuffix = any(), dirtyMarker = any()) } returns Version(1, 0, 0, "", "", null)
+        every { GitService.describe(initialVersion = any(), nextVersion = any(), projectDir = any()) } returns Version(1, 0, 0, "", "", null)
         Assertions.assertEquals(Version(1, 0, 0, "", "", null), info.version)
     }
 
