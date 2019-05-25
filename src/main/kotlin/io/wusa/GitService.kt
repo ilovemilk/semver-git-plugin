@@ -1,81 +1,82 @@
 package io.wusa
 
 import io.wusa.exception.GitException
+import org.gradle.api.Project
 import java.io.File
 
 class GitService {
     companion object {
-        fun describe(initialVersion: String, nextVersion: String, projectDir: File): Version {
+        fun describe(initialVersion: String, nextVersion: String, project: Project): Version {
             val versionFactory: IVersionFactory = SemanticVersionFactory()
             return try {
-                val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match"))
-                versionFactory.createFromString(describe)
+                val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
+                versionFactory.createFromString(describe, project)
             } catch (ex: GitException) {
                 try {
-                    val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
-                    versionFactory.createFromString(describe).bump(nextVersion)
+                    val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
+                    versionFactory.createFromString(describe, project).bump(nextVersion)
                 } catch (ex: GitException) {
-                    val sha = currentCommit(projectDir, true)
-                    val isDirty = isDirty(projectDir)
-                    val count = count(projectDir)
-                    val version = versionFactory.createFromString(initialVersion)
+                    val sha = currentCommit(project, true)
+                    val isDirty = isDirty(project)
+                    val count = count(project)
+                    val version = versionFactory.createFromString(initialVersion, project)
                     version.suffix  = Suffix(count, sha, isDirty)
                     return version
                 }
             }
         }
 
-        fun currentBranch(projectDir: File): String {
+        fun currentBranch(project: Project): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "--abbrev-ref", "HEAD"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--abbrev-ref", "HEAD"))
             } catch (ex: GitException) {
                 ""
             }
         }
 
-        fun currentCommit(projectDir: File, isShort: Boolean): String {
+        fun currentCommit(project: Project, isShort: Boolean): String {
             return if (isShort) {
                 try {
-                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "--short", "HEAD"))
+                    GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--short", "HEAD"))
                 } catch (ex: GitException) {
                     ""
                 }
             } else {
                 try {
-                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "HEAD"))
+                    GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "HEAD"))
                 } catch (ex: GitException) {
                     ""
                 }
             }
         }
 
-        fun currentTag(projectDir: File): String {
+        fun currentTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--exact-match"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--tags", "--exact-match"))
             } catch (ex: GitException) {
                 "none"
             }
         }
 
-        fun lastTag(projectDir: File): String {
+        fun lastTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--abbrev=0"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--tags", "--abbrev=0"))
             } catch (ex: GitException) {
                 "none"
             }
         }
 
-        fun isDirty(projectDir: File): Boolean {
+        fun isDirty(project: Project): Boolean {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("diff", "--stat")) != ""
+                GitCommandRunner.execute(project.projectDir, arrayOf("diff", "--stat")) != ""
             } catch (ex: GitException) {
                 false
             }
         }
 
-        private fun count(projectDir: File): Int {
+        private fun count(project: Project): Int {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
+                GitCommandRunner.execute(project.projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
             } catch (ex: GitException) {
                 0
             }

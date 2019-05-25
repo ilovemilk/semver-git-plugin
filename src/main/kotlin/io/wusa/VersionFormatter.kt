@@ -1,6 +1,6 @@
 package io.wusa
 
-class VersionFormatter() {
+class VersionFormatter {
     companion object {
         val DEFAULT = DefaultVersionFormatter()
     }

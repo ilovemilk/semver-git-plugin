@@ -1,9 +1,11 @@
 package io.wusa
 
-data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?) {
+import org.gradle.api.Project
+
+data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?, var project: Project) {
     override fun toString(): String {
-        VersionFormatter.DEFAULT.format(this, "")
-        return super.toString()
+        val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+        return VersionFormatter.DEFAULT.format(this, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
     }
 
     fun bump(nextVersion: String): Version {

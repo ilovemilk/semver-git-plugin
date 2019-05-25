@@ -1,16 +1,26 @@
 package io.wusa
 
-import org.gradle.api.GradleException
 import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
 import java.io.File
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SemverGitPluginFunctionalTest {
+
+    private lateinit var gradleRunner: GradleRunner
+
+    @BeforeAll
+    fun setUp() {
+        gradleRunner = GradleRunner.create()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        gradleRunner.projectDir.deleteRecursively()
+    }
 
     @Test
     fun `defaults`() {
@@ -22,7 +32,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory)
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -42,7 +52,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -66,7 +76,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -90,7 +100,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         Git.init().setDirectory(testProjectDirectory).call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -115,7 +125,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -139,7 +149,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory)
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -162,7 +172,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -185,7 +195,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "1.0.0")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -208,7 +218,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -231,7 +241,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.beta")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -254,7 +264,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.1")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -277,7 +287,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-beta")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -300,7 +310,7 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-rc")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
@@ -324,7 +334,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()

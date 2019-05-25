@@ -5,7 +5,8 @@ import org.gradle.api.Project
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project.projectDir)
+
+        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project)
 
         project.task("showVersion") {
             it.group = "Help"
