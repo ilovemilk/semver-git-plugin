@@ -2,7 +2,6 @@ package io.wusa
 
 import io.wusa.exception.GitException
 import org.gradle.api.Project
-import java.io.File
 
 class GitService {
     companion object {
@@ -74,7 +73,7 @@ class GitService {
             }
         }
 
-        private fun count(project: Project): Int {
+        fun count(project: Project): Int {
             return try {
                 GitCommandRunner.execute(project.projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
             } catch (ex: GitException) {

@@ -2,7 +2,6 @@ package io.wusa
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import java.io.File
 
 data class Info(private var nextVersion: String, private var initialVersion: String, private var project: Project) {
 
@@ -23,6 +22,9 @@ data class Info(private var nextVersion: String, private var initialVersion: Str
 
     val dirty: Boolean
         get() = GitService.isDirty(project)
+
+    val count: Int
+        get() = GitService.count(project)
 
     val version: Version
         get() {

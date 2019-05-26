@@ -11,7 +11,9 @@ open class SemverGitPluginExtension(private var project: Project) {
 
     var snapshotSuffix: String = DEFAULT_SNAPSHOT_SUFFIX
 
-    var versionFormatter: (version: Version) -> String = {"${info.version.major}.${info.version.minor}.${info.version.patch}"}
+    var branchVersionFormatter: Map<String, Any> = mapOf(
+            ".*"  to { "${info.version.major}.${info.version.minor}.${info.version.patch}+build.${info.count}.sha.${info.shortCommit}" }
+        )
 
     val info: Info
         get() = Info(nextVersion, initialVersion, project)
