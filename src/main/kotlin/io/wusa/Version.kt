@@ -28,16 +28,25 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
             it.toRegex().matches(semverGitPluginExtension.info.branch.name)
         }
         if (regexFormatterPair.values.first() is Closure<*>) {
-            val version = (regexFormatterPair.values.first() as Closure<GString>).call().toString()
+            var version = (regexFormatterPair.values.first() as Closure<GString>).call().toString()
+            version = appendDirtyMarker(version, suffix, semverGitPluginExtension.dirtyMarker)
             return appendSuffix(version, suffix, semverGitPluginExtension.snapshotSuffix)
         }
-        val version = (regexFormatterPair.values.first() as () -> String).invoke()
+        var version = (regexFormatterPair.values.first() as () -> String).invoke()
+        version = appendDirtyMarker(version, suffix, semverGitPluginExtension.dirtyMarker)
         return appendSuffix(version, suffix, semverGitPluginExtension.snapshotSuffix)
     }
 
     private fun appendSuffix(version: String, suffix: Suffix?, snapshotSuffix: String): String {
         if (suffix != null) {
             return "$version-$snapshotSuffix"
+        }
+        return version
+    }
+
+    private fun appendDirtyMarker(version: String, suffix: Suffix?, dirtyMarker: String): String {
+        if (suffix != null && suffix.dirty) {
+            return "$version-$dirtyMarker"
         }
         return version
     }

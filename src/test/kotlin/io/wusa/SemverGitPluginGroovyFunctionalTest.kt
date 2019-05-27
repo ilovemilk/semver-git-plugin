@@ -14,7 +14,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @BeforeAll
     fun setUp() {
-        gradleRunner = gradleRunner
+        gradleRunner = GradleRunner.create()
     }
 
     @AfterAll
