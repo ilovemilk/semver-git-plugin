@@ -19,7 +19,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `defaults using version formatter kotlin`() {
+    fun `defaults using version formatter`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
@@ -40,6 +40,6 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        Assertions.assertTrue(result.output.contains("Version: 0.0.1"))
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0"))
     }
 }
