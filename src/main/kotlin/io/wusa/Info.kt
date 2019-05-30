@@ -1,13 +1,8 @@
 package io.wusa
 
-import io.wusa.RegexResolver.Companion.findMatchingRegex
-import io.wusa.extension.SemverGitPluginExtension
-import io.wusa.incrementer.VersionIncrementer
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 data class Info(private var initialVersion: String, private var project: Project) {
-    private val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
 
     val branch: Branch
         get() = Branch(project)
@@ -32,15 +27,6 @@ data class Info(private var initialVersion: String, private var project: Project
 
     val version: Version
         get() {
-            return try {
-                val regexIncrementerPair = findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
-                regexIncrementerPair?.let {
-                    VersionIncrementer.getVersionIncrementerByName(regexIncrementerPair.incrementer).increment(GitService.describe(initialVersion, project))
-                } ?: run {
-                    VersionIncrementer.getVersionIncrementerByName(SemverGitPluginExtension.DEFAULT_INCREMENTER).increment(GitService.describe(initialVersion, project))
-                }
-            } catch (ex: IllegalArgumentException) {
-                throw GradleException("The current or last tag is not a semantic version.")
-            }
+            return VersionService(project).getVersion()
         }
 }

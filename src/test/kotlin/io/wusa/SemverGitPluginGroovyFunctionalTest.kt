@@ -51,9 +51,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                branchVersionFormatter = [
-                    ".*": { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
-                ]
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory)
@@ -67,7 +71,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `version formatter for feature branches`() {
+    fun `version formatter for feature branches use specific`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -78,8 +82,14 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             semver {
                 branches {
                     branch {
-                        regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+branch.${'$'}{semver.info.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
                     }
                 }
             }
@@ -152,7 +162,6 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
             semver {
                 snapshotSuffix = 'SNAPSHOT'
-                nextVersion = 'patch'
             }
         """)
         Git.init().setDirectory(testProjectDirectory).call()
@@ -162,7 +171,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
+        assertTrue("""Version: 0\.1\.0\-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
 
     @Test
@@ -176,7 +185,6 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
             semver {
                 snapshotSuffix = 'TEST'
-                nextVersion = 'patch'
             }
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
@@ -201,7 +209,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'patch'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.0.1")
@@ -224,7 +238,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory)
@@ -247,8 +267,14 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'major'
+                snapshotSuffix = 'SNAPSHOT'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "1.0.0")
@@ -271,7 +297,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha")
@@ -294,7 +326,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.beta")
@@ -317,7 +355,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.1")
@@ -340,7 +384,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-beta")
@@ -363,7 +413,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-rc")
@@ -386,7 +442,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'patch'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "PATCH_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
@@ -409,8 +471,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 id 'io.wusa.semver-git-plugin'
             }
 
-            semver {
-                nextVersion = 'minor'
+            branches {
+                branch {
+                    regex = ".*"
+                    incrementer = "MINOR_INCREMENTER"
+                    formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
@@ -434,7 +500,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'major'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MAJOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
@@ -459,7 +531,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                nextVersion = 'none'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
@@ -480,10 +558,6 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
-            }
-
-            semver {
-                nextVersion = 'none'
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)

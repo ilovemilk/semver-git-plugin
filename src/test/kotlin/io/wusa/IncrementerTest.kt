@@ -25,13 +25,13 @@ class IncrementerTest {
     @Test
     fun `bump major version`() {
         val version = MajorVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(2, 1, 1, "", "", null, project))
+        Assertions.assertEquals(version, Version(2, 0, 0, "", "", null, project))
     }
 
     @Test
     fun `bump minor version`() {
         val version = MinorVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(1, 2, 1, "", "", null, project))
+        Assertions.assertEquals(version, Version(1, 2, 0, "", "", null, project))
     }
 
     @Test

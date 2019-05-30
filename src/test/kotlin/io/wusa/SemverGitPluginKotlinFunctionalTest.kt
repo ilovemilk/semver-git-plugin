@@ -45,7 +45,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        Assertions.assertTrue(result.output.contains("Version: 0.2.0"))
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0"))
     }
 
     @Test
@@ -132,7 +132,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "NO_VERSION_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
             }
@@ -162,7 +162,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "PATCH_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
             }
@@ -192,7 +192,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
             }
@@ -222,7 +222,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MAJOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
             }

@@ -1,11 +1,12 @@
 package io.wusa
 
 import io.wusa.exception.GitException
+import io.wusa.exception.NoAnnotatedTagFoundException
 import org.gradle.api.Project
 
 class GitService {
     companion object {
-        fun describe(initialVersion: String, project: Project): Version {
+        fun describe(project: Project): Version {
             val versionFactory: IVersionFactory = SemanticVersionFactory()
             return try {
                 val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
@@ -17,12 +18,7 @@ class GitService {
                     versionFactory.createFromString(describe, project)
                 } catch (ex: GitException) {
                     // no annotated tag found will use initialVersion as current version
-                    val sha = currentCommit(project, true)
-                    val isDirty = isDirty(project)
-                    val count = count(project)
-                    val version = versionFactory.createFromString(initialVersion, project)
-                    version.suffix  = Suffix(count, sha, isDirty)
-                    return version
+                    throw NoAnnotatedTagFoundException("No annotated tag found.")
                 }
             }
         }
@@ -53,7 +49,7 @@ class GitService {
 
         fun currentTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--tags", "--exact-match"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
             } catch (ex: GitException) {
                 "none"
             }
@@ -61,7 +57,7 @@ class GitService {
 
         fun lastTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--tags", "--abbrev=0"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
             } catch (ex: GitException) {
                 "none"
             }
