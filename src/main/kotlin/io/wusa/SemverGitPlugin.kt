@@ -1,5 +1,6 @@
 package io.wusa
 
+import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

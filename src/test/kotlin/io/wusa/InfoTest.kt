@@ -17,6 +17,7 @@ class InfoTest {
     @BeforeEach
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
+        project.plugins.apply(SemverGitPlugin::class.java)
         mockkObject(GitService)
     }
 
@@ -27,8 +28,8 @@ class InfoTest {
 
     @Test
     fun `get version of non-semver tag`() {
-        val info = Info("none", "0.1.0", project)
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), project = any()) } throws IllegalArgumentException("error")
+        val info = Info("0.1.0", project)
+        every { GitService.describe(initialVersion = any(), project = any()) } throws IllegalArgumentException("error")
         Assertions.assertThrows(GradleException::class.java) {
             info.version
         }
@@ -36,42 +37,42 @@ class InfoTest {
 
     @Test
     fun `get version`() {
-        val info = Info("none", "0.1.0", project)
-        every { GitService.describe(initialVersion = any(), nextVersion = any(), project = any()) } returns Version(1, 0, 0, "", "", null, project)
+        val info = Info("0.1.0", project)
+        every { GitService.describe(initialVersion = any(), project = any()) } returns Version(1, 0, 0, "", "", null, project)
         Assertions.assertEquals(Version(1, 0, 0, "", "", null, project), info.version)
     }
 
     @Test
     fun `get dirty`() {
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         every { GitService.isDirty(project = any()) } returns true
         Assertions.assertEquals(true, info.dirty)
     }
 
     @Test
     fun `get last tag`() {
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         every { GitService.lastTag(project = any()) } returns "0.1.0"
         Assertions.assertEquals("0.1.0", info.lastTag)
     }
 
     @Test
     fun `get current tag`() {
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         every { GitService.currentTag(project = any()) } returns "0.1.0"
         Assertions.assertEquals("0.1.0", info.tag)
     }
 
     @Test
     fun `get short commit`() {
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         every { GitService.currentCommit(project = any(), isShort = true) } returns "1234567"
         Assertions.assertEquals("1234567", info.shortCommit)
     }
 
     @Test
     fun `get commit`() {
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         every { GitService.currentCommit(project = any(), isShort = false) } returns "123456789"
         Assertions.assertEquals("123456789", info.commit)
     }
@@ -79,7 +80,7 @@ class InfoTest {
     @Test
     fun `get branch`() {
         val project = project
-        val info = Info("none", "0.1.0", project)
+        val info = Info("0.1.0", project)
         Assertions.assertEquals(Branch(project), info.branch)
     }
 }

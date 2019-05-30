@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 class GitService {
     companion object {
-        fun describe(initialVersion: String, nextVersion: String, project: Project): Version {
+        fun describe(initialVersion: String, project: Project): Version {
             val versionFactory: IVersionFactory = SemanticVersionFactory()
             return try {
                 val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
@@ -13,8 +13,10 @@ class GitService {
             } catch (ex: GitException) {
                 try {
                     val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
-                    versionFactory.createFromString(describe, project).bump(nextVersion)
+                    // annotated tag found use tagged version as current version
+                    versionFactory.createFromString(describe, project)
                 } catch (ex: GitException) {
+                    // no annotated tag found will use initialVersion as current version
                     val sha = currentCommit(project, true)
                     val isDirty = isDirty(project)
                     val count = count(project)

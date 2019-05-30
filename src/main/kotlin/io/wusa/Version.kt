@@ -2,6 +2,8 @@ package io.wusa
 
 import groovy.lang.Closure
 import groovy.lang.GString
+import io.wusa.RegexResolver.Companion.findMatchingRegex
+import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Project
 
 data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?, var project: Project) {
@@ -9,6 +11,7 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
 
         if (semverGitPluginExtension.info.count == 0) {
+            // there is no commit yet
             return "$major.$minor.$patch-${semverGitPluginExtension.snapshotSuffix}"
         }
 
@@ -24,17 +27,15 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
             return version
         }
 
-        val regexFormatterPair = semverGitPluginExtension.branchVersionFormatter.filterKeys {
-            it.toRegex().matches(semverGitPluginExtension.info.branch.name)
+        // we have commits but no tag
+        val regexFormatterPair = findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
+        var formattedVersion = format(SemverGitPluginExtension.DEFAULT_FORMATTER)
+        formattedVersion = appendDirtyMarker(formattedVersion, suffix, semverGitPluginExtension.dirtyMarker)
+        regexFormatterPair?.let {
+            formattedVersion = format(regexFormatterPair.formatter)
+            formattedVersion = appendDirtyMarker(formattedVersion, suffix, semverGitPluginExtension.dirtyMarker)
         }
-        if (regexFormatterPair.values.first() is Closure<*>) {
-            var version = (regexFormatterPair.values.first() as Closure<GString>).call().toString()
-            version = appendDirtyMarker(version, suffix, semverGitPluginExtension.dirtyMarker)
-            return appendSuffix(version, suffix, semverGitPluginExtension.snapshotSuffix)
-        }
-        var version = (regexFormatterPair.values.first() as () -> String).invoke()
-        version = appendDirtyMarker(version, suffix, semverGitPluginExtension.dirtyMarker)
-        return appendSuffix(version, suffix, semverGitPluginExtension.snapshotSuffix)
+        return appendSuffix(formattedVersion, suffix, semverGitPluginExtension.snapshotSuffix)
     }
 
     private fun appendSuffix(version: String, suffix: Suffix?, snapshotSuffix: String): String {
@@ -51,29 +52,10 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         return version
     }
 
-    fun bump(nextVersion: String): Version {
-        when (nextVersion) {
-            "major" -> {
-                this.major += 1
-                this.minor = 0
-                this.patch = 0
-                return this
-            }
-            "minor" -> {
-                this.minor += 1
-                this.patch = 0
-                return this
-            }
-            "patch" -> {
-                this.patch += 1
-                return this
-            }
-            "none" -> {
-                return this
-            }
-            else -> {
-                return this
-            }
+    private fun format(formatter: Any): String {
+        if (formatter is Closure<*>) {
+            return (formatter as Closure<GString>).call().toString()
         }
+        return (formatter as () -> String).invoke()
     }
 }

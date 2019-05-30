@@ -76,10 +76,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                branchVersionFormatter = [
-                    "feature/.*": { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+branch.${'$'}{semver.info.branch.id}" },
-                    ".*": { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
-                ]
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                    }
+                }
             }
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")

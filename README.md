@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("1.2.0")
+    id("io.wusa.semver-git-plugin").version("2.0.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:1.2.0'
+      classpath 'io.wusa:semver-git-plugin:2.0.0'
    }
 }
 
@@ -34,12 +34,19 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ## Configure the plugin
 
-```
+```kotlin
 semver {
     nextVersion = "major", "minor" (default), "patch" or "none"
-    snapshotSuffix = "SNAPSHOT" (default) or a pattern, e.g. "<count>.g<sha><dirty>"
-    dirtyMarker = "-dirty" (default) replaces <dirty> in snapshotSuffix
+    snapshotSuffix = "SNAPSHOT" (default) appended if the commit is without a release tag
+    dirtyMarker = "dirty" (default) appended if the are uncommitted changes
     initialVersion = "0.1.0" (default) initial version in semantic versioning
+    branches { list of branch configurations
+        branch {
+            regex = ".+" regex for the branch you want to configure
+            incrementer = "NO_VERSION_INCREMENTER" (default) version incrementer
+            formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } (default) version formatting closure
+        }
+    }
 }
 ```
 
@@ -51,11 +58,11 @@ To create a new annotated release tag:
 
 ```bash
 git tag -a 1.0.0-alpha.1 -m "new alpha release of version 1.0.0"
-git push -- tags
+git push --tags
 ```
 
 Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
-and the version number bumped according to `nextVersion` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
+and the version number bumped according to `incrementer` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
 
 ## Version usage
 
@@ -93,15 +100,14 @@ Accessing the following information via `semver.info.*` e.g., `semver.info.versi
 | version.patch | Patch version of 2.0.0-rc.1+build.123 | 0 | 0 |
 | version.build | Build number of 2.0.0-rc.1+build.123 | build.123 | build.123 |
 | version.prerelease | Pre release of 2.0.0-rc.1+build.123 | rc.1 | rc.1 |
+
 ## Display version
 
 The `version` is based on the current or last tag.
 
 * If the current commit has an annotated tag this tag will be the version.
-* If the current commit has no annotated tag the version takes the last tag and builds the new version based on `nextVersion`, which bumps the version accordingly by one, and on the `snapshotSuffix`:
-    * `<count>` corresponds to the number of commits after the last tag.
-    * `<sha>` is the current short commit sha.
-    * `<dirty>` is the customizable dirty flag.
+* If the current commit has no annotated tag the version takes the last tag and builds the new version based on:
+    * The ordering of the branch configuration is important for the matching.
 * If no annotated tag exists the initial commit will be version 0.1.0 as recommended by [Semantic Versioning 2.0.0](https://semver.org/).
   The following commits will be build based on this version until a annotated tag is created.
 ## Tasks
