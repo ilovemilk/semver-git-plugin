@@ -96,31 +96,4 @@ class GitServiceTest {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals("", GitService.currentBranch(project))
     }
-
-    @Test
-    fun `get describe for tagged semver commit`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "1.0.0"
-        Assertions.assertEquals(Version(1, 0, 0, "", "", null, project), GitService.describe(project))
-    }
-
-    @Test
-    fun `get describe for tagged non-semver commit`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "test-tag"
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
-            GitService.describe(project)
-        }
-    }
-
-    @Test
-    fun `get describe for not tagged commit`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--dirty", "--abbrev=7")) } returns "1.0.0-0-g1234567-dirty"
-        every { GitCommandRunner.execute(projectDir = any(), args = arrayOf("describe", "--exact-match")) } throws GitException("error")
-        Assertions.assertEquals(Version(1, 0, 0, "", "", Suffix(0, "1234567", true), project), GitService.describe(project))
-    }
-
-    @Test
-    fun `get describe without tags`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals(Version(0, 1, 0, "", "", Suffix(0, "", false),project), GitService.describe(project))
-    }
 }

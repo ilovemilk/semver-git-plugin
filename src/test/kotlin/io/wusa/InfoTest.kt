@@ -27,22 +27,6 @@ class InfoTest {
     }
 
     @Test
-    fun `get version of non-semver tag`() {
-        val info = Info("0.1.0", project)
-        every { GitService.describe(project = any()) } throws IllegalArgumentException("error")
-        Assertions.assertThrows(GradleException::class.java) {
-            info.version
-        }
-    }
-
-    @Test
-    fun `get version`() {
-        val info = Info("0.1.0", project)
-        every { GitService.describe(project = any()) } returns Version(1, 0, 0, "", "", null, project)
-        Assertions.assertEquals(Version(1, 1, 0, "", "", null, project), info.version)
-    }
-
-    @Test
     fun `get dirty`() {
         val info = Info("0.1.0", project)
         every { GitService.isDirty(project = any()) } returns true

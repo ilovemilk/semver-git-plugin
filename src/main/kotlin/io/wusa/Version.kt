@@ -29,10 +29,10 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
 
         // we have commits but no tag
         val regexFormatterPair = findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
-        var formattedVersion = format(SemverGitPluginExtension.DEFAULT_FORMATTER)
+        var formattedVersion = format(SemverGitPluginExtension.DEFAULT_FORMATTER, semverGitPluginExtension.info)
         formattedVersion = appendDirtyMarker(formattedVersion, suffix, semverGitPluginExtension.dirtyMarker)
         regexFormatterPair?.let {
-            formattedVersion = format(regexFormatterPair.formatter)
+            formattedVersion = format(regexFormatterPair.formatter, semverGitPluginExtension.info)
             formattedVersion = appendDirtyMarker(formattedVersion, suffix, semverGitPluginExtension.dirtyMarker)
         }
         return appendSuffix(formattedVersion, suffix, semverGitPluginExtension.snapshotSuffix)
@@ -52,10 +52,10 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         return version
     }
 
-    private fun format(formatter: Any): String {
+    private fun format(formatter: Any, info: Info): String {
         if (formatter is Closure<*>) {
-            return (formatter as Closure<GString>).call().toString()
+            return (formatter as Closure<GString>).call(info).toString()
         }
-        return (formatter as () -> String).invoke()
+        return (formatter as (info: Info) -> String).invoke(info)
     }
 }

@@ -471,11 +471,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 id 'io.wusa.semver-git-plugin'
             }
 
-            branches {
-                branch {
-                    regex = ".*"
-                    incrementer = "MINOR_INCREMENTER"
-                    formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+            semver {
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
                 }
             }
         """)

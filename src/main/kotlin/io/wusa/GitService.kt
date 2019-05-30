@@ -6,23 +6,6 @@ import org.gradle.api.Project
 
 class GitService {
     companion object {
-        fun describe(project: Project): Version {
-            val versionFactory: IVersionFactory = SemanticVersionFactory()
-            return try {
-                val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
-                versionFactory.createFromString(describe, project)
-            } catch (ex: GitException) {
-                try {
-                    val describe = GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
-                    // annotated tag found use tagged version as current version
-                    versionFactory.createFromString(describe, project)
-                } catch (ex: GitException) {
-                    // no annotated tag found will use initialVersion as current version
-                    throw NoAnnotatedTagFoundException("No annotated tag found.")
-                }
-            }
-        }
-
         fun currentBranch(project: Project): String {
             return try {
                 GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--abbrev-ref", "HEAD"))

@@ -22,6 +22,6 @@ open class SemverGitPluginExtension(private var project: Project) {
         const val DEFAULT_DIRTY_MARKER = "dirty"
         const val DEFAULT_INITIAL_VERSION = "0.1.0"
         const val DEFAULT_INCREMENTER = "MINOR_INCREMENTER"
-        val DEFAULT_FORMATTER = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+        val DEFAULT_FORMATTER = { info:Info -> "${info.version.major}.${info.version.minor}.${info.version.patch}+build.${info.count}.sha.${info.shortCommit}" }
     }
 }
