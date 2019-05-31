@@ -24,6 +24,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -33,7 +35,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = Transformer<String, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                 }
             }
@@ -53,6 +55,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -62,12 +66,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+branch.${'$'}{semver.info.branch.id}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                 }
             }
@@ -88,6 +92,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -97,12 +103,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+branch.${'$'}{semver.info.branch.id}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
                     }
                 }
             }
@@ -123,6 +129,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -132,7 +140,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "NO_VERSION_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -153,6 +161,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -162,7 +172,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "PATCH_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -183,6 +193,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -192,7 +204,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -213,6 +225,8 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
+            import io.wusa.Info
+
             plugins {
                 id("io.wusa.semver-git-plugin")
             }
@@ -222,7 +236,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MAJOR_INCREMENTER"
-                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}+build.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }

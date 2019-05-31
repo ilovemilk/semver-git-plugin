@@ -1,6 +1,8 @@
 package io.wusa.extension
 
+import io.wusa.Info
 import org.gradle.api.Project
+import org.gradle.api.Transformer
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 
@@ -19,8 +21,8 @@ class Branch(private val project: Project) {
 
     @Internal
     val formatterProperty: Property<Any> = project.objects.property(Any::class.java)
-    var formatter: Any
-        get() = formatterProperty.get()
+    var formatter: Transformer<String, Info>
+        get() = formatterProperty.get() as Transformer<String, Info>
         set(value) = formatterProperty.set(value)
 
     override fun toString(): String {

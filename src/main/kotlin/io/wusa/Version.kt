@@ -1,10 +1,9 @@
 package io.wusa
 
-import groovy.lang.Closure
-import groovy.lang.GString
 import io.wusa.RegexResolver.Companion.findMatchingRegex
 import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Project
+import org.gradle.api.Transformer
 
 data class Version(var major: Int, var minor: Int, var patch: Int, var prerelease: String, var build: String, var suffix: Suffix?, var project: Project) {
     override fun toString(): String {
@@ -52,10 +51,7 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         return version
     }
 
-    private fun format(formatter: Any, info: Info): String {
-        if (formatter is Closure<*>) {
-            return (formatter as Closure<GString>).call(info).toString()
-        }
-        return (formatter as (info: Info) -> String).invoke(info)
+    private fun format(transformer: Transformer<String, Info>, info: Info): String {
+        return transformer.transform(info)
     }
 }
