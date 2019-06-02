@@ -35,7 +35,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                 }
             }
@@ -66,12 +66,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                 }
             }
@@ -103,12 +103,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
                     }
                 }
             }
@@ -140,7 +140,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "NO_VERSION_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -172,7 +172,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "PATCH_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -204,7 +204,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }
@@ -236,7 +236,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                     branch {
                         regex = ".*"
                         incrementer = "MAJOR_INCREMENTER"
-                        formatter = Transformer<String, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
                     }
                 }
             }

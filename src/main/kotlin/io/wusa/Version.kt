@@ -51,7 +51,7 @@ data class Version(var major: Int, var minor: Int, var patch: Int, var prereleas
         return version
     }
 
-    private fun format(transformer: Transformer<String, Info>, info: Info): String {
-        return transformer.transform(info)
+    private fun format(transformer: Transformer<Any, Info>, info: Info): String {
+        return transformer.transform(info).toString()
     }
 }

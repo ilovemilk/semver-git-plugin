@@ -21,8 +21,9 @@ class Branch(private val project: Project) {
 
     @Internal
     val formatterProperty: Property<Any> = project.objects.property(Any::class.java)
-    var formatter: Transformer<String, Info>
-        get() = formatterProperty.get() as Transformer<String, Info>
+    // Object type Any for groovy (GString) and kotlin (String) interoperability
+    var formatter: Transformer<Any, Info>
+        get() = formatterProperty.get() as Transformer<Any, Info>
         set(value) = formatterProperty.set(value)
 
     override fun toString(): String {
