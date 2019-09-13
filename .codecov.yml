@@ -6,4 +6,7 @@ coverage:
     project: off
     patch: off
 
-comment: off
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: no
