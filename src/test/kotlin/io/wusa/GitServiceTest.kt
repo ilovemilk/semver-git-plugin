@@ -100,6 +100,12 @@ class GitServiceTest {
     }
 
     @Test
+    fun `get current branch with null pointer exception`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
+        Assertions.assertEquals("", GitService.currentBranch(createTempDir()))
+    }
+
+    @Test
     fun `no current branch`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
         Assertions.assertEquals("", GitService.currentBranch(createTempDir()))
