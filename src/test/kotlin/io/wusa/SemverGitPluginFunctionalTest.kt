@@ -1,12 +1,11 @@
 package io.wusa
 
-import org.gradle.api.GradleException
 import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
+import org.gradle.internal.impldep.org.eclipse.jgit.revwalk.RevCommit
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -452,10 +451,42 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Branch group: master"))
         assertTrue(result.output.contains("Branch id: master"))
         assertTrue(result.output.contains("Commit: " + commit.id.name()))
-        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate(7).name()))
         assertTrue(result.output.contains("Tag: none"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version major: 0"))
+        assertTrue(result.output.contains("Version minor: 1"))
+        assertTrue(result.output.contains("Version patch: 0"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
+    }
+
+    @Test
+    fun `full info of feature branch with detached HEAD`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+        """)
+        val revCommit = initializeGitWithBranchAndDetachedHEAD(testProjectDirectory, "feature/test")
+        val result = GradleRunner.create()
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Branch name: feature/test"))
+        assertTrue(result.output.contains("Branch group: feature"))
+        assertTrue(result.output.contains("Branch id: feature-test"))
+        assertTrue(result.output.contains("Commit: " + revCommit.id.name()))
+        assertTrue(result.output.contains("Short commit: " + revCommit.id.abbreviate(7).name()))
+        assertTrue(result.output.contains("Tag: none"))
+        assertTrue(result.output.contains("Last tag: none"))
+        assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
         assertTrue(result.output.contains("Version major: 0"))
         assertTrue(result.output.contains("Version minor: 1"))
         assertTrue(result.output.contains("Version patch: 0"))
@@ -484,7 +515,7 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Branch group: feature"))
         assertTrue(result.output.contains("Branch id: feature-test"))
         assertTrue(result.output.contains("Commit: " + commit.id.name()))
-        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate(7).name()))
         assertTrue(result.output.contains("Tag: none"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
@@ -531,6 +562,25 @@ class SemverGitPluginFunctionalTest {
         git.checkout().setCreateBranch(true).setName(branch).call()
         git.tag().setName(tag).setObjectId(commit).call()
         return git
+    }
+
+    private fun initializeGitWithBranchAndDetachedHEAD(directory: File, branch: String = "develop"): RevCommit {
+        val git = Git.init().setDirectory(directory).call()
+        // checkout master
+        val initialCommit = git.commit().setMessage("initial commit").call()
+        git.branchCreate().setName(branch).setStartPoint(
+                initialCommit).setForce(true).call()
+        git.checkout().setName(branch).call()
+        // commit something
+        //File("Test.txt").writeText("Hello world")
+        git.add().addFilepattern("Test.txt").call()
+        val firstCommit = git.commit().setMessage("Initial commit").call()
+        //File("Test.txt").writeText("Hello world")
+        git.add().addFilepattern("Test.txt").call()
+        git.commit().setMessage("Second commit").call()
+        git.checkout().setName(firstCommit.name()).call()
+
+        return firstCommit
     }
 
     private fun initializeGitWithoutBranch(directory: File, tag: String = "0.0.1"): Git {
