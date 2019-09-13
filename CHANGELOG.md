@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2019-09-13
+### Fixes
+- Current branch returning the branch name instead of HEAD on a detached HEAD
+
 ## [1.2.0] - 2019-05-11
 ### Added
 - Detailed version info to info task
