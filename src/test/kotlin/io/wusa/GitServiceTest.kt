@@ -88,13 +88,13 @@ class GitServiceTest {
     @Test
     fun `get current branch master`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "* master 5824168c73ba0618c1b6e384fbd7d61c5e8b8bc3"
-        Assertions.assertEquals("master", GitService.currentBranch(createTempDir()))
+        Assertions.assertEquals("master", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-test`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "* feature/test 5824168c73ba0618c1b6e384fbd7d61c5e8b8bc3"
-        Assertions.assertEquals("feature/test", GitService.currentBranch(createTempDir()))
+        Assertions.assertEquals("feature/test", GitService.currentBranch(project))
     }
 
     @Test
@@ -102,13 +102,13 @@ class GitServiceTest {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
                 "* feature/test                cd55642b18ef34d976eda337d2b7abd296b37c8f remove code quality\n" +
                 "  remotes/origin/feature/test cd55642b18ef34d976eda337d2b7abd296b37c8f remove code quality"
-        Assertions.assertEquals("feature/test", GitService.currentBranch(createTempDir()))
+        Assertions.assertEquals("feature/test", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch with null pointer exception`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
-        Assertions.assertEquals("", GitService.currentBranch(createTempDir()))
+        Assertions.assertEquals("", GitService.currentBranch(project))
     }
 
     @Test
