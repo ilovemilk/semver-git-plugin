@@ -8,8 +8,11 @@ class GitService {
     companion object {
         fun currentBranch(project: Project): String {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--abbrev-ref", "HEAD"))
+                val branches = GitCommandRunner.execute(projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
+                return """(remotes)*/*(origin)*/*([a-z_-]*/?[a-z_-]+)\s+[0-9a-z]{40}""".toRegex().find(branches)!!.groupValues[3]
             } catch (ex: GitException) {
+                ""
+            } catch (ex: KotlinNullPointerException) {
                 ""
             }
         }

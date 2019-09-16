@@ -2,15 +2,20 @@ package io.wusa
 
 import io.wusa.exception.GitException
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class GitCommandRunner {
     companion object {
         fun execute(projectDir: File, args: Array<String>): String {
             val process = ProcessBuilder("git", *args)
                     .directory(projectDir)
-                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+                    .redirectError(ProcessBuilder.Redirect.PIPE)
                     .start()
-            process.waitFor()
+            if (!process.waitFor(10, TimeUnit.SECONDS)) {
+                process.destroy()
+                throw RuntimeException("Execution timed out: $this")
+            }
             if (process.exitValue() == 0) {
                 return process.inputStream.bufferedReader().use { it.readText() }.trim()
             }
