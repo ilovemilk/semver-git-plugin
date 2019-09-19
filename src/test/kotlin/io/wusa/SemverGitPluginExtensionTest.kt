@@ -23,6 +23,6 @@ class SemverGitPluginExtensionTest {
     fun `defaults`() {
         val extension = SemverGitPluginExtension(project)
         assertEquals(extension.dirtyMarker, "dirty")
-        assertEquals(extension.info, Info("0.1.0", project))
+        assertEquals(extension.info, Info(project))
     }
 }

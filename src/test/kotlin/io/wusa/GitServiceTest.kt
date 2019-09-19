@@ -3,7 +3,7 @@ package io.wusa
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
-import io.wusa.exception.GitException
+import io.wusa.exception.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.*
@@ -46,7 +46,9 @@ class GitServiceTest {
     @Test
     fun `no last tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("none", GitService.lastTag(project))
+        Assertions.assertThrows(NoLastTagFoundException::class.java) {
+            GitService.lastTag(project)
+        }
     }
 
     @Test
@@ -58,7 +60,9 @@ class GitServiceTest {
     @Test
     fun `no current tag`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("none", GitService.currentTag(project))
+        Assertions.assertThrows(NoCurrentTagFoundException::class.java) {
+            GitService.currentTag(project)
+        }
     }
 
     @Test
@@ -70,7 +74,9 @@ class GitServiceTest {
     @Test
     fun `no current commit sha`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("", GitService.currentCommit(project, false))
+        Assertions.assertThrows(NoCurrentCommitFoundException::class.java) {
+            GitService.currentCommit(project, false)
+        }
     }
 
     @Test
@@ -82,7 +88,9 @@ class GitServiceTest {
     @Test
     fun `no current short commit sha`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("", GitService.currentCommit(project, true))
+        Assertions.assertThrows(NoCurrentCommitFoundException::class.java) {
+            GitService.currentCommit(project, true)
+        }
     }
 
     @Test
@@ -108,12 +116,16 @@ class GitServiceTest {
     @Test
     fun `get current branch with null pointer exception`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
-        Assertions.assertEquals("", GitService.currentBranch(project))
+        Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
+            GitService.currentBranch(project)
+        }
     }
 
     @Test
     fun `no current branch`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals("", GitService.currentBranch(project))
+        Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
+            GitService.currentBranch(project)
+        }
     }
 }

@@ -1,23 +1,50 @@
 package io.wusa
 
+import io.wusa.exception.NoCurrentTagFoundException
+import io.wusa.exception.NoLastTagFoundException
+import io.wusa.extension.SemverGitPluginExtension
+import io.wusa.formatter.SemanticVersionFormatter
 import org.gradle.api.Project
 
-data class Info(private var initialVersion: String, private var project: Project) {
-
+data class Info(private var project: Project) {
     val branch: Branch
         get() = Branch(project)
 
     val commit: String
-        get() = GitService.currentCommit(project, false)
+        get() {
+            return try {
+                GitService.currentCommit(project, false)
+            } catch (ex: NoCurrentTagFoundException) {
+                "none"
+            }
+        }
 
     val shortCommit: String
-        get() = GitService.currentCommit(project, true)
+        get() {
+            return try {
+                GitService.currentCommit(project, true)
+            } catch (ex: NoCurrentTagFoundException) {
+                "none"
+            }
+        }
 
     val tag: String
-        get() = GitService.currentTag(project)
+        get() {
+            return try {
+                GitService.currentTag(project)
+            } catch (ex: NoCurrentTagFoundException) {
+                "none"
+            }
+        }
 
     val lastTag: String
-        get() = GitService.lastTag(project)
+        get() {
+            return try {
+                GitService.lastTag(project)
+            } catch (ex: NoLastTagFoundException) {
+                "none"
+            }
+        }
 
     val dirty: Boolean
         get() = GitService.isDirty(project)
@@ -26,7 +53,11 @@ data class Info(private var initialVersion: String, private var project: Project
         get() = GitService.count(project)
 
     val version: Version
-        get() {
-            return VersionService(project).getVersion()
-        }
+        get() = VersionService(project).getVersion()
+
+    override fun toString(): String {
+        val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+
+        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
+    }
 }

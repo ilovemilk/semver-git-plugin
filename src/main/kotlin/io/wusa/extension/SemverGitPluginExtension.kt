@@ -16,7 +16,7 @@ open class SemverGitPluginExtension(private var project: Project) {
     var snapshotSuffix: String = DEFAULT_SNAPSHOT_SUFFIX
 
     val info: Info
-        get() = Info(initialVersion, project)
+        get() = Info(project)
 
     companion object {
         const val DEFAULT_SNAPSHOT_SUFFIX = "SNAPSHOT"

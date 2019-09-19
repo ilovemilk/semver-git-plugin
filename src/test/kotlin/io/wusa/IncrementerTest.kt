@@ -24,25 +24,25 @@ class IncrementerTest {
 
     @Test
     fun `bump major version`() {
-        val version = MajorVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(2, 0, 0, "", "", null, project))
+        val version = MajorVersionIncrementer().increment(Version(1, 1, 1, "", "", null))
+        Assertions.assertEquals(version, Version(2, 0, 0, "", "", null))
     }
 
     @Test
     fun `bump minor version`() {
-        val version = MinorVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(1, 2, 0, "", "", null, project))
+        val version = MinorVersionIncrementer().increment(Version(1, 1, 1, "", "", null))
+        Assertions.assertEquals(version, Version(1, 2, 0, "", "", null))
     }
 
     @Test
     fun `bump patch version`() {
-        val version = PatchVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(1, 1, 2, "", "", null, project))
+        val version = PatchVersionIncrementer().increment(Version(1, 1, 1, "", "", null))
+        Assertions.assertEquals(version, Version(1, 1, 2, "", "", null))
     }
 
     @Test
     fun `don't bump version`() {
-        val version = NoVersionIncrementer().increment(Version(1, 1, 1, "", "", null, project))
-        Assertions.assertEquals(version, Version(1, 1, 1, "", "", null, project))
+        val version = NoVersionIncrementer().increment(Version(1, 1, 1, "", "", null))
+        Assertions.assertEquals(version, Version(1, 1, 1, "", "", null))
     }
 }

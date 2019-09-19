@@ -14,7 +14,7 @@ class SemverGitPlugin : Plugin<Project> {
             it.description = "Show the project version"
         }
         project.tasks.getByName("showVersion").doLast {
-            println("Version: " + semverGitPluginExtension.info.version)
+            println("Version: " + semverGitPluginExtension.info)
         }
 
         project.task("showInfo") {
@@ -30,7 +30,7 @@ class SemverGitPlugin : Plugin<Project> {
             println("Tag: " + semverGitPluginExtension.info.tag)
             println("Last tag: " + semverGitPluginExtension.info.lastTag)
             println("Dirty: " + semverGitPluginExtension.info.dirty)
-            println("Version: " + semverGitPluginExtension.info.version)
+            println("Version: " + semverGitPluginExtension.info)
             println("Version major: " + semverGitPluginExtension.info.version.major)
             println("Version minor: " + semverGitPluginExtension.info.version.minor)
             println("Version patch: " + semverGitPluginExtension.info.version.patch)

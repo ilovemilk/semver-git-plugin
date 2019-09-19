@@ -1,51 +1,55 @@
 package io.wusa
 
-import io.wusa.exception.GitException
-import io.wusa.exception.NoAnnotatedTagFoundException
+import io.wusa.exception.*
 import org.gradle.api.Project
 
 class GitService {
     companion object {
+
+        @Throws(NoCurrentBranchFoundException::class)
         fun currentBranch(project: Project): String {
             return try {
                 val branches = GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
-                return """(remotes)*/*(origin)*/*([a-z_-]*/?[a-z_-]+)\s+[0-9a-z]{40}""".toRegex().find(branches)!!.groupValues[3]
+                """(remotes)*/*(origin)*/*([a-z_-]*/?[a-z_-]+)\s+[0-9a-z]{40}""".toRegex().find(branches)!!.groupValues[3]
             } catch (ex: GitException) {
-                ""
+                throw NoCurrentBranchFoundException(ex)
             } catch (ex: KotlinNullPointerException) {
-                ""
+                throw NoCurrentBranchFoundException(ex)
             }
         }
 
+        @Throws(NoCurrentCommitFoundException::class)
         fun currentCommit(project: Project, isShort: Boolean): String {
             return if (isShort) {
                 try {
                     GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--short", "HEAD"))
                 } catch (ex: GitException) {
-                    ""
+                    throw NoCurrentCommitFoundException(ex)
                 }
             } else {
                 try {
                     GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "HEAD"))
                 } catch (ex: GitException) {
-                    ""
+                    throw NoCurrentCommitFoundException(ex)
                 }
             }
         }
 
+        @Throws(NoCurrentTagFoundException::class)
         fun currentTag(project: Project): String {
             return try {
                 GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
             } catch (ex: GitException) {
-                "none"
+                throw NoCurrentTagFoundException(ex)
             }
         }
 
+        @Throws(NoCurrentTagFoundException::class)
         fun lastTag(project: Project): String {
             return try {
                 GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
             } catch (ex: GitException) {
-                "none"
+                throw NoLastTagFoundException(ex)
             }
         }
 
