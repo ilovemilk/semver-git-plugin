@@ -1,18 +1,20 @@
 package io.wusa
 
+import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class SemverGitPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project.projectDir)
+
+        val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project)
 
         project.task("showVersion") {
             it.group = "Help"
             it.description = "Show the project version"
         }
         project.tasks.getByName("showVersion").doLast {
-            println("Version: " + semverGitPluginExtension.info.version)
+            println("Version: " + semverGitPluginExtension.info)
         }
 
         project.task("showInfo") {
@@ -28,7 +30,7 @@ class SemverGitPlugin : Plugin<Project> {
             println("Tag: " + semverGitPluginExtension.info.tag)
             println("Last tag: " + semverGitPluginExtension.info.lastTag)
             println("Dirty: " + semverGitPluginExtension.info.dirty)
-            println("Version: " + semverGitPluginExtension.info.version)
+            println("Version: " + semverGitPluginExtension.info)
             println("Version major: " + semverGitPluginExtension.info.version.major)
             println("Version minor: " + semverGitPluginExtension.info.version.minor)
             println("Version patch: " + semverGitPluginExtension.info.version.patch)

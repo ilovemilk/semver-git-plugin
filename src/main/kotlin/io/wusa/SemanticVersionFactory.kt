@@ -1,10 +1,8 @@
 package io.wusa
 
 import org.slf4j.LoggerFactory
-import java.lang.IllegalArgumentException
 
-class SemanticVersionFactory(var suffixFormat: String = SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX, var dirtyMarker: String = SemverGitPluginExtension.DEFAULT_DIRTY_MARKER) : VersionFactory {
-
+class SemanticVersionFactory : IVersionFactory {
     private val LOG = LoggerFactory.getLogger(SemanticVersionFactory::class.java)
 
     override fun createFromString(describe: String): Version {
@@ -31,7 +29,7 @@ class SemanticVersionFactory(var suffixFormat: String = SemverGitPluginExtension
         return versionRegex.matchEntire(version)
                 ?.destructured
                 ?.let { (major, minor, patch, prerelase, build) ->
-                    Version(major.toInt(), minor.toInt(), patch.toInt(), prerelase, build, null, suffixFormat, dirtyMarker)
+                    Version(major.toInt(), minor.toInt(), patch.toInt(), prerelase, build, null)
                 }
                 ?: throw IllegalArgumentException("Bad input '$version'")
     }

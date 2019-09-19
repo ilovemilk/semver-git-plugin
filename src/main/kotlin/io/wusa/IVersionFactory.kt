@@ -1,6 +1,6 @@
 package io.wusa
 
-interface VersionFactory {
+interface IVersionFactory {
 
     fun createFromString(describe: String): Version
 }
