@@ -36,7 +36,6 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ```kotlin
 semver {
-    nextVersion = "major", "minor" (default), "patch" or "none"
     snapshotSuffix = "SNAPSHOT" (default) appended if the commit is without a release tag
     dirtyMarker = "dirty" (default) appended if the are uncommitted changes
     initialVersion = "0.1.0" (default) initial version in semantic versioning
