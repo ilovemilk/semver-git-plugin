@@ -1,6 +1,7 @@
 package io.wusa
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.*
 import java.io.File
 
@@ -122,6 +123,38 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 .build()
         println(result.output)
         Assertions.assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
+    }
+
+    @Test
+    fun `version wrong incrementer`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "THIS_IS_NO_INCREMENTer"
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1")
+        git.commit().setMessage("").call()
+        Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
+            gradleRunner
+                    .withProjectDir(testProjectDirectory)
+                    .withArguments("showVersion")
+                    .withPluginClasspath()
+                    .build()
+        }
     }
 
     @Test

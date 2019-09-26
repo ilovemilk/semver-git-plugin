@@ -1,26 +1,31 @@
 package io.wusa
 
+import io.wusa.exception.NoValidSemverTagFoundException
 import org.slf4j.LoggerFactory
 
 class SemanticVersionFactory : IVersionFactory {
     private val LOG = LoggerFactory.getLogger(SemanticVersionFactory::class.java)
 
     override fun createFromString(describe: String): Version {
-        val suffixRegex = """(?:-(?<count>[0-9]+)(?:-g(?<sha>[0-9a-f]{1,7}))(?<dirty>-dirty)?)$""".toRegex()
-        val suffix = suffixRegex.find(describe)
-                ?.destructured
-                ?.let { (count, sha, dirty) ->
-                    Suffix(count.toInt(), sha, dirty.isNotEmpty())
-                }
+        try {
+            val suffixRegex = """(?:-(?<count>[0-9]+)(?:-g(?<sha>[0-9a-f]{1,7}))(?<dirty>-dirty)?)$""".toRegex()
+            val suffix = suffixRegex.find(describe)
+                    ?.destructured
+                    ?.let { (count, sha, dirty) ->
+                        Suffix(count.toInt(), sha, dirty.isNotEmpty())
+                    }
 
-        var version = describe
-        if (suffix != null) {
-            version = suffixRegex.replace(describe, "")
+            var version = describe
+            if (suffix != null) {
+                version = suffixRegex.replace(describe, "")
+            }
+
+            val parsedVersion = parseVersion(version)
+            parsedVersion.suffix = suffix
+            return parsedVersion
+        } catch (ex: IllegalArgumentException) {
+            throw NoValidSemverTagFoundException("The last tag is not a semantic version.")
         }
-
-        val parsedVersion = parseVersion(version)
-        parsedVersion.suffix = suffix
-        return parsedVersion
     }
 
     private fun parseVersion(version: String): Version {

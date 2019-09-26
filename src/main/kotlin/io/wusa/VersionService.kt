@@ -1,8 +1,6 @@
 package io.wusa
 
-import io.wusa.exception.NoCurrentCommitFoundException
-import io.wusa.exception.NoCurrentTagFoundException
-import io.wusa.exception.NoLastTagFoundException
+import io.wusa.exception.*
 import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.incrementer.VersionIncrementer
 import org.gradle.api.GradleException
@@ -27,8 +25,10 @@ class VersionService(private var project: Project) {
                 } ?: run {
                     return VersionIncrementer.getVersionIncrementerByName(SemverGitPluginExtension.DEFAULT_INCREMENTER).increment(version)
                 }
-            } catch (ex: IllegalArgumentException) {
-                throw GradleException("The last tag is not a semantic version.")
+            } catch (ex: NoValidSemverTagFoundException) {
+                throw GradleException(ex.localizedMessage)
+            } catch (ex: NoIncrementerFoundException) {
+                throw GradleException(ex.localizedMessage)
             } catch (ex: NoLastTagFoundException) {
                 return try {
                     val sha = GitService.currentCommit(project, true)
