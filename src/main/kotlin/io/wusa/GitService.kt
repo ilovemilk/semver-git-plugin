@@ -44,7 +44,7 @@ class GitService {
             }
         }
 
-        @Throws(NoCurrentTagFoundException::class)
+        @Throws(NoLastTagFoundException::class)
         fun lastTag(project: Project): String {
             return try {
                 GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))

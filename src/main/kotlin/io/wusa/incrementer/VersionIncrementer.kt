@@ -1,6 +1,8 @@
 package io.wusa.incrementer
 
 import io.wusa.Version
+import io.wusa.exception.NoIncrementerFoundException
+import java.lang.IllegalArgumentException
 
 enum class VersionIncrementer: IIncrementer {
     NO_VERSION_INCREMENTER {
@@ -25,6 +27,12 @@ enum class VersionIncrementer: IIncrementer {
     };
 
     companion object {
-        fun getVersionIncrementerByName(name: String) = valueOf(name.toUpperCase())
+        fun getVersionIncrementerByName(name: String): VersionIncrementer {
+            try {
+                return valueOf(name.toUpperCase())
+            } catch (ex: IllegalArgumentException) {
+                throw NoIncrementerFoundException("The in the config specified incrementer was not found.")
+            }
+        }
     }
 }
