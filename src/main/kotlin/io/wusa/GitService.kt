@@ -1,87 +1,90 @@
 package io.wusa
 
-import io.wusa.exception.GitException
-import java.io.File
+import io.wusa.exception.*
+import org.gradle.api.Project
 
 class GitService {
     companion object {
-        fun describe(initialVersion: String, nextVersion: String, projectDir: File, snapshotSuffix: String = SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX, dirtyMarker: String = SemverGitPluginExtension.DEFAULT_DIRTY_MARKER): Version {
-            val versionFactory: VersionFactory = SemanticVersionFactory(snapshotSuffix, dirtyMarker)
-            return try {
-                val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--exact-match"))
-                versionFactory.createFromString(describe)
-            } catch (ex: GitException) {
-                try {
-                    val describe = GitCommandRunner.execute(projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
-                    versionFactory.createFromString(describe).bump(nextVersion)
-                } catch (ex: GitException) {
-                    val sha = currentCommit(projectDir, true)
-                    val isDirty = isDirty(projectDir)
-                    val count = count(projectDir)
-                    val version = versionFactory.createFromString(initialVersion)
-                    version.suffix = Suffix(count, sha, isDirty)
-                    return version
-                }
-            }
-        }
 
-        fun currentBranch(projectDir: File): String {
+        @Throws(NoCurrentBranchFoundException::class)
+        fun currentBranch(project: Project): String {
             return try {
-                val branches = GitCommandRunner.execute(projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
-                return """(remotes)*/*(origin)*/*([a-z_-]*/?[a-z_-]+)\s+[0-9a-z]{40}""".toRegex().find(branches)!!.groupValues[3]
+                val branches = getAllBranches(project)
+                filterCurrentBranch(branches)
             } catch (ex: GitException) {
-                ""
+                throw NoCurrentBranchFoundException(ex)
             } catch (ex: KotlinNullPointerException) {
-                ""
+                throw NoCurrentBranchFoundException(ex)
             }
         }
 
-        fun currentCommit(projectDir: File, isShort: Boolean): String {
+        @Throws(NoCurrentCommitFoundException::class)
+        fun currentCommit(project: Project, isShort: Boolean): String {
             return if (isShort) {
-                try {
-                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "--short", "HEAD"))
-                } catch (ex: GitException) {
-                    ""
-                }
+                getCurrentShortCommit(project)
             } else {
-                try {
-                    GitCommandRunner.execute(projectDir, arrayOf("rev-parse", "HEAD"))
-                } catch (ex: GitException) {
-                    ""
-                }
+                getCurrentCommit(project)
             }
         }
 
-        fun currentTag(projectDir: File): String {
+        @Throws(NoCurrentTagFoundException::class)
+        fun currentTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--exact-match"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
             } catch (ex: GitException) {
-                "none"
+                throw NoCurrentTagFoundException(ex)
             }
         }
 
-        fun lastTag(projectDir: File): String {
+        @Throws(NoLastTagFoundException::class)
+        fun lastTag(project: Project): String {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("describe", "--tags", "--abbrev=0"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
             } catch (ex: GitException) {
-                "none"
+                throw NoLastTagFoundException(ex)
             }
         }
 
-        fun isDirty(projectDir: File): Boolean {
+        fun isDirty(project: Project): Boolean {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("diff", "--stat")) != ""
+                isGitDifferent(project)
             } catch (ex: GitException) {
                 false
             }
         }
 
-        private fun count(projectDir: File): Int {
+        fun count(project: Project): Int {
             return try {
-                GitCommandRunner.execute(projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
+                GitCommandRunner.execute(project.projectDir, arrayOf("rev-list", "--count", "HEAD")).toInt()
             } catch (ex: GitException) {
                 0
             }
+        }
+
+        private fun isGitDifferent(project: Project) =
+                GitCommandRunner.execute(project.projectDir, arrayOf("diff", "--stat")) != ""
+
+        private fun getCurrentCommit(project: Project): String {
+            return try {
+                GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "HEAD"))
+            } catch (ex: GitException) {
+                throw NoCurrentCommitFoundException(ex)
+            }
+        }
+
+        private fun getCurrentShortCommit(project: Project): String {
+            return try {
+                GitCommandRunner.execute(project.projectDir, arrayOf("rev-parse", "--short", "HEAD"))
+            } catch (ex: GitException) {
+                throw NoCurrentCommitFoundException(ex)
+            }
+        }
+
+        private fun filterCurrentBranch(branches: String) =
+                """(remotes)*/*(origin)*/*([a-z_-]*/?[a-z_-]+)\s+[0-9a-z]{40}""".toRegex().find(branches)!!.groupValues[3]
+
+        private fun getAllBranches(project: Project): String {
+            return GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
         }
     }
 }

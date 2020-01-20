@@ -1,14 +1,26 @@
 package io.wusa
 
+import io.mockk.mockkObject
+import io.wusa.exception.NoValidSemverTagFoundException
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.lang.IllegalArgumentException
 
 class SemanticVersionFactoryTest {
 
+    private lateinit var project: Project
+
+    @BeforeEach
+    internal fun setUp() {
+        project = ProjectBuilder.builder().build()
+        mockkObject(GitService)
+    }
+    
     @Test
     fun `parse version`() {
-        val semanticVersionFactory: VersionFactory = SemanticVersionFactory()
+        val semanticVersionFactory: IVersionFactory = SemanticVersionFactory()
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-0-g123-dirty"), Version(1, 0, 0, "", "", Suffix(0, "123", true)))
         Assertions.assertEquals(semanticVersionFactory.createFromString("0.0.1-1-gfe17e7f"), Version(0, 0, 1, "", "", Suffix(1, "fe17e7f", false)))
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-2-g123-dirty"), Version(1, 0, 0, "", "", Suffix(2, "123", true)))
@@ -61,136 +73,136 @@ class SemanticVersionFactoryTest {
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5"), Version(1, 0, 0, "5", "", null))
         Assertions.assertEquals(semanticVersionFactory.createFromString("1.0.0-5-g"), Version(1, 0, 0, "5-g", "", null))
 
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2.3-0123")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2.3-0123.0123")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.1.2+.123")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("+invalid")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("-invalid")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("-invalid+invalid")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("-invalid.01")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha.beta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha.beta.1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha.1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha+beta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha_beta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("alpha..")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("beta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha_beta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("-")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha..")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha..1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha...1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha....1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha.....1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha......1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-alpha.......1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("01.1.1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.01.1")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.1.01")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2.3.DEV")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2-SNAPSHOT")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.2-RC-SNAPSHOT")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("-1.0.3-gamma+b7718")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("+justmeta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("9.8.7+meta+meta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("9.8.7-whatever+meta+meta")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("9999999.9999999.9999999----RC-SNAPSHOT.12.09.1--------------------------------..12")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.1.1 ")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("111")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("a.b.c")
         }
-        Assertions.assertThrows(IllegalArgumentException::class.java) {
+        Assertions.assertThrows(NoValidSemverTagFoundException::class.java) {
             semanticVersionFactory.createFromString("1.0.0-")
         }
     }

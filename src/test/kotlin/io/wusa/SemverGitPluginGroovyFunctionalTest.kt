@@ -1,15 +1,26 @@
 package io.wusa
 
 import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
-import org.gradle.internal.impldep.org.eclipse.jgit.revwalk.RevCommit
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
 import java.io.File
 
-class SemverGitPluginFunctionalTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
+
+    private lateinit var gradleRunner: GradleRunner
+
+    @BeforeAll
+    fun setUp() {
+        gradleRunner = GradleRunner.create()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        gradleRunner.projectDir.deleteRecursively()
+    }
 
     @Test
     fun `defaults`() {
@@ -21,13 +32,77 @@ class SemverGitPluginFunctionalTest {
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory)
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 0.0.1"))
+        assertTrue(result.output.contains("Version: 0.1.0"))
+    }
+
+    @Test
+    fun `version formatter for all branches`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        initializeGitWithoutBranch(testProjectDirectory)
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0"))
+    }
+
+    @Test
+    fun `version formatter for feature branches use specific`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT"))
     }
 
     @Test
@@ -41,13 +116,14 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
+        assertTrue(result.output.contains("-SNAPSHOT"))
+        assertTrue(result.output.contains("Version: 0.1.0"))
     }
 
     @Test
@@ -65,13 +141,14 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 1.0.0-SNAPSHOT"))
+        assertTrue(result.output.contains("-SNAPSHOT"))
+        assertTrue(result.output.contains("Version: 1.0.0"))
     }
 
     @Test
@@ -84,18 +161,17 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'patch'
+                snapshotSuffix = 'SNAPSHOT'
             }
         """)
         Git.init().setDirectory(testProjectDirectory).call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 0.1.0"))
+        assertTrue("""Version: 0\.1\.0\-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
 
     @Test
@@ -108,19 +184,19 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'patch'
+                snapshotSuffix = 'TEST'
             }
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 0.1.0-1-g"))
+        assertTrue(result.output.contains("-TEST"))
+        assertTrue(result.output.contains("Version: 0.1.0"))
     }
 
     @Test
@@ -133,16 +209,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'patch'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory)
-        val result = GradleRunner.create()
+        initializeGitWithoutBranch(testProjectDirectory, "0.0.1")
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.0.1"))
     }
 
@@ -156,16 +238,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0")
-        val result = GradleRunner.create()
+        initializeGitWithoutBranch(testProjectDirectory)
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0"))
     }
 
@@ -179,16 +267,23 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'major'
+                snapshotSuffix = 'SNAPSHOT'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "1.0.0")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 1.0.0"))
     }
 
@@ -202,16 +297,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0-alpha"))
     }
 
@@ -225,16 +326,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.beta")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0-alpha.beta"))
     }
 
@@ -248,16 +355,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.1")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0-alpha.1"))
     }
 
@@ -271,16 +384,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-beta")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0-beta"))
     }
 
@@ -294,16 +413,22 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         initializeGitWithoutBranch(testProjectDirectory, "0.1.0-rc")
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Version: 0.1.0-rc"))
     }
 
@@ -317,18 +442,24 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'patch'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "PATCH_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
-        assertTrue(result.output.contains("Version: 0.0.2-1-g"))
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.1"))
     }
 
     @Test
@@ -341,18 +472,24 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'minor'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
-        assertTrue(result.output.contains("Version: 0.1.0-1-g"))
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.2.0"))
     }
 
     @Test
@@ -365,19 +502,25 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'major'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MAJOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue(result.output.contains("Version: 1.0.0-1-g"))
+        assertTrue(result.output.contains("-SNAPSHOT"))
+        assertTrue(result.output.contains("Version: 1.0.0"))
     }
 
     @Test
@@ -390,18 +533,24 @@ class SemverGitPluginFunctionalTest {
             }
 
             semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'none'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                    }
+                }
             }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
-        assertTrue(result.output.contains("Version: 0.0.1-1-g"))
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0"))
     }
 
     @Test
@@ -412,17 +561,12 @@ class SemverGitPluginFunctionalTest {
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
-
-            semver {
-                snapshotSuffix = '<count>-g<sha>'
-                nextVersion = 'none'
-            }
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
         git.tag().setName("test-tag").setObjectId(commit).call()
         Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
-            GradleRunner.create()
+            gradleRunner
                     .withProjectDir(testProjectDirectory)
                     .withArguments("showVersion")
                     .withPluginClasspath()
@@ -441,7 +585,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithoutBranch(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
                 .withPluginClasspath()
@@ -451,44 +595,12 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Branch group: master"))
         assertTrue(result.output.contains("Branch id: master"))
         assertTrue(result.output.contains("Commit: " + commit.id.name()))
-        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate(7).name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
         assertTrue(result.output.contains("Tag: none"))
-        assertTrue(result.output.contains("Last tag: 0.0.1"))
+        assertTrue(result.output.contains("Last tag: 0.1.0"))
         assertTrue(result.output.contains("Dirty: false"))
         assertTrue(result.output.contains("Version major: 0"))
-        assertTrue(result.output.contains("Version minor: 1"))
-        assertTrue(result.output.contains("Version patch: 0"))
-        assertTrue(result.output.contains("Version pre release: none"))
-        assertTrue(result.output.contains("Version build: none"))
-    }
-
-    @Test
-    fun `full info of feature branch with detached HEAD`() {
-        val testProjectDirectory = createTempDir()
-        val buildFile = File(testProjectDirectory, "build.gradle")
-        buildFile.writeText("""
-            plugins {
-                id 'io.wusa.semver-git-plugin'
-            }
-        """)
-        val revCommit = initializeGitWithBranchAndDetachedHEAD(testProjectDirectory, "feature/test")
-        val result = GradleRunner.create()
-                .withProjectDir(testProjectDirectory)
-                .withArguments("showInfo")
-                .withPluginClasspath()
-                .build()
-        println(result.output)
-        assertTrue(result.output.contains("Branch name: feature/test"))
-        assertTrue(result.output.contains("Branch group: feature"))
-        assertTrue(result.output.contains("Branch id: feature-test"))
-        assertTrue(result.output.contains("Commit: " + revCommit.id.name()))
-        assertTrue(result.output.contains("Short commit: " + revCommit.id.abbreviate(7).name()))
-        assertTrue(result.output.contains("Tag: none"))
-        assertTrue(result.output.contains("Last tag: none"))
-        assertTrue(result.output.contains("Dirty: false"))
-        assertTrue(result.output.contains("Version: 0.1.0-SNAPSHOT"))
-        assertTrue(result.output.contains("Version major: 0"))
-        assertTrue(result.output.contains("Version minor: 1"))
+        assertTrue(result.output.contains("Version minor: 2"))
         assertTrue(result.output.contains("Version patch: 0"))
         assertTrue(result.output.contains("Version pre release: none"))
         assertTrue(result.output.contains("Version build: none"))
@@ -505,7 +617,7 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
         val commit = git.commit().setMessage("").call()
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
                 .withPluginClasspath()
@@ -515,7 +627,7 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Branch group: feature"))
         assertTrue(result.output.contains("Branch id: feature-test"))
         assertTrue(result.output.contains("Commit: " + commit.id.name()))
-        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate(7).name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
         assertTrue(result.output.contains("Tag: none"))
         assertTrue(result.output.contains("Last tag: 0.0.1"))
         assertTrue(result.output.contains("Dirty: false"))
@@ -537,11 +649,12 @@ class SemverGitPluginFunctionalTest {
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
         val head = git.repository.allRefs["HEAD"]
-        val result = GradleRunner.create()
+        val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
+        println(result.output)
         assertTrue(result.output.contains("Branch name: feature/test"))
         assertTrue(result.output.contains("Branch group: feature"))
         assertTrue(result.output.contains("Branch id: feature-test"))
@@ -554,39 +667,5 @@ class SemverGitPluginFunctionalTest {
         assertTrue(result.output.contains("Version patch: 1"))
         assertTrue(result.output.contains("Version pre release: none"))
         assertTrue(result.output.contains("Version build: none"))
-    }
-
-    private fun initializeGitWithBranch(directory: File, tag: String = "0.0.1", branch: String = "develop"): Git {
-        val git = Git.init().setDirectory(directory).call()
-        val commit = git.commit().setMessage("").call()
-        git.checkout().setCreateBranch(true).setName(branch).call()
-        git.tag().setName(tag).setObjectId(commit).call()
-        return git
-    }
-
-    private fun initializeGitWithBranchAndDetachedHEAD(directory: File, branch: String = "develop"): RevCommit {
-        val git = Git.init().setDirectory(directory).call()
-        // checkout master
-        val initialCommit = git.commit().setMessage("initial commit").call()
-        git.branchCreate().setName(branch).setStartPoint(
-                initialCommit).setForce(true).call()
-        git.checkout().setName(branch).call()
-        // commit something
-        //File("Test.txt").writeText("Hello world")
-        git.add().addFilepattern("Test.txt").call()
-        val firstCommit = git.commit().setMessage("Initial commit").call()
-        //File("Test.txt").writeText("Hello world")
-        git.add().addFilepattern("Test.txt").call()
-        git.commit().setMessage("Second commit").call()
-        git.checkout().setName(firstCommit.name()).call()
-
-        return firstCommit
-    }
-
-    private fun initializeGitWithoutBranch(directory: File, tag: String = "0.0.1"): Git {
-        val git = Git.init().setDirectory(directory).call()
-        val commit = git.commit().setMessage("").call()
-        git.tag().setName(tag).setObjectId(commit).call()
-        return git
     }
 }
