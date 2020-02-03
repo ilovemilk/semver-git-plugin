@@ -114,6 +114,24 @@ class GitServiceTest {
     }
 
     @Test
+    fun `get current branch feature-reactiveTests with origin`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/reactiveTests           831965a6c57434276c70c8e1134244dd6077b1fc fix tests with timeout\n" +
+                "  hotfix/codePrefix                4ad7116a019553ff19d0e338bf7e602374d72c04 [behind 1] fixed publish code test for added prefix\n" +
+                "  remotes/origin/develop           13fc04d392d51d9bc7b70c8d52b2d8cd6cc1199a Merge branch 'feature/reactive-tests' into 'develop'\n" +
+                "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection\n"
+        Assertions.assertEquals("feature/reactiveTests", GitService.currentBranch(project))
+    }
+
+    @Test
+    fun `get current branch hotfix-codePrefix with origin`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* hotfix/codePrefix                4ad7116a019553ff19d0e338bf7e602374d72c04 [behind 1] fixed publish code test for added prefix\n" +
+                "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection"
+        Assertions.assertEquals("hotfix/codePrefix", GitService.currentBranch(project))
+    }
+
+    @Test
     fun `get current branch with null pointer exception`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
         Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
