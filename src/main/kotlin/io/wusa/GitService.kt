@@ -81,7 +81,7 @@ class GitService {
         }
 
         private fun filterCurrentBranch(branches: String) =
-                """(remotes)*/*(origin)*/*([a-zA-Z_-]*/?[a-zA-Z_-]+)\s+[0-9a-zA-Z]{40}""".toRegex().find(branches)!!.groupValues[3]
+                """(remotes)*/*(origin)*/*([a-zA-Z0-9_-]*/?[a-zA-Z0-9_-]+)\s+[0-9a-zA-Z]{40}""".toRegex().find(branches)!!.groupValues[3]
 
         private fun getAllBranches(project: Project): String {
             return GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
