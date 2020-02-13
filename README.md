@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("2.0.0")
+    id("io.wusa.semver-git-plugin").version("2.0.2")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:2.0.0'
+      classpath 'io.wusa:semver-git-plugin:2.0.2'
    }
 }
 
