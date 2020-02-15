@@ -130,6 +130,7 @@ class GitServiceTest {
                 "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection"
         Assertions.assertEquals("hotfix/codePrefix", GitService.currentBranch(project))
     }
+
     @Test
     fun `get current branch feature-s-version-3 with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns

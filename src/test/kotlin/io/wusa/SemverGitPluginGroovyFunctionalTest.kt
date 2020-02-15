@@ -106,6 +106,181 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
+    fun `version formatter for feature branches with camelCase`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/testAbc10")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-testAbc10-SNAPSHOT"))
+    }
+
+    @Test
+    fun `version formatter for feature branches with kebab-case`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test-abc-10")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-abc-10-SNAPSHOT"))
+    }
+
+    @Test
+    fun `version formatter for feature branches with PascalCase`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/TestAbc10")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-TestAbc10-SNAPSHOT"))
+    }
+
+    @Test
+    fun `version formatter for feature branches with snake_case`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test_abc_10")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test_abc_10-SNAPSHOT"))
+    }
+
+    @Test
+    fun `version formatter for feature branches with UPPER_CASE`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/TEST_ABC_10")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 0.1.0+branch.feature-TEST_ABC_10-SNAPSHOT"))
+    }
+
+    @Test
     fun `no existing tag`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
