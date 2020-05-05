@@ -19,7 +19,7 @@ class SemanticVersionFactory : IVersionFactory {
             parsedVersion.suffix = suffix
             return parsedVersion
         } catch (ex: IllegalArgumentException) {
-            throw NoValidSemverTagFoundException("The last tag is not a semantic version.")
+            throw NoValidSemverTagFoundException("The last tag is not a semantic version: $describe.")
         }
     }
 

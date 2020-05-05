@@ -284,4 +284,107 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         println(result.output)
         Assertions.assertTrue("""Version: 1\.0\.0\+build\.2\.sha\.[0-9a-f]{7}-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
+
+  @Test
+  fun `version formatter with prefix`() {
+      val testProjectDirectory = createTempDir()
+      val buildFile = File(testProjectDirectory, "build.gradle.kts")
+      buildFile.writeText("""
+          import io.wusa.Info
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = "prj_"
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "MINOR_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+      initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
+      val result = gradleRunner
+              .withProjectDir(testProjectDirectory)
+              .withArguments("showVersion")
+              .withPluginClasspath()
+              .build()
+      println(result.output)
+      Assertions.assertTrue(result.output.contains("Version: 0.1.0"))
+  }
+
+  @Test
+  fun `version formatter with prefix and multiple tags not head`() {
+      val testProjectDirectory = createTempDir()
+      val buildFile = File(testProjectDirectory, "build.gradle.kts")
+      buildFile.writeText("""
+          import io.wusa.Info
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = "prj_"
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "MINOR_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+    val git = initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
+    val commit = git.commit().setMessage("another commit").call()
+    git.tag().setName("foo-1.0.0").setObjectId(commit).call()
+
+    val result = gradleRunner
+              .withProjectDir(testProjectDirectory)
+              .withArguments("showVersion")
+              .withPluginClasspath()
+              .build()
+      println(result.output)
+      Assertions.assertTrue(result.output.contains("Version: 0.2.0-SNAPSHOT"))
+  }
+
+  @Test
+  fun `version formatter with prefix and multiple tags from head`() {
+      val testProjectDirectory = createTempDir()
+      val buildFile = File(testProjectDirectory, "build.gradle.kts")
+      buildFile.writeText("""
+          import io.wusa.Info
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = "foo-"
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "MINOR_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+    val git = initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
+    val commit = git.commit().setMessage("another commit").call()
+    git.tag().setName("foo-1.0.0").setObjectId(commit).call()
+
+    val result = gradleRunner
+              .withProjectDir(testProjectDirectory)
+              .withArguments("showVersion")
+              .withPluginClasspath()
+              .build()
+      println(result.output)
+      Assertions.assertTrue(result.output.contains("Version: 1.0.0"))
+  }
+
 }

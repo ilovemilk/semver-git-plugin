@@ -49,6 +49,24 @@ semver {
 }
 ```
 
+### Use with a Gradle multi-module project
+For projects which take advantage of Gradle's multi-module projects, it is possible to specify different annotated tags 
+for each module.
+
+The tags for each module must be distinguished with an unambiguous prefix. For example, if you have three modules
+foo, bar, and blega, you may consider using the module name as the prefix. This prefix is configured in the `semver`
+configuration block:
+```kotlin
+semver {
+  tagPrefix = "foo-"
+}
+```  
+
+Given the above configuration, the annotated tags for the "foo" module must all begin with "foo-"; e.g., "foo-3.2.6",
+etc... Note that besides the prefix, the rules for the tag names must still follow all the same semver rules as
+apply in any other case.
+
+
 ## Release
 
 The versions have to be stored as annotated git tags in the format of [semantic versioning](https://semver.org/).

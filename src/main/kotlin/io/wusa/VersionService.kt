@@ -55,11 +55,25 @@ class VersionService(private var project: Project) {
         return version
     }
 
-    private fun getLastVersion(versionFactory: IVersionFactory) =
-            versionFactory.createFromString(GitService.lastTag(project))
+    private fun getLastVersion(versionFactory : IVersionFactory): Version {
+        val tagPrefix = semverGitPluginExtension.tagPrefix
+        val lastTag = GitService.lastTag(project, tagPrefix)
+        if ( !lastTag.startsWith(tagPrefix)) {
+            throw NoCurrentTagFoundException("$lastTag doesn't match $tagPrefix")
+        }
 
-    private fun getCurrentVersion(versionFactory: IVersionFactory) =
-            versionFactory.createFromString(GitService.currentTag(project))
+        return versionFactory.createFromString(lastTag.substring(tagPrefix.length))
+    }
+
+    private fun getCurrentVersion(versionFactory : IVersionFactory): Version {
+        val tagPrefix = semverGitPluginExtension.tagPrefix
+        val curTag = GitService.currentTag(project, tagPrefix)
+        if ( !curTag.startsWith(tagPrefix)) {
+            throw NoCurrentTagFoundException("$curTag doesn't match $tagPrefix")
+        }
+
+        return versionFactory.createFromString(curTag.substring(tagPrefix.length))
+    }
 
     private fun incrementVersion(version: Version): Version {
         val regexIncrementerPair = RegexResolver.findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
