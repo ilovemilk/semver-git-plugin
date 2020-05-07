@@ -130,12 +130,20 @@ class GitServiceTest {
                 "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection"
         Assertions.assertEquals("hotfix/codePrefix", GitService.currentBranch(project))
     }
+
     @Test
     fun `get current branch feature-s-version-3 with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
                 "* feature/s-version-3                9ea487bb167c89a6453fd2e72740a492c6782887 use kebab case\n" +
                 "  remotes/origin/feature/s-version-3 9ea487bb167c89a6453fd2e72740a492c6782887 use kebab case"
         Assertions.assertEquals("feature/s-version-3", GitService.currentBranch(project))
+    }
+    @Test
+    fun `get current branch feature-abcd-10847-abcde-abc with origin`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/abcd-10847-abcde-abc                9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/feature/abcd-10847-abcde-abc 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("feature/abcd-10847-abcde-abc", GitService.currentBranch(project))
     }
 
     @Test
