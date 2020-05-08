@@ -28,18 +28,18 @@ class GitService {
         }
 
         @Throws(NoCurrentTagFoundException::class)
-        fun currentTag(project: Project): String {
+        fun currentTag(project: Project, tagPrefix : String = ""): String {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match", "--match", "$tagPrefix*"))
             } catch (ex: GitException) {
                 throw NoCurrentTagFoundException(ex)
             }
         }
 
         @Throws(NoLastTagFoundException::class)
-        fun lastTag(project: Project): String {
+        fun lastTag(project : Project, tagPrefix : String = ""): String {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7"))
+                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7", "--match", "$tagPrefix*"))
             } catch (ex: GitException) {
                 throw NoLastTagFoundException(ex)
             }

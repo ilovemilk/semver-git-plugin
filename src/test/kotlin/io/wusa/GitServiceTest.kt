@@ -7,7 +7,6 @@ import io.wusa.exception.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.*
-import java.lang.IllegalArgumentException
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GitServiceTest {
