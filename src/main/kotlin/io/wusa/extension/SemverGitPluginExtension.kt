@@ -15,6 +15,8 @@ open class SemverGitPluginExtension(private var project: Project) {
 
     var snapshotSuffix: String = DEFAULT_SNAPSHOT_SUFFIX
 
+    var tagPrefix: String = ""
+
     val info: Info
         get() = Info(project)
 

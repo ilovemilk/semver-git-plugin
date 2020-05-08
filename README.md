@@ -39,6 +39,7 @@ semver {
     snapshotSuffix = "SNAPSHOT" (default) appended if the commit is without a release tag
     dirtyMarker = "dirty" (default) appended if the are uncommitted changes
     initialVersion = "0.1.0" (default) initial version in semantic versioning
+    tagPrefix = "" (default) each project can have its own tags identified by a unique prefix.
     branches { list of branch configurations
         branch {
             regex = ".+" regex for the branch you want to configure
@@ -48,6 +49,24 @@ semver {
     }
 }
 ```
+
+### Use with a Gradle multi-module project
+For projects which take advantage of Gradle's multi-module projects, it is possible to specify different annotated tags 
+for each module.
+
+The tags for each module must be distinguished with an unambiguous prefix. For example, if you have three modules
+foo, bar, and blega, you may consider using the module name as the prefix. This prefix is configured in the `semver`
+configuration block:
+```kotlin
+semver {
+  tagPrefix = "foo-"
+}
+```  
+
+Given the above configuration, the annotated tags for the "foo" module must all begin with "foo-"; e.g., "foo-3.2.6",
+etc... Note that besides the prefix, the rules for the tag names must still follow all the same semver rules as
+apply in any other case.
+
 
 ## Release
 
