@@ -3,7 +3,7 @@ plugins {
     `java-gradle-plugin`
     `jacoco`
     kotlin("jvm") version "1.3.21"
-    id("com.gradle.plugin-publish") version "0.10.0"
+    id("com.gradle.plugin-publish") version "0.11.0"
 }
 
 group = "io.wusa"
