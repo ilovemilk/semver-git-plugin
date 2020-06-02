@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("2.0.2")
+    id("io.wusa.semver-git-plugin").version("2.2.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:2.0.2'
+      classpath 'io.wusa:semver-git-plugin:2.2.0'
    }
 }
 
@@ -67,6 +67,15 @@ Given the above configuration, the annotated tags for the "foo" module must all 
 etc... Note that besides the prefix, the rules for the tag names must still follow all the same semver rules as
 apply in any other case.
 
+## Incrementer
+
+| Incrementer | Description | 
+|----------|-------------|
+| NO_VERSION_INCREMENTER | Doesn't increment the version at all. |
+| PATCH_VERSION_INCREMENTER | Increments the patch version by one. |
+| MINOR_VERSION_INCREMENTER | Increments the minor version by one. |
+| MAJOR_VERSION_INCREMENTER | Increments the major version by one. |
+| CONVENTIONAL_COMMITS_INCREMENTER | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
 
 ## Release
 

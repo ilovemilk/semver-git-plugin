@@ -61,6 +61,14 @@ class GitService {
             }
         }
 
+        fun getCommitsSinceLastTag(project: Project): List<String> {
+            return try {
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--online", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
+            } catch (ex: GitException) {
+                emptyList()
+            }
+        }
+
         private fun isGitDifferent(project: Project) =
                 GitCommandRunner.execute(project.projectDir, arrayOf("diff", "--stat")) != ""
 

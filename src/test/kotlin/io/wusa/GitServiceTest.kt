@@ -160,4 +160,29 @@ class GitServiceTest {
             GitService.currentBranch(project)
         }
     }
+
+    @Test
+    fun `get list of all commits since last tag`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "7356414 update gradle plugin publish due to security bugs\n" +
+                "45f65f6 update version an changelog\n" +
+                "67f03b1 Merge pull request #18 from ilovemilk/feature/support-multi-module\n" +
+                "fba5872 add default tagPrefix behaviour\n" +
+                "2d03c4b Merge pull request #17 from jgindin/support-multi-module\n" +
+                "f96697f Merge remote-tracking branch 'origin/feature/add-more-tests' into develop\n" +
+                "73fc8b4 Add support for multi-module projects.\n" +
+                "74e3eb1 add test for kebab-case with numbers\n" +
+                "63ca60f add more tests"
+        val listOfCommits = listOf(
+                "7356414 update gradle plugin publish due to security bugs",
+                "45f65f6 update version an changelog",
+                "67f03b1 Merge pull request #18 from ilovemilk/feature/support-multi-module",
+                "fba5872 add default tagPrefix behaviour",
+                "2d03c4b Merge pull request #17 from jgindin/support-multi-module",
+                "f96697f Merge remote-tracking branch 'origin/feature/add-more-tests' into develop",
+                "73fc8b4 Add support for multi-module projects.",
+                "74e3eb1 add test for kebab-case with numbers",
+                "63ca60f add more tests")
+        Assertions.assertEquals(GitService.getCommitsSinceLastTag(project), listOfCommits)
+    }
 }
