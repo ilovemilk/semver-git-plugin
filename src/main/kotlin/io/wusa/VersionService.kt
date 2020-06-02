@@ -18,15 +18,15 @@ class VersionService(private var project: Project) {
         } catch (ex: IllegalArgumentException) {
             throw GradleException("The current tag is not a semantic version.")
         } catch (ex: NoCurrentTagFoundException) {
-            handleNoCurrentTagFound(versionFactory)
+            handleNoCurrentTagFound(versionFactory, project)
         }
     }
 
     @Throws(GradleException::class)
-    private fun handleNoCurrentTagFound(versionFactory: IVersionFactory): Version {
+    private fun handleNoCurrentTagFound(versionFactory: IVersionFactory, project: Project): Version {
         return try {
             val lastVersion = getLastVersion(versionFactory)
-            incrementVersion(lastVersion)
+            incrementVersion(lastVersion, project)
         } catch (ex: NoValidSemverTagFoundException) {
             throw GradleException(ex.localizedMessage)
         } catch (ex: NoIncrementerFoundException) {
@@ -75,12 +75,12 @@ class VersionService(private var project: Project) {
         return versionFactory.createFromString(curTag.substring(tagPrefix.length))
     }
 
-    private fun incrementVersion(version: Version): Version {
+    private fun incrementVersion(version: Version, project: Project): Version {
         val regexIncrementerPair = RegexResolver.findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
         regexIncrementerPair?.let {
-            return VersionIncrementer.getVersionIncrementerByName(regexIncrementerPair.incrementer).increment(version)
+            return VersionIncrementer.getVersionIncrementerByName(regexIncrementerPair.incrementer).increment(version, project)
         } ?: run {
-            return VersionIncrementer.getVersionIncrementerByName(SemverGitPluginExtension.DEFAULT_INCREMENTER).increment(version)
+            return VersionIncrementer.getVersionIncrementerByName(SemverGitPluginExtension.DEFAULT_INCREMENTER).increment(version, project)
         }
     }
 }
