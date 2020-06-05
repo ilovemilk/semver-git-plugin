@@ -38,14 +38,14 @@ class BranchTest {
     }
 
     @Test
-    fun `group of feature-test should be test`() {
+    fun `group of feature-test should be feature`() {
         val branch = Branch(project)
         every { GitService.currentBranch(project = any()) } returns "feature/test"
         Assertions.assertEquals(branch.group, "feature")
     }
 
     @Test
-    fun `group of feature-test-test should be test`() {
+    fun `group of feature-test-test should be feature`() {
         val branch = Branch(project)
         every { GitService.currentBranch(project = any()) } returns "feature/test/test"
         Assertions.assertEquals(branch.group, "feature")
@@ -70,5 +70,19 @@ class BranchTest {
         val branch = Branch(project)
         every { GitService.currentBranch(project = any()) } returns "feature/special-test"
         Assertions.assertEquals(branch.id, "feature-special-test")
+    }
+
+    @Test
+    fun `branch group of hotfix branch should be hotfix`() {
+        val branch = Branch(project)
+        every { GitService.currentBranch(project = any()) } returns "hotfix/5.3.1"
+        Assertions.assertEquals(branch.group, "hotfix")
+    }
+
+    @Test
+    fun `branch group of release branch should be release`() {
+        val branch = Branch(project)
+        every { GitService.currentBranch(project = any()) } returns "release/5.3.0"
+        Assertions.assertEquals(branch.group, "release")
     }
 }
