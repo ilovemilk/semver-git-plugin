@@ -137,12 +137,21 @@ class GitServiceTest {
                 "  remotes/origin/feature/s-version-3 9ea487bb167c89a6453fd2e72740a492c6782887 use kebab case"
         Assertions.assertEquals("feature/s-version-3", GitService.currentBranch(project))
     }
+
     @Test
     fun `get current branch feature-abcd-10847-abcde-abc with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
                 "* feature/abcd-10847-abcde-abc                9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
                 "  remotes/origin/feature/abcd-10847-abcde-abc 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
         Assertions.assertEquals("feature/abcd-10847-abcde-abc", GitService.currentBranch(project))
+    }
+
+    @Test
+    fun `get current branch hotfix-5-3-1 with origin`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* hotfix/5.3.1              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/hotfix/5.3.1 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("hotfix/5.3.1", GitService.currentBranch(project))
     }
 
     @Test
