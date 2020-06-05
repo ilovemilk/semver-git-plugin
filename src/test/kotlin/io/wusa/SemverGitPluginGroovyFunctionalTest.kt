@@ -843,4 +843,124 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         assertTrue(result.output.contains("Version pre release: none"))
         assertTrue(result.output.contains("Version build: none"))
     }
+
+    @Test
+    fun `issues-23 fix branch logic release branch`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT"
+                dirtyMarker = "dirty"
+                branches {
+                    branch {
+                        regex = "develop"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = "release/.+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = "hotfix/.+"
+                        incrementer = "PATCH_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "release/5.3.0")
+        val commit = git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Branch name: release/5.3.0"))
+        assertTrue(result.output.contains("Branch group: release"))
+        assertTrue(result.output.contains("Branch id: release-5.3.0"))
+        assertTrue(result.output.contains("Commit: " + commit.id.name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Tag: none"))
+        assertTrue(result.output.contains("Last tag: 5.2.1-1-g" + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version: 5.3.0-BUILD.2.sha." + commit.id.abbreviate( 7 ).name() + "-SNAPSHOT"))
+        assertTrue(result.output.contains("Version major: 5"))
+        assertTrue(result.output.contains("Version minor: 3"))
+        assertTrue(result.output.contains("Version patch: 0"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
+    }
+
+    @Test
+    fun `issues-23 fix branch logic hotfix branch`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT"
+                dirtyMarker = "dirty"
+                branches {
+                    branch {
+                        regex = "develop"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = "release/.+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = "hotfix/.+"
+                        incrementer = "PATCH_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "hotfix/5.3.1")
+        val commit = git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Branch name: release/5.3.0"))
+        assertTrue(result.output.contains("Branch group: release"))
+        assertTrue(result.output.contains("Branch id: release-5.3.0"))
+        assertTrue(result.output.contains("Commit: " + commit.id.name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Tag: none"))
+        assertTrue(result.output.contains("Last tag: 5.2.1-1-g" + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version: 5.3.0-BUILD.2.sha." + commit.id.abbreviate( 7 ).name() + "-SNAPSHOT"))
+        assertTrue(result.output.contains("Version major: 5"))
+        assertTrue(result.output.contains("Version minor: 3"))
+        assertTrue(result.output.contains("Version patch: 0"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
+    }
 }

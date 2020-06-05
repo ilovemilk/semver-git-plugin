@@ -571,5 +571,4 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
       println(result.output)
       Assertions.assertTrue(result.output.contains("Version: 1.0.0"))
   }
-
 }
