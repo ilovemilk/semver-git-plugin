@@ -72,9 +72,9 @@ apply in any other case.
 | Incrementer | Description | 
 |----------|-------------|
 | NO_VERSION_INCREMENTER | Doesn't increment the version at all. |
-| PATCH_VERSION_INCREMENTER | Increments the patch version by one. |
-| MINOR_VERSION_INCREMENTER | Increments the minor version by one. |
-| MAJOR_VERSION_INCREMENTER | Increments the major version by one. |
+| PATCH_INCREMENTER | Increments the patch version by one. |
+| MINOR_INCREMENTER | Increments the minor version by one. |
+| MAJOR_INCREMENTER | Increments the major version by one. |
 | CONVENTIONAL_COMMITS_INCREMENTER | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
 
 ## Release
