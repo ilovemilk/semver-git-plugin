@@ -66,7 +66,10 @@ class SemanticVersionFormatter {
         private fun hasVersionPrerelease(info: Info) = info.version.prerelease != ""
 
         private fun appendSuffix(version: String, snapshotSuffix: String): String {
-            return "$version-$snapshotSuffix"
+            if (snapshotSuffix != "") {
+                return "$version-$snapshotSuffix"
+            }
+            return "$version"
         }
 
         private fun hasFirstCommit(info: Info): Boolean {
