@@ -5,6 +5,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertFalse
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -962,5 +963,37 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         assertTrue(result.output.contains("Version patch: 2"))
         assertTrue(result.output.contains("Version pre release: none"))
         assertTrue(result.output.contains("Version build: none"))
+    }
+
+    @Test
+    fun `empty snapshotSuffix must not append a hyphen`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = ''
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "MINOR_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "4.2.0")
+        val commit = git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 4.3.0"))
+        assertFalse(result.output.contains("Version: 4.3.0-"))
     }
 }

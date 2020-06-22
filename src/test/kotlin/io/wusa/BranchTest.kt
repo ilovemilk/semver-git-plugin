@@ -31,7 +31,7 @@ class BranchTest {
     }
 
     @Test
-    fun `group of master should be develop`() {
+    fun `group of develop should be develop`() {
         val branch = Branch(project)
         every { GitService.currentBranch(project = any()) } returns "develop"
         Assertions.assertEquals(branch.group, "develop")
