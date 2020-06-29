@@ -37,6 +37,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -68,11 +69,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -105,11 +108,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -142,11 +147,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -179,11 +186,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -216,11 +225,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -253,11 +264,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -290,11 +303,13 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -327,6 +342,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "THIS_IS_NO_INCREMENTer"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -359,6 +375,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "NO_VERSION_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -391,6 +408,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "PATCH_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -423,6 +441,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -455,6 +474,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MAJOR_INCREMENTER"
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -488,6 +508,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                       regex = ".+"
                       incrementer = "MINOR_INCREMENTER"
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }
@@ -520,6 +541,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                       regex = ".+"
                       incrementer = "MINOR_INCREMENTER"
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }
@@ -555,6 +577,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                       regex = ".+"
                       incrementer = "MINOR_INCREMENTER"
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }

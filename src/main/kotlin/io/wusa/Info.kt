@@ -58,6 +58,6 @@ data class Info(private var project: Project) {
     override fun toString(): String {
         val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
 
-        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
+        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.dirtyMarker)
     }
 }

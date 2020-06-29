@@ -57,6 +57,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -86,11 +87,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -121,11 +124,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -156,11 +161,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -191,11 +198,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -226,11 +235,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -261,11 +272,13 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -337,7 +350,14 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = 'SNAPSHOT'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
             }
         """)
         Git.init().setDirectory(testProjectDirectory).call()
@@ -360,7 +380,14 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = 'TEST'
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = "TEST"
+                    }
+                }
             }
         """)
         val git = Git.init().setDirectory(testProjectDirectory).call()
@@ -390,6 +417,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -419,6 +447,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -443,12 +472,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = 'SNAPSHOT'
                 branches {
                     branch {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -478,6 +507,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -507,6 +537,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -536,6 +567,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -565,6 +597,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -594,6 +627,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -623,6 +657,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "PATCH_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -653,6 +688,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -683,6 +719,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "MAJOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -714,6 +751,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                         regex = ".*"
                         incrementer = "NO_VERSION_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -855,28 +893,31 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = "SNAPSHOT"
                 dirtyMarker = "dirty"
                 branches {
                     branch {
                         regex = "develop"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "release/.+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "hotfix/.+"
                         incrementer = "PATCH_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -915,28 +956,31 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = "SNAPSHOT"
                 dirtyMarker = "dirty"
                 branches {
                     branch {
                         regex = "develop"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "release/.+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "hotfix/.+"
                         incrementer = "PATCH_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = ".+"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
