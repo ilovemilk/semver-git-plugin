@@ -1019,12 +1019,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
 
             semver {
-                snapshotSuffix = ''
                 branches {
                     branch {
                         regex = ".*"
                         incrementer = "MINOR_INCREMENTER"
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                        snapshotSuffix = ""
                     }
                 }
             }

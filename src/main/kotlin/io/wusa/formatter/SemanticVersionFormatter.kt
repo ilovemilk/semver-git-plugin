@@ -68,7 +68,10 @@ class SemanticVersionFormatter {
         private fun appendSuffix(version: String, branches: Branches, info: Info): String {
             val regexFormatterPair = RegexResolver.findMatchingRegex(branches, info.branch.name)
             regexFormatterPair?.let {
-                return "$version-${regexFormatterPair.snapshotSuffix}"
+                if (regexFormatterPair.snapshotSuffix != "") {
+                    return "$version-${regexFormatterPair.snapshotSuffix}"
+                }
+                return version
             }
             return "$version-${SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX}"
         }
