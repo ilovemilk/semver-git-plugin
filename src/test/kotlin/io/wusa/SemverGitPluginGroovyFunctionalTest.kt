@@ -24,7 +24,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `defaults`() {
+    fun defaults() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -347,7 +347,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue("""Version: 0\.1\.0\-SNAPSHOT""".toRegex().containsMatchIn(result.output))
+        assertTrue("""Version: 0\.1\.0-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
 
     @Test
@@ -966,6 +966,51 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
+    fun `issues-35 fix branch regex`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT"
+                dirtyMarker = "dirty"
+                branches {
+                    branch {
+                        regex = "feature.+"
+                        incrementer = "PATCH_INCREMENTER"
+                        formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "feature/bellini/test-branch-version")
+        val commit = git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Branch name: feature/bellini/test-branch-version"))
+        assertTrue(result.output.contains("Branch group: feature"))
+        assertTrue(result.output.contains("Branch id: feature-bellini-test-branch-version"))
+        assertTrue(result.output.contains("Commit: " + commit.id.name()))
+        assertTrue(result.output.contains("Short commit: " + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Tag: none"))
+        assertTrue(result.output.contains("Last tag: 5.2.1-1-g" + commit.id.abbreviate( 7 ).name()))
+        assertTrue(result.output.contains("Dirty: false"))
+        assertTrue(result.output.contains("Version: 5.2.2-DEV.2.sha." + commit.id.abbreviate( 7 ).name() + "-SNAPSHOT"))
+        assertTrue(result.output.contains("Version major: 5"))
+        assertTrue(result.output.contains("Version minor: 2"))
+        assertTrue(result.output.contains("Version patch: 2"))
+        assertTrue(result.output.contains("Version pre release: none"))
+        assertTrue(result.output.contains("Version build: none"))
+    }
+
+    @Test
     fun `empty snapshotSuffix must not append a hyphen`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
@@ -986,7 +1031,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "4.2.0")
-        val commit = git.commit().setMessage("").call()
+        git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
