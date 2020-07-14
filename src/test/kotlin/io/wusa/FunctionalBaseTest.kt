@@ -19,4 +19,9 @@ abstract class FunctionalBaseTest {
         git.tag().setName(tag).setObjectId(commit).call()
         return git
     }
+    fun initializeGitWithoutBranchAndWithoutTag(directory: File): Git {
+        val git = Git.init().setDirectory(directory).call()
+        val commit = git.commit().setMessage("").call()
+        return git
+    }
 }
