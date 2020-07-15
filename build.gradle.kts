@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.wusa"
-version = "2.2.2"
+version = "2.2.3"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
