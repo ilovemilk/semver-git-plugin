@@ -24,7 +24,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `defaults`() {
+    fun defaults() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
@@ -347,7 +347,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        assertTrue("""Version: 0\.1\.0\-SNAPSHOT""".toRegex().containsMatchIn(result.output))
+        assertTrue("""Version: 0\.1\.0-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
 
     @Test
@@ -986,7 +986,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
             }
         """)
         val git = initializeGitWithBranch(testProjectDirectory, "4.2.0")
-        val commit = git.commit().setMessage("").call()
+        git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -995,5 +995,44 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         println(result.output)
         assertTrue(result.output.contains("Version: 4.3.0"))
         assertFalse(result.output.contains("Version: 4.3.0-"))
+    }
+
+    @Test
+    fun `empty dirty marker must not append a hyphen`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                snapshotSuffix = ''
+                dirtyMarker = ''
+                branches {
+                    branch {
+                        regex = ".*"
+                        incrementer = "NO_VERSION_INCREMENTER"
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithoutBranchAndWithoutTag(testProjectDirectory)
+        git.commit().setMessage("").call()
+        val dirtyFile = File(testProjectDirectory, "test.dirty")
+        dirtyFile.writeText("""not dirty!""")
+        git.add().addFilepattern(".").call()
+        git.commit().setMessage("").call()
+        dirtyFile.writeText("""dirty!""")
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Dirty: true"))
+        assertTrue(result.output.contains("Version: 0.1.0"))
+        assertFalse(result.output.contains("Version: 0.1.0-"))
     }
 }
