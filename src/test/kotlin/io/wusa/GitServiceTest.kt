@@ -155,6 +155,38 @@ class GitServiceTest {
     }
 
     @Test
+    fun `issue-35 fix branch regex`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/bellini/test-branch-version              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/feature/bellini/test-branch-version 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("feature/bellini/test-branch-version", GitService.currentBranch(project))
+    }
+
+    @Test
+    fun `camelCase branch`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/camelCase              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/feature/camelCase 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("feature/camelCase", GitService.currentBranch(project))
+    }
+
+    @Test
+    fun `UPPER_CASE branch`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/UPPER_CASE              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/feature/UPPER_CASE 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("feature/UPPER_CASE", GitService.currentBranch(project))
+    }
+
+    @Test
+    fun `PascalCase branch`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "* feature/PascalCase              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
+                "  remotes/origin/feature/PascalCase 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+        Assertions.assertEquals("feature/PascalCase", GitService.currentBranch(project))
+    }
+
+    @Test
     fun `get current branch with null pointer exception`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
         Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
