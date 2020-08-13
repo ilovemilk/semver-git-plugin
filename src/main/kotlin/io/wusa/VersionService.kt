@@ -57,7 +57,7 @@ class VersionService(private var project: Project) {
 
     private fun getLastVersion(versionFactory : IVersionFactory): Version {
         val tagPrefix = semverGitPluginExtension.tagPrefix
-        val lastTag = GitService.lastTag(project, tagPrefix)
+        val lastTag = GitService.lastTag(project, tagPrefix, tagType = semverGitPluginExtension.tagType)
         if ( !lastTag.startsWith(tagPrefix)) {
             throw NoCurrentTagFoundException("$lastTag doesn't match $tagPrefix")
         }
@@ -67,7 +67,7 @@ class VersionService(private var project: Project) {
 
     private fun getCurrentVersion(versionFactory : IVersionFactory): Version {
         val tagPrefix = semverGitPluginExtension.tagPrefix
-        val curTag = GitService.currentTag(project, tagPrefix)
+        val curTag = GitService.currentTag(project, tagPrefix, tagType = semverGitPluginExtension.tagType)
         if ( !curTag.startsWith(tagPrefix)) {
             throw NoCurrentTagFoundException("$curTag doesn't match $tagPrefix")
         }
