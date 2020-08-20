@@ -63,7 +63,7 @@ class GitService {
 
         fun getCommitsSinceLastTag(project: Project): List<String> {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--online", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
             } catch (ex: GitException) {
                 emptyList()
             }
