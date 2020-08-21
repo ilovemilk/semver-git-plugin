@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("2.2.1")
+    id("io.wusa.semver-git-plugin").version("2.3.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:2.2.1'
+      classpath 'io.wusa:semver-git-plugin:2.3.0'
    }
 }
 
@@ -52,7 +52,7 @@ semver {
 ```
 
 ### Use with a Gradle multi-module project
-For projects which take advantage of Gradle's multi-module projects, it is possible to specify different annotated tags 
+For projects which take advantage of Gradle's multi-module projects, it is possible to specify different tags 
 for each module.
 
 The tags for each module must be distinguished with an unambiguous prefix. For example, if you have three modules
@@ -64,7 +64,7 @@ semver {
 }
 ```  
 
-Given the above configuration, the annotated tags for the "foo" module must all begin with "foo-"; e.g., "foo-3.2.6",
+Given the above configuration, the tags for the "foo" module must all begin with "foo-"; e.g., "foo-3.2.6",
 etc... Note that besides the prefix, the rules for the tag names must still follow all the same semver rules as
 apply in any other case.
 
@@ -80,12 +80,18 @@ apply in any other case.
 
 ## Release
 
-The versions have to be stored as annotated git tags in the format of [semantic versioning](https://semver.org/).
+The versions have to be stored as annotated or lightweight (depending on the configured tag type) git tags in the format of [semantic versioning](https://semver.org/).
 
 To create a new annotated release tag:
 
 ```bash
 git tag -a 1.0.0-alpha.1 -m "new alpha release of version 1.0.0"
+git push --tags
+```
+
+To create a new lightweight release tag:
+```bash
+git tag -a 1.0.0-alpha.1
 git push --tags
 ```
 
@@ -133,13 +139,13 @@ Access the following information via `semver.info.*` e.g., `semver.info.tag`.
 
 ## Display version
 
-The `semver.info` is based on the current or last tag.
+The `semver.info` is based on the current or last tag (depending on the specified tag type).
 
-* If the current commit has an annotated tag this tag will be the version.
-* If the current commit has no annotated tag the version takes the last tag and builds the new version based on:
+* If the current commit has an tag this tag will be the version.
+* If the current commit has no tag the version takes the last tag and builds the new version based on:
     * The ordering of the branch configuration is important for the matching.
-* If no annotated tag exists the initial commit will be version 0.1.0 as recommended by [Semantic Versioning 2.0.0](https://semver.org/).
-  The following commits will be build based on this version until a annotated tag is created.
+* If no tag exists the initial commit will be version 0.1.0 as recommended by [Semantic Versioning 2.0.0](https://semver.org/).
+  The following commits will be build based on this version until a tag is created.
 
 ## Tasks
 
