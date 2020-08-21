@@ -9,7 +9,7 @@ class GitService {
         @Throws(NoCurrentBranchFoundException::class)
         fun currentBranch(project: Project): String {
             return try {
-                val branches = getAllBranches(project)
+                val branches = getCurrentBranch(project)
                 filterCurrentBranch(branches)
             } catch (ex: GitException) {
                 throw NoCurrentBranchFoundException(ex)
@@ -71,7 +71,7 @@ class GitService {
 
         fun getCommitsSinceLastTag(project: Project): List<String> {
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--online", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
             } catch (ex: GitException) {
                 emptyList()
             }
@@ -98,6 +98,11 @@ class GitService {
 
         private fun filterCurrentBranch(branches: String) =
                 """(\*)? +(.*?) +(.*?)?""".toRegex().find(branches)!!.groupValues[2]
+
+        private fun getCurrentBranch(project: Project): String {
+            val branchName = GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--show-current"))
+            return GitCommandRunner.execute(project.projectDir, arrayOf("branch", branchName, "--verbose", "--no-abbrev", "--contains"))
+        }
 
         private fun getAllBranches(project: Project): String {
             return GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))

@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.2.4]
-### Fixed
-- Getting the current branch name would not always resolve properly but not does
+## [2.3.0]
 ### Added 
 - Option to use lightweight or annotated tags 
+
+## [2.2.4]
+### Fixed
+- Fix typo in retrieving all commits since last tags which lead to problems retrieving commits.
+- Fix getting current branch if the current branch is not the first one.
 
 ## [2.2.3]
 ### Fixed
