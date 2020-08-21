@@ -28,18 +28,26 @@ class GitService {
         }
 
         @Throws(NoCurrentTagFoundException::class)
-        fun currentTag(project: Project, tagPrefix : String = ""): String {
+        fun currentTag(project: Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): String {
+            var cmdArgs = arrayOf("describe", "--exact-match", "--match", "$tagPrefix*")
+            if (tagType == TagType.LIGHTWEIGHT){
+                cmdArgs = arrayOf("describe", "--tags", "--exact-match", "--match", "$tagPrefix*")
+            }
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--exact-match", "--match", "$tagPrefix*"))
+                GitCommandRunner.execute(project.projectDir, cmdArgs)
             } catch (ex: GitException) {
                 throw NoCurrentTagFoundException(ex)
             }
         }
 
         @Throws(NoLastTagFoundException::class)
-        fun lastTag(project : Project, tagPrefix : String = ""): String {
+        fun lastTag(project : Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): String {
+            var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+            if (tagType == TagType.LIGHTWEIGHT){
+                cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+            }
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("describe", "--dirty", "--abbrev=7", "--match", "$tagPrefix*"))
+                GitCommandRunner.execute(project.projectDir, cmdArgs)
             } catch (ex: GitException) {
                 throw NoLastTagFoundException(ex)
             }

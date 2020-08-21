@@ -97,6 +97,14 @@ class InfoTest {
     }
 
     @Test
+    fun `get version with lightweight tag`() {
+        val project = project
+        val info = Info(project)
+        every { GitService.currentTag(project = any(), tagType = TagType.LIGHTWEIGHT) } returns "0.1.0"
+        Assertions.assertEquals("Version(major=0, minor=1, patch=0, prerelease=, build=, suffix=null)", info.version.toString())
+    }
+
+    @Test
     fun `current version is tagged with tag prefix`() {
         semverGitPluginExtension.tagPrefix = "prj_"
         val info = Info(project)

@@ -40,6 +40,7 @@ semver {
     dirtyMarker = "dirty" // (default) appended if the are uncommitted changes
     initialVersion = "0.1.0" // (default) initial version in semantic versioning
     tagPrefix = "" // (default) each project can have its own tags identified by a unique prefix.
+    tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
     branches { // list of branch configurations
         branch {
             regex = ".+" // regex for the branch you want to configure, put this one last

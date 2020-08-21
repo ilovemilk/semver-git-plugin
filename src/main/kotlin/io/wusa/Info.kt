@@ -7,6 +7,8 @@ import io.wusa.formatter.SemanticVersionFormatter
 import org.gradle.api.Project
 
 data class Info(private var project: Project) {
+    private val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+
     val branch: Branch
         get() = Branch(project)
 
@@ -31,7 +33,7 @@ data class Info(private var project: Project) {
     val tag: String
         get() {
             return try {
-                GitService.currentTag(project)
+                GitService.currentTag(project, tagType = semverGitPluginExtension.tagType)
             } catch (ex: NoCurrentTagFoundException) {
                 "none"
             }
@@ -40,7 +42,7 @@ data class Info(private var project: Project) {
     val lastTag: String
         get() {
             return try {
-                GitService.lastTag(project)
+                GitService.lastTag(project, tagType = semverGitPluginExtension.tagType)
             } catch (ex: NoLastTagFoundException) {
                 "none"
             }
