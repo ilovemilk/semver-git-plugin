@@ -1,13 +1,14 @@
 package io.wusa.incrementer
 
+import io.wusa.Info
 import io.wusa.Version
-import org.gradle.api.Project
+import org.gradle.api.Transformer
 
-class MajorVersionIncrementer: IIncrementer {
-    override fun increment(version: Version, project: Project): Version {
-        version.major += 1
-        version.minor = 0
-        version.patch = 0
-        return version
+class MajorVersionIncrementer : Transformer<Version, Info> {
+    override fun transform(info: Info): Version {
+        info.version.major += 1
+        info.version.minor = 0
+        info.version.patch = 0
+        return info.version
     }
 }

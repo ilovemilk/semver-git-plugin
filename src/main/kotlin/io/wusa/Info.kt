@@ -6,7 +6,7 @@ import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.formatter.SemanticVersionFormatter
 import org.gradle.api.Project
 
-data class Info(private var project: Project) {
+data class Info(var project: Project) {
     private val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
 
     val branch: Branch

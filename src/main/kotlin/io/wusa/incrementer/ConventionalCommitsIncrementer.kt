@@ -1,12 +1,13 @@
 package io.wusa.incrementer
 
 import io.wusa.GitService
+import io.wusa.Info
 import io.wusa.Version
-import org.gradle.api.Project
+import org.gradle.api.Transformer
 
-class ConventionalCommitsIncrementer: IIncrementer {
-    override fun increment(version: Version, project: Project): Version {
-        val listOfCommits = GitService.getCommitsSinceLastTag(project)
+class ConventionalCommitsIncrementer: Transformer<Version, Info> {
+    override fun transform(info: Info): Version {
+        val listOfCommits = GitService.getCommitsSinceLastTag(info.project)
         var major = 0
         var minor = 0
         var patch = 0
@@ -22,17 +23,17 @@ class ConventionalCommitsIncrementer: IIncrementer {
             }
         }
         if (patch > 0) {
-            version.patch += 1
+            info.version.patch += 1
         }
         if (minor > 0) {
-            version.patch = 0
-            version.minor += 1
+            info.version.patch = 0
+            info.version.minor += 1
         }
         if (major > 0) {
-            version.patch = 0
-            version.minor = 0
-            version.major += 1
+            info.version.patch = 0
+            info.version.minor = 0
+            info.version.major += 1
         }
-        return version
+        return info.version
     }
 }

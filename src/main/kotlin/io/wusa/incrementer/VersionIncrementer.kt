@@ -1,44 +1,33 @@
 package io.wusa.incrementer
 
+import io.wusa.Info
 import io.wusa.Version
-import io.wusa.exception.NoIncrementerFoundException
-import org.gradle.api.Project
-import java.lang.IllegalArgumentException
+import org.gradle.api.Transformer
 
-enum class VersionIncrementer: IIncrementer {
+enum class VersionIncrementer : Transformer<Version, Info> {
     NO_VERSION_INCREMENTER {
-        override fun increment(version: Version, project: Project): Version {
-            return NoVersionIncrementer().increment(version, project)
+        override fun transform(info: Info): Version {
+            return NoVersionIncrementer().transform(info)
         }
     },
     PATCH_INCREMENTER {
-        override fun increment(version: Version, project: Project): Version {
-            return PatchVersionIncrementer().increment(version, project)
+        override fun transform(info: Info): Version {
+            return PatchVersionIncrementer().transform(info)
         }
     },
     MINOR_INCREMENTER {
-        override fun increment(version: Version, project: Project): Version {
-            return MinorVersionIncrementer().increment(version, project)
+        override fun transform(info: Info): Version {
+            return MinorVersionIncrementer().transform(info)
         }
     },
     MAJOR_INCREMENTER {
-        override fun increment(version: Version, project: Project): Version {
-            return MajorVersionIncrementer().increment(version, project)
+        override fun transform(info: Info): Version {
+            return MajorVersionIncrementer().transform(info)
         }
     },
     CONVENTIONAL_COMMITS_INCREMENTER {
-        override fun increment(version: Version, project: Project): Version {
-            return ConventionalCommitsIncrementer().increment(version, project)
+        override fun transform(info: Info): Version {
+            return ConventionalCommitsIncrementer().transform(info)
         }
     };
-
-    companion object {
-        fun getVersionIncrementerByName(name: String): VersionIncrementer {
-            try {
-                return valueOf(name.toUpperCase())
-            } catch (ex: IllegalArgumentException) {
-                throw NoIncrementerFoundException("The in the config specified incrementer was not found.")
-            }
-        }
-    }
 }

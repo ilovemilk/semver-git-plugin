@@ -1,13 +1,14 @@
 package io.wusa
 
 import io.wusa.exception.GitException
+import org.gradle.api.Project
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 class GitCommandRunner {
     companion object {
         fun execute(projectDir: File, args: Array<String>): String {
-            val process = startGitProcess(args, projectDir)
+            val process = startGitProcess(args, File("."))
             waitForGitProcess(process)
             if (processFinishedWithoutErrors(process)) return readProcessOutput(process)
 
