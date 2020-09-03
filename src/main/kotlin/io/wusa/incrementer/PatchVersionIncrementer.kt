@@ -1,12 +1,11 @@
 package io.wusa.incrementer
 
-import io.wusa.Info
 import io.wusa.Version
 import org.gradle.api.Transformer
 
-class PatchVersionIncrementer : Transformer<Version, Info> {
-    override fun transform(info: Info): Version {
-        info.version.patch += 1
-        return info.version
+object PatchVersionIncrementer : Transformer<Version, Version> {
+    override fun transform(version: Version): Version {
+        version.patch += 1
+        return version
     }
 }

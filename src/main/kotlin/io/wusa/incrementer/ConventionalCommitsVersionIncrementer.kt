@@ -1,13 +1,15 @@
 package io.wusa.incrementer
 
 import io.wusa.GitService
-import io.wusa.Info
 import io.wusa.Version
 import org.gradle.api.Transformer
+import org.koin.java.KoinJavaComponent.inject
 
-class ConventionalCommitsIncrementer: Transformer<Version, Info> {
-    override fun transform(info: Info): Version {
-        val listOfCommits = GitService.getCommitsSinceLastTag(info.project)
+object ConventionalCommitsVersionIncrementer : Transformer<Version, Version> {
+    private val gitService: GitService by inject(GitService::class.java)
+
+    override fun transform(version: Version): Version {
+        val listOfCommits = gitService.getCommitsSinceLastTag()
         var major = 0
         var minor = 0
         var patch = 0
@@ -23,17 +25,17 @@ class ConventionalCommitsIncrementer: Transformer<Version, Info> {
             }
         }
         if (patch > 0) {
-            info.version.patch += 1
+            version.patch += 1
         }
         if (minor > 0) {
-            info.version.patch = 0
-            info.version.minor += 1
+            version.patch = 0
+            version.minor += 1
         }
         if (major > 0) {
-            info.version.patch = 0
-            info.version.minor = 0
-            info.version.major += 1
+            version.patch = 0
+            version.minor = 0
+            version.major += 1
         }
-        return info.version
+        return version
     }
 }

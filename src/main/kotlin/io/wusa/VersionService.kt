@@ -2,12 +2,11 @@ package io.wusa
 
 import io.wusa.exception.*
 import io.wusa.extension.SemverGitPluginExtension
-import io.wusa.incrementer.VersionIncrementer
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.koin.java.KoinJavaComponent.inject
 
-class VersionService(private var project: Project) {
-    private val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+class VersionService(private val semverGitPluginExtension: SemverGitPluginExtension, private val gitService: GitService) {
 
     @Throws(GradleException::class)
     fun getVersion(): Version {
@@ -47,40 +46,40 @@ class VersionService(private var project: Project) {
     private fun buildInitialVersionWithNoTag() = Version(0, 1, 0, "", "", null)
 
     private fun buildInitialVersionForTag(versionFactory: IVersionFactory): Version {
-        val sha = GitService.currentCommit(project, true)
-        val isDirty = GitService.isDirty(project)
-        val count = GitService.count(project)
+        val sha = gitService.currentCommit(true)
+        val isDirty = gitService.isDirty()
+        val count = gitService.count()
         val version = versionFactory.createFromString(semverGitPluginExtension.initialVersion)
         version.suffix = Suffix(count, sha, isDirty)
         return version
     }
 
-    private fun getLastVersion(versionFactory : IVersionFactory): Version {
+    private fun getLastVersion(versionFactory: IVersionFactory): Version {
         val tagPrefix = semverGitPluginExtension.tagPrefix
-        val lastTag = GitService.lastTag(project, tagPrefix, tagType = semverGitPluginExtension.tagType)
-        if ( !lastTag.startsWith(tagPrefix)) {
+        val lastTag = gitService.lastTag(tagPrefix, tagType = semverGitPluginExtension.tagType)
+        if (!lastTag.startsWith(tagPrefix)) {
             throw NoCurrentTagFoundException("$lastTag doesn't match $tagPrefix")
         }
 
         return versionFactory.createFromString(lastTag.substring(tagPrefix.length))
     }
 
-    private fun getCurrentVersion(versionFactory : IVersionFactory): Version {
+    private fun getCurrentVersion(versionFactory: IVersionFactory): Version {
         val tagPrefix = semverGitPluginExtension.tagPrefix
-        val curTag = GitService.currentTag(project, tagPrefix, tagType = semverGitPluginExtension.tagType)
-        if ( !curTag.startsWith(tagPrefix)) {
+        val curTag = gitService.currentTag(tagPrefix, tagType = semverGitPluginExtension.tagType)
+        if (!curTag.startsWith(tagPrefix)) {
             throw NoCurrentTagFoundException("$curTag doesn't match $tagPrefix")
         }
 
         return versionFactory.createFromString(curTag.substring(tagPrefix.length))
     }
 
-    private fun incrementVersion(info: Info): Version {
+    private fun incrementVersion(version: Version): Version {
         val regexIncrementerPair = RegexResolver.findMatchingRegex(semverGitPluginExtension.branches, semverGitPluginExtension.info.branch.name)
         regexIncrementerPair?.let {
-            return regexIncrementerPair.incrementer.transform(info)
+            return regexIncrementerPair.incrementer.transform(version)
         } ?: run {
-            return SemverGitPluginExtension.DEFAULT_INCREMENTER.transform(info)
+            return SemverGitPluginExtension.DEFAULT_INCREMENTER.transform(version)
         }
     }
 }
