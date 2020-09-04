@@ -3,6 +3,7 @@ package io.wusa
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.incrementer.ConventionalCommitsIncrementer
 import io.wusa.incrementer.VersionIncrementer
 import org.gradle.api.Project
@@ -17,10 +18,15 @@ import org.junit.jupiter.api.TestInstance
 class ConventionalCommitsIncrementerTest {
 
     private lateinit var project: Project
+    private lateinit var semverGitPluginExtension: SemverGitPluginExtension
 
     @BeforeEach
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
+        project.plugins.apply(SemverGitPlugin::class.java)
+        semverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+        semverGitPluginExtension.tagType = TagType.ANNOTATED
+        semverGitPluginExtension.tagPrefix = ""
         mockkObject(GitCommandRunner)
     }
 
