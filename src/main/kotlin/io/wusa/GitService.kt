@@ -69,9 +69,14 @@ class GitService {
             }
         }
 
-        fun getCommitsSinceLastTag(project: Project): List<String> {
+        fun getCommitsSinceLastTag(project: Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): List<String> {
+            var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            if (tagType == TagType.LIGHTWEIGHT){
+                cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            }
             return try {
-                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
+                val lastTag = GitCommandRunner.execute(project.projectDir, cmdArgs)
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "$lastTag..@")).lines()
             } catch (ex: GitException) {
                 emptyList()
             }

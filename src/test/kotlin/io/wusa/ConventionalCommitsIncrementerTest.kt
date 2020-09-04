@@ -76,4 +76,14 @@ class ConventionalCommitsIncrementerTest {
 
         Assertions.assertEquals(VersionIncrementer.getVersionIncrementerByName("CONVENTIONAL_COMMITS_INCREMENTER").increment(Version(0, 0, 0, "", "", null), project), Version(1, 0, 0, "", "", null))
     }
+
+    @Test
+    fun `issue-47 increment minor by one`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "685f852 (HEAD -> feature/JiraIssue-11111_add_semver_plugin) feat: added semver plugin incrementer parameter\n" +
+                "7c03cdd feat: added semver plugin incrementer parameter\n" +
+                "f45e853 feat: added semver plugin incrementer parameter"
+
+        Assertions.assertEquals(VersionIncrementer.getVersionIncrementerByName("CONVENTIONAL_COMMITS_INCREMENTER").increment(Version(0, 0, 0, "", "", null), project), Version(0, 1, 0, "", "", null))
+    }
 }
