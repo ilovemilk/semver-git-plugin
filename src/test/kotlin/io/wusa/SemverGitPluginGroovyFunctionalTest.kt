@@ -32,7 +32,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -61,7 +61,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -394,7 +394,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.0.1")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.0.1")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -423,7 +423,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -453,7 +453,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "1.0.0")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "1.0.0")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -482,7 +482,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -511,7 +511,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.beta")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha.beta")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -540,7 +540,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0-alpha.1")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha.1")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -569,7 +569,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0-beta")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-beta")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -598,7 +598,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory, "0.1.0-rc")
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-rc")
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -627,7 +627,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
@@ -657,7 +657,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
@@ -687,7 +687,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
@@ -718,7 +718,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
@@ -738,7 +738,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
         git.tag().setName("test-tag").setObjectId(commit).call()
         Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
@@ -759,7 +759,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithoutBranch(testProjectDirectory)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val commit = git.commit().setMessage("").call()
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)

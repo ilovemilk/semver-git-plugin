@@ -2,11 +2,14 @@ package io.wusa.incrementer
 
 import io.wusa.GitService
 import io.wusa.Version
+import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Project
 
 class ConventionalCommitsIncrementer: IIncrementer {
     override fun increment(version: Version, project: Project): Version {
-        val listOfCommits = GitService.getCommitsSinceLastTag(project)
+        val semverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+
+        val listOfCommits = GitService.getCommitsSinceLastTag(project, semverGitPluginExtension.tagPrefix, semverGitPluginExtension.tagType)
         var major = 0
         var minor = 0
         var patch = 0
