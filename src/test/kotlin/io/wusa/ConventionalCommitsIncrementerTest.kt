@@ -3,6 +3,7 @@ package io.wusa
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.incrementer.ConventionalCommitsIncrementer
 import io.wusa.incrementer.VersionIncrementer
 import org.gradle.api.Project
@@ -17,10 +18,15 @@ import org.junit.jupiter.api.TestInstance
 class ConventionalCommitsIncrementerTest {
 
     private lateinit var project: Project
+    private lateinit var semverGitPluginExtension: SemverGitPluginExtension
 
     @BeforeEach
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
+        project.plugins.apply(SemverGitPlugin::class.java)
+        semverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+        semverGitPluginExtension.tagType = TagType.ANNOTATED
+        semverGitPluginExtension.tagPrefix = ""
         mockkObject(GitCommandRunner)
     }
 
@@ -75,5 +81,15 @@ class ConventionalCommitsIncrementerTest {
                 "63ca60f fix: add more tests"
 
         Assertions.assertEquals(VersionIncrementer.getVersionIncrementerByName("CONVENTIONAL_COMMITS_INCREMENTER").increment(Version(0, 0, 0, "", "", null), project), Version(1, 0, 0, "", "", null))
+    }
+
+    @Test
+    fun `issue-47 increment minor by one`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "685f852 (HEAD -> feature/JiraIssue-11111_add_semver_plugin) feat: added semver plugin incrementer parameter\n" +
+                "7c03cdd feat: added semver plugin incrementer parameter\n" +
+                "f45e853 feat: added semver plugin incrementer parameter"
+
+        Assertions.assertEquals(VersionIncrementer.getVersionIncrementerByName("CONVENTIONAL_COMMITS_INCREMENTER").increment(Version(0, 0, 0, "", "", null), project), Version(0, 1, 0, "", "", null))
     }
 }
