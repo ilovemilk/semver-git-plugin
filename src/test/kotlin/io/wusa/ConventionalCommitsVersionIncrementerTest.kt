@@ -2,6 +2,7 @@ package io.wusa
 
 import io.mockk.every
 import io.mockk.mockkClass
+import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -15,15 +16,20 @@ class ConventionalCommitsVersionIncrementerTest {
 
     private lateinit var project: Project
     private lateinit var gitService: GitService
+    private lateinit var semverGitPluginExtension: SemverGitPluginExtension
 
     private var modules = module {
         single { gitService }
+        single { semverGitPluginExtension }
     }
 
     @BeforeAll
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
         gitService = mockkClass(GitService::class)
+        semverGitPluginExtension = mockkClass(SemverGitPluginExtension::class)
+        every { semverGitPluginExtension.tagPrefix } returns ""
+        every { semverGitPluginExtension.tagType } returns TagType.ANNOTATED
         startKoin {
             modules(modules)
         }
