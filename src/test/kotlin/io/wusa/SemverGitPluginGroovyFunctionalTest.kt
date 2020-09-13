@@ -43,10 +43,56 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
+    fun `custom version incrementer`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle")
+        buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
+            plugins {
+                id 'io.wusa.semver-git-plugin'
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = { 
+                                        it.major = it.major + 1
+                                        it.minor = it.minor + 1
+                                        it.patch = it.patch + 1
+                                        it 
+                                        }
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
+                        formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        assertTrue(result.output.contains("Version: 1.1.2+branch.feature-test-SNAPSHOT"))
+    }
+
+    @Test
     fun `version formatter for all branches`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -55,7 +101,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -76,6 +122,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -84,12 +133,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -111,6 +160,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -119,12 +171,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -146,6 +198,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -154,12 +209,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -181,6 +236,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -189,12 +247,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -216,6 +274,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -224,12 +285,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -251,6 +312,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -259,12 +323,12 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+branch.${'$'}{it.branch.id}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -380,6 +444,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -388,7 +455,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -409,6 +476,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -417,7 +487,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -438,6 +508,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -447,7 +520,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -468,6 +541,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -476,7 +552,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -497,6 +573,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -505,7 +584,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -526,6 +605,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -534,7 +616,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -555,6 +637,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -563,7 +648,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -584,6 +669,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -592,7 +680,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -613,6 +701,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyPatchVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -621,7 +712,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "PATCH_INCREMENTER"
+                        incrementer = GroovyPatchVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -643,6 +734,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -651,7 +745,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -673,6 +767,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMajorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -681,7 +778,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MAJOR_INCREMENTER"
+                        incrementer = GroovyMajorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -704,6 +801,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyNoVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -712,7 +812,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        incrementer = GroovyNoVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}+build.${'$'}{it.count}.sha.${'$'}{it.shortCommit}" }
                     }
                 }
@@ -850,6 +950,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import io.wusa.incrementer.GroovyPatchVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -860,22 +964,22 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "develop"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = "release/.+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = "hotfix/.+"
-                        incrementer = "PATCH_INCREMENTER"
+                        incrementer = GroovyPatchVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
@@ -910,6 +1014,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import io.wusa.incrementer.GroovyPatchVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -920,22 +1028,22 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "develop"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = "release/.+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-RC.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = "hotfix/.+"
-                        incrementer = "PATCH_INCREMENTER"
+                        incrementer = GroovyPatchVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-HOTFIX.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-BUILD.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
@@ -970,6 +1078,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyPatchVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -980,7 +1091,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = "feature.+"
-                        incrementer = "PATCH_INCREMENTER"
+                        incrementer = GroovyPatchVersionIncrementer as Transformer
                         formatter = { "${'$'}{semver.info.version.major}.${'$'}{semver.info.version.minor}.${'$'}{semver.info.version.patch}-DEV.${'$'}{semver.info.count}.sha.${'$'}{semver.info.shortCommit}" }
                     }
                 }
@@ -1015,6 +1126,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyMinorVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -1024,7 +1138,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = GroovyMinorVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }
@@ -1047,6 +1161,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyNoVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -1057,7 +1174,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        incrementer = GroovyNoVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                     }
                 }

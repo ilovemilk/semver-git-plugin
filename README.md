@@ -34,6 +34,25 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ## Configure the plugin
 
+`build.gradle.kts`
+```kotlin
+semver {
+    snapshotSuffix = "SNAPSHOT" // (default) appended if the commit is without a release tag
+    dirtyMarker = "dirty" // (default) appended if the are uncommitted changes
+    initialVersion = "0.1.0" // (default) initial version in semantic versioning
+    tagPrefix = "" // (default) each project can have its own tags identified by a unique prefix.
+    tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
+    branches { // list of branch configurations
+        branch {
+            regex = ".+" // regex for the branch you want to configure, put this one last
+            incrementer = MinorVersionIncrementer // (default) version incrementer
+            formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
+        }
+    }
+}
+```
+
+`build.gradle`
 ```groovy
 semver {
     snapshotSuffix = "SNAPSHOT" // (default) appended if the commit is without a release tag
@@ -44,7 +63,7 @@ semver {
     branches { // list of branch configurations
         branch {
             regex = ".+" // regex for the branch you want to configure, put this one last
-            incrementer = "NO_VERSION_INCREMENTER" // (default) version incrementer
+            incrementer = GroovyMinorVersionIncrementer as Transformer // (default) version incrementer
             formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
         }
     }
@@ -70,13 +89,40 @@ apply in any other case.
 
 ## Incrementer
 
-| Incrementer | Description | 
-|----------|-------------|
-| NO_VERSION_INCREMENTER | Doesn't increment the version at all. |
-| PATCH_INCREMENTER | Increments the patch version by one. |
-| MINOR_INCREMENTER | Increments the minor version by one. |
-| MAJOR_INCREMENTER | Increments the major version by one. |
-| CONVENTIONAL_COMMITS_INCREMENTER | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
+| Groovy Incrementer | Kotlin Incrementer | Description | 
+|----------|----------|-------------|
+| GroovyNoVersionIncrementer | NoVersionIncrementer  | Doesn't increment the version at all. |
+| GroovyPatchVersionIncrementer | PatchVersionIncrementer | Increments the patch version by one. |
+| GroovyMinorVersionIncrementer | MinorVersionIncrementer | Increments the minor version by one. |
+| GroovyMajorVersionIncrementer | MajorVersionIncrementer | Increments the major version by one. |
+| GroovyConventionalCommitsVersionIncrementer | ConventionalCommitsVersionIncrementer | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
+
+## Custom Incrementer
+
+It's possible to implement your own incrementer by implementing the Gradle [Transformer interface](https://docs.gradle.org/current/javadoc/org/gradle/api/Transformer.html) with Version in and Version out.
+
+`build.gradle.kts`
+```kotlin
+incrementer = 
+    object : Transformer<Version, Version> {
+        override fun transform(version: Version): Version {
+            version.major += 1
+            version.minor += 1
+            version.patch += 1
+            return version
+        }
+    }
+```
+
+`build.gradle`
+```groovy
+incrementer = { 
+                it.major = it.major + 1
+                it.minor = it.minor + 1
+                it.patch = it.patch + 1
+                it 
+}
+```
 
 ## Release
 

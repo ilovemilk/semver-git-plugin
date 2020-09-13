@@ -1,12 +1,13 @@
 package io.wusa.extension
 
 import io.wusa.Info
+import io.wusa.Version
 import org.gradle.api.Project
 import org.gradle.api.Transformer
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 
-class Branch(private val project: Project) {
+class Branch(project: Project) {
     @Internal
     val regexProperty: Property<String> = project.objects.property(String::class.java)
     var regex: String
@@ -14,9 +15,9 @@ class Branch(private val project: Project) {
         set(value) = regexProperty.set(value)
 
     @Internal
-    val incrementerProperty: Property<String> = project.objects.property(String::class.java)
-    var incrementer: String
-        get() = incrementerProperty.get()
+    val incrementerProperty: Property<Any> = project.objects.property(Any::class.java)
+    var incrementer: Transformer<Version, Version>
+        get() = incrementerProperty.get() as Transformer<Version, Version>
         set(value) = incrementerProperty.set(value)
 
     @Internal

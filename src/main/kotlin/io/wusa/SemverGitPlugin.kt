@@ -3,11 +3,31 @@ package io.wusa
 import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 class SemverGitPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
 
+    companion object {
+        init {
+            startKoin {}
+        }
+    }
+
+    override fun apply(project: Project) {
         val semverGitPluginExtension = project.extensions.create("semver", SemverGitPluginExtension::class.java, project)
+
+        val modules = module {
+            single(override = true) { project }
+            single(override = true) { semverGitPluginExtension }
+            single(override = true) { GitCommandRunner(get()) }
+            single(override = true) { GitService(get()) }
+            single(override = true) { VersionService(get(), get()) }
+        }
+
+        loadKoinModules(modules)
+
 
         project.task("showVersion") {
             it.group = "Help"
