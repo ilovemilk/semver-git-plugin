@@ -409,6 +409,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyNoVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -417,7 +420,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        incrementer = GroovyNoVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                         snapshotSuffix = "SNAPSHOT"
                     }
@@ -439,6 +442,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
+            import io.wusa.incrementer.GroovyNoVersionIncrementer
+            import org.gradle.api.Transformer
+            
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
@@ -447,7 +453,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        incrementer = GroovyNoVersionIncrementer as Transformer
                         formatter = { "${'$'}{it.version.major}.${'$'}{it.version.minor}.${'$'}{it.version.patch}" }
                         snapshotSuffix = "TEST"
                     }

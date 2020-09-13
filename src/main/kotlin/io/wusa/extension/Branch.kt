@@ -6,8 +6,11 @@ import org.gradle.api.Project
 import org.gradle.api.Transformer
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
+import org.koin.java.KoinJavaComponent
 
 class Branch(project: Project) {
+    private val semverGitPluginExtension by KoinJavaComponent.inject(SemverGitPluginExtension::class.java)
+
     @Internal
     val regexProperty: Property<String> = project.objects.property(String::class.java)
     var regex: String
@@ -23,7 +26,13 @@ class Branch(project: Project) {
     @Internal
     val snapshotSuffixProperty: Property<String> = project.objects.property(String::class.java)
     var snapshotSuffix: String
-        get() = snapshotSuffixProperty.get()
+        get() {
+            return if (snapshotSuffixProperty.isPresent) {
+                snapshotSuffixProperty.get()
+            } else {
+                semverGitPluginExtension.snapshotSuffix
+            }
+        }
         set(value) = snapshotSuffixProperty.set(value)
 
     @Internal
