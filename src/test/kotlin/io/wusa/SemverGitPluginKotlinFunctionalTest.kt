@@ -17,7 +17,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
 
     @AfterEach
     fun tearDown() {
-        gradleRunner.projectDir.deleteRecursively()
+        //gradleRunner.projectDir.deleteRecursively()
     }
 
     @Test
