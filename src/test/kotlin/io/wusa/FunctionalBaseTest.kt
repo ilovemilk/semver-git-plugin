@@ -13,10 +13,23 @@ abstract class FunctionalBaseTest {
         return git
     }
 
-    fun initializeGitWithoutBranch(directory: File, tag: String = "0.1.0"): Git {
+    fun initializeGitWithoutBranchAnnotated(directory: File, tag: String = "0.1.0"): Git {
         val git = Git.init().setDirectory(directory).call()
         val commit = git.commit().setMessage("").call()
-        git.tag().setName(tag).setObjectId(commit).call()
+        git.tag().setName(tag).setMessage(tag).setAnnotated(true).setObjectId(commit).call()
+        return git
+    }
+
+    fun initializeGitWithoutBranchLightweight(directory: File, tag: String = "0.1.0"): Git {
+        val git = Git.init().setDirectory(directory).call()
+        val commit = git.commit().setMessage("").call()
+        git.tag().setName(tag).setObjectId(commit).setAnnotated(false).call()
+        return git
+    }
+
+    fun initializeGitWithoutBranchAndWithoutTag(directory: File): Git {
+        val git = Git.init().setDirectory(directory).call()
+        git.commit().setMessage("").call()
         return git
     }
 }

@@ -85,7 +85,10 @@ class SemanticVersionFormatter {
 
         private fun appendDirtyMarker(version: String, suffix: Suffix?, dirtyMarker: String): String {
             if (suffix != null && suffix.dirty) {
-                return "$version-$dirtyMarker"
+                if (dirtyMarker != "") {
+                    return "$version-$dirtyMarker"
+                }
+                return version
             }
             return version
         }

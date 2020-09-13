@@ -1,16 +1,16 @@
 package io.wusa
 
 import io.wusa.exception.NoCurrentBranchFoundException
-import org.gradle.api.Project
+import org.koin.java.KoinJavaComponent.inject
 
-data class Branch(private var project: Project) {
+class Branch(private val gitService: GitService) {
     val group: String
         get() = this.name.split("/")[0]
 
     val name: String
         get() {
             return try {
-                GitService.currentBranch(project)
+                gitService.currentBranch()
             } catch (ex: NoCurrentBranchFoundException) {
                 ""
             }

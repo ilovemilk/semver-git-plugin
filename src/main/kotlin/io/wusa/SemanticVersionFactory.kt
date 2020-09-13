@@ -1,9 +1,10 @@
 package io.wusa
 
 import io.wusa.exception.NoValidSemverTagFoundException
+import org.gradle.api.Project
 import org.slf4j.LoggerFactory
 
-class SemanticVersionFactory : IVersionFactory {
+class SemanticVersionFactory() : IVersionFactory {
     private val LOG = LoggerFactory.getLogger(SemanticVersionFactory::class.java)
 
     private val suffixRegex = """(?:-(?<count>[0-9]+)(?:-g(?<sha>[0-9a-f]{1,7}))(?<dirty>-dirty)?)$""".toRegex()

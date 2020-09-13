@@ -5,15 +5,19 @@ import io.wusa.exception.NoLastTagFoundException
 import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.formatter.SemanticVersionFormatter
 import org.gradle.api.Project
+import org.koin.java.KoinJavaComponent.inject
 
-data class Info(private var project: Project) {
+data class Info(var semverGitPluginExtension: SemverGitPluginExtension) {
+    private val gitService: GitService by inject(GitService::class.java)
+    private val versionService: VersionService by inject(VersionService::class.java)
+
     val branch: Branch
-        get() = Branch(project)
+        get() = Branch(gitService)
 
     val commit: String
         get() {
             return try {
-                GitService.currentCommit(project, false)
+                gitService.currentCommit(false)
             } catch (ex: NoCurrentTagFoundException) {
                 "none"
             }
@@ -22,7 +26,7 @@ data class Info(private var project: Project) {
     val shortCommit: String
         get() {
             return try {
-                GitService.currentCommit(project, true)
+                gitService.currentCommit(true)
             } catch (ex: NoCurrentTagFoundException) {
                 "none"
             }
@@ -31,7 +35,7 @@ data class Info(private var project: Project) {
     val tag: String
         get() {
             return try {
-                GitService.currentTag(project)
+                gitService.currentTag(tagType = semverGitPluginExtension.tagType)
             } catch (ex: NoCurrentTagFoundException) {
                 "none"
             }
@@ -40,24 +44,22 @@ data class Info(private var project: Project) {
     val lastTag: String
         get() {
             return try {
-                GitService.lastTag(project)
+                gitService.lastTag(tagType = semverGitPluginExtension.tagType)
             } catch (ex: NoLastTagFoundException) {
                 "none"
             }
         }
 
     val dirty: Boolean
-        get() = GitService.isDirty(project)
+        get() = gitService.isDirty()
 
     val count: Int
-        get() = GitService.count(project)
+        get() = gitService.count()
 
     val version: Version
-        get() = VersionService(project).getVersion()
+        get() = versionService.getVersion()
 
     override fun toString(): String {
-        val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
-
-        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.dirtyMarker)
+        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
     }
 }
