@@ -44,6 +44,7 @@ semver {
     tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
     branches { // list of branch configurations
         branch {
+            snapshotSuffix = "SNAPSHOT" // (default) branch specific snapshot suffix
             regex = ".+" // regex for the branch you want to configure, put this one last
             incrementer = MinorVersionIncrementer // (default) version incrementer
             formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
@@ -62,6 +63,7 @@ semver {
     tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
     branches { // list of branch configurations
         branch {
+            snapshotSuffix = "SNAPSHOT" // (default) branch specific snapshot suffix
             regex = ".+" // regex for the branch you want to configure, put this one last
             incrementer = GroovyMinorVersionIncrementer as Transformer // (default) version incrementer
             formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
@@ -141,7 +143,7 @@ git tag -a 1.0.0-alpha.1
 git push --tags
 ```
 
-Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
+Following commits without a release tag will have the global or branch specific `snapshotSuffix` (default `SNAPSHOT`) appended 
 and the version number bumped according to `incrementer` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
 
 ## Version usage
