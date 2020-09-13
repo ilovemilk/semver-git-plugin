@@ -60,6 +60,6 @@ data class Info(var semverGitPluginExtension: SemverGitPluginExtension) {
         get() = versionService.getVersion()
 
     override fun toString(): String {
-        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.snapshotSuffix, semverGitPluginExtension.dirtyMarker)
+        return SemanticVersionFormatter.format(this, semverGitPluginExtension.branches, semverGitPluginExtension.snapshotSuffix)
     }
 }
