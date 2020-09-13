@@ -42,7 +42,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranch(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
         val result = gradleRunner
                 .withProjectDir(testProjectDirectory)
                 .withArguments("showVersion")
@@ -491,11 +491,11 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         Assertions.assertTrue("""Version: 1\.0\.0\+build\.2\.sha\.[0-9a-f]{7}-SNAPSHOT""".toRegex().containsMatchIn(result.output))
     }
 
-  @Test
-  fun `version formatter with prefix`() {
-      val testProjectDirectory = createTempDir()
-      val buildFile = File(testProjectDirectory, "build.gradle.kts")
-      buildFile.writeText("""
+    @Test
+    fun `version formatter with prefix`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.incrementer.MinorVersionIncrementer
 
@@ -514,21 +514,21 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               }
           }
       """)
-      initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
-      val result = gradleRunner
-              .withProjectDir(testProjectDirectory)
-              .withArguments("showVersion")
-              .withPluginClasspath()
-              .build()
-      println(result.output)
-      Assertions.assertTrue(result.output.contains("Version: 0.1.0"))
-  }
+        initializeGitWithoutBranchAnnotated(testProjectDirectory, "prj_0.1.0")
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0"))
+    }
 
-  @Test
-  fun `version formatter with prefix and multiple tags not head`() {
-      val testProjectDirectory = createTempDir()
-      val buildFile = File(testProjectDirectory, "build.gradle.kts")
-      buildFile.writeText("""
+    @Test
+    fun `version formatter with prefix and multiple tags not head`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.incrementer.MinorVersionIncrementer
 
@@ -547,24 +547,24 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               }
           }
       """)
-    val git = initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
-    val commit = git.commit().setMessage("another commit").call()
-    git.tag().setName("foo-1.0.0").setObjectId(commit).call()
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory, "prj_0.1.0")
+        val commit = git.commit().setMessage("another commit").call()
+        git.tag().setName("foo-1.0.0").setObjectId(commit).call()
 
-    val result = gradleRunner
-              .withProjectDir(testProjectDirectory)
-              .withArguments("showVersion")
-              .withPluginClasspath()
-              .build()
-      println(result.output)
-      Assertions.assertTrue(result.output.contains("Version: 0.2.0-SNAPSHOT"))
-  }
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.2.0-SNAPSHOT"))
+    }
 
-  @Test
-  fun `version formatter with prefix and multiple tags from head`() {
-      val testProjectDirectory = createTempDir()
-      val buildFile = File(testProjectDirectory, "build.gradle.kts")
-      buildFile.writeText("""
+    @Test
+    fun `version formatter with prefix and multiple tags from head`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.incrementer.MinorVersionIncrementer
 
@@ -583,16 +583,94 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               }
           }
       """)
-    val git = initializeGitWithoutBranch(testProjectDirectory, "prj_0.1.0")
-    val commit = git.commit().setMessage("another commit").call()
-    git.tag().setName("foo-1.0.0").setObjectId(commit).call()
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory, "prj_0.1.0")
+        val commit = git.commit().setMessage("another commit").call()
+        git.tag().setName("foo-1.0.0").setObjectId(commit).call()
 
-    val result = gradleRunner
-              .withProjectDir(testProjectDirectory)
-              .withArguments("showVersion")
-              .withPluginClasspath()
-              .build()
-      println(result.output)
-      Assertions.assertTrue(result.output.contains("Version: 1.0.0"))
-  }
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 1.0.0"))
+    }
+
+    @Test
+    fun `issue-47 increment minor by one with a lightweight tag`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+          import io.wusa.Info
+          import io.wusa.TagType
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = ""
+              tagType = TagType.LIGHTWEIGHT
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+        val git = initializeGitWithoutBranchLightweight(testProjectDirectory, "2.0.42")
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 2.1.0-SNAPSHOT"))
+    }
+
+    @Test
+    fun `issue-47 increment minor by one with a annotated tag`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+          import io.wusa.Info
+          import io.wusa.TagType
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = ""
+              tagType = TagType.ANNOTATED
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory, "2.0.42")
+        val commit = git.commit().setMessage("feat: another commit").call()
+        git.tag().setName("2.2.0").setObjectId(commit).setAnnotated(false).call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 2.1.0-SNAPSHOT"))
+    }
 }

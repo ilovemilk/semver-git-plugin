@@ -67,11 +67,17 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
         }
     }
 
-    fun getCommitsSinceLastTag(): List<String> {
-        return try {
-            gitCommandRunner.execute(arrayOf("log", "--oneline", "\$(git describe --tags --abbrev=0 @^)..@")).lines()
-        } catch (ex: GitException) {
-            emptyList()
+        fun getCommitsSinceLastTag(project: Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): List<String> {
+            var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            if (tagType == TagType.LIGHTWEIGHT){
+                cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            }
+            return try {
+                val lastTag = GitCommandRunner.execute(project.projectDir, cmdArgs)
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "$lastTag..@")).lines()
+            } catch (ex: GitException) {
+                emptyList()
+            }
         }
     }
 
