@@ -112,7 +112,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                         regex = "feature/.*"
                         incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
-                        snapshotSuffix = "SNAPSHOT"
+                        snapshotSuffix = "SNAPSHOT-feature"
                     }
                     branch {
                         regex = ".+"
@@ -131,7 +131,170 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT"))
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-feature"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT-feature"
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-feature"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific which is empty`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = ""
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test"))
+    }
+
+    @Test
+    fun `snapshot suffix are both empty`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = ""
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = ""
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific which is not set`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-global"))
     }
 
     @Test
