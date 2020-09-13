@@ -603,6 +603,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -614,7 +615,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
@@ -641,6 +642,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -652,7 +654,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
