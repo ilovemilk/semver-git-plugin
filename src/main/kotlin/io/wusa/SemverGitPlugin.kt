@@ -3,6 +3,7 @@ package io.wusa
 import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.WriteProperties
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -28,11 +29,35 @@ class SemverGitPlugin : Plugin<Project> {
 
         loadKoinModules(modules)
 
+        project.tasks.register("createVersionProperties", WriteProperties::class.java) {
+            it.group = "Help"
+            it.description = "Create a properties file with all version information."
+            it.outputFile = project.buildDir.resolve("generated/version.properties")
+            it.property("branch.name", semverGitPluginExtension.info.branch.name)
+            it.property("branch.group", semverGitPluginExtension.info.branch.group)
+            it.property("branch.id", semverGitPluginExtension.info.branch.id)
+            it.property("commit", semverGitPluginExtension.info.commit)
+            it.property("short.commit", semverGitPluginExtension.info.shortCommit)
+            it.property("tag", semverGitPluginExtension.info.tag)
+            it.property("last.tag", semverGitPluginExtension.info.lastTag)
+            it.property("dirty", semverGitPluginExtension.info.dirty.toString())
+            it.property("version", semverGitPluginExtension.info.toString())
+            it.property("version.major", semverGitPluginExtension.info.version.major.toString())
+            it.property("version.minor", semverGitPluginExtension.info.version.minor.toString())
+            it.property("version.patch", semverGitPluginExtension.info.version.patch.toString())
+            it.property("version.prerelease", if (semverGitPluginExtension.info.version.prerelease.isEmpty()) "none" else semverGitPluginExtension.info.version.prerelease)
+            it.property("version.build", if (semverGitPluginExtension.info.version.build.isEmpty()) "none" else semverGitPluginExtension.info.version.build)
+        }
+
+        project.tasks.getByName("createVersionProperties").doLast {
+            println("Version properties file successfully created.")
+        }
 
         project.task("showVersion") {
             it.group = "Help"
             it.description = "Show the project version"
         }
+
         project.tasks.getByName("showVersion").doLast {
             println("Version: " + semverGitPluginExtension.info)
         }
