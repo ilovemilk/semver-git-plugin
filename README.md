@@ -230,6 +230,27 @@ Version pre release: none
 Version build: none
 ```
 
+### `createVersionProperties`
+
+Creates a version properties file in the build directory with all version information.
+
+```properties
+branch.group=feature
+branch.id=feature-test
+branch.name=test
+commit=84da291157d470d82d8c69fd9c292a7a577ba532
+dirty=false
+last.tag=0.1.0
+short.commit=84da291
+tag=0.1.0
+version.build=none
+version.major=0
+version.minor=1
+version.patch=0
+version.prerelease=none
+version=0.1.0
+```
+
 ## License
 
 The MIT License (MIT)

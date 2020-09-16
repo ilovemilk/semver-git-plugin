@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage of Transformer for the incrementer instead of Strings.
 - Possibility to add custom incrementer by implementing the Transformer interface.
 - Branch specific snapshot suffixes.
+- Add task to create a properties file with all version information.
 
 ## [2.3.1]
 ### Fixed

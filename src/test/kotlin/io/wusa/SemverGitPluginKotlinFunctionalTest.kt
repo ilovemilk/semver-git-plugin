@@ -54,6 +54,44 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
+    fun `version properties`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("createVersionProperties")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version properties file successfully created."))
+        val propertiesFile = testProjectDirectory.resolve("build/generated/version.properties")
+        val properties = propertiesFile.readText()
+        Assertions.assertTrue(properties.contains("version=0.1.0"))
+        Assertions.assertTrue(properties.contains("last.tag=0.1.0"))
+        Assertions.assertTrue(properties.contains("tag=0.1.0"))
+    }
+
+    @Test
     fun `custom version incrementer`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
