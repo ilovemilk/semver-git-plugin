@@ -29,7 +29,7 @@ class SemverGitPlugin : Plugin<Project> {
 
         loadKoinModules(modules)
 
-        project.tasks.register("createVersionProperties", WriteProperties::class.java) {
+        project.tasks.create("createVersionProperties", WriteProperties::class.java) {
             it.group = "Help"
             it.description = "Create a properties file with all version information."
             it.outputFile = project.buildDir.resolve("generated/version.properties")
