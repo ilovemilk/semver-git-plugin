@@ -1,10 +1,10 @@
 package io.wusa.incrementer
 
 import io.wusa.Version
-import org.gradle.api.Project
+import org.gradle.api.Transformer
 
-class NoVersionIncrementer: IIncrementer {
-    override fun increment(version: Version, project: Project): Version {
+object NoVersionIncrementer : Transformer<Version, Version> {
+    override fun transform(version: Version): Version {
         return version
     }
 }

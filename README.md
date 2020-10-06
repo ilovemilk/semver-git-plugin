@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("2.3.0")
+    id("io.wusa.semver-git-plugin").version("3.0.0")
 }
 ```
 
@@ -25,7 +25,7 @@ buildscript {
        }
    }
    dependencies {
-      classpath 'io.wusa:semver-git-plugin:2.3.0'
+      classpath 'io.wusa:semver-git-plugin:3.0.0'
    }
 }
 
@@ -34,6 +34,26 @@ apply plugin: 'io.wusa.semver-git-plugin'
 
 ## Configure the plugin
 
+`build.gradle.kts`
+```kotlin
+semver {
+    snapshotSuffix = "SNAPSHOT" // (default) appended if the commit is without a release tag
+    dirtyMarker = "dirty" // (default) appended if the are uncommitted changes
+    initialVersion = "0.1.0" // (default) initial version in semantic versioning
+    tagPrefix = "" // (default) each project can have its own tags identified by a unique prefix.
+    tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
+    branches { // list of branch configurations
+        branch {
+            snapshotSuffix = "SNAPSHOT" // (default) branch specific snapshot suffix
+            regex = ".+" // regex for the branch you want to configure, put this one last
+            incrementer = MinorVersionIncrementer // (default) version incrementer
+            formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
+        }
+    }
+}
+```
+
+`build.gradle`
 ```groovy
 semver {
     snapshotSuffix = "SNAPSHOT" // (default) appended if the commit is without a release tag
@@ -43,8 +63,9 @@ semver {
     tagtype = TagType.Annotated // (default) options are Annotated or Lightweight
     branches { // list of branch configurations
         branch {
+            snapshotSuffix = "SNAPSHOT" // (default) branch specific snapshot suffix
             regex = ".+" // regex for the branch you want to configure, put this one last
-            incrementer = "NO_VERSION_INCREMENTER" // (default) version incrementer
+            incrementer = GroovyMinorVersionIncrementer as Transformer // (default) version incrementer
             formatter = { "${semver.info.version.major}.${semver.info.version.minor}.${semver.info.version.patch}+build.${semver.info.count}.sha.${semver.info.shortCommit}" } // (default) version formatting closure
         }
     }
@@ -70,13 +91,40 @@ apply in any other case.
 
 ## Incrementer
 
-| Incrementer | Description | 
-|----------|-------------|
-| NO_VERSION_INCREMENTER | Doesn't increment the version at all. |
-| PATCH_INCREMENTER | Increments the patch version by one. |
-| MINOR_INCREMENTER | Increments the minor version by one. |
-| MAJOR_INCREMENTER | Increments the major version by one. |
-| CONVENTIONAL_COMMITS_INCREMENTER | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
+| Groovy Incrementer | Kotlin Incrementer | Description | 
+|----------|----------|-------------|
+| GroovyNoVersionIncrementer | NoVersionIncrementer  | Doesn't increment the version at all. |
+| GroovyPatchVersionIncrementer | PatchVersionIncrementer | Increments the patch version by one. |
+| GroovyMinorVersionIncrementer | MinorVersionIncrementer | Increments the minor version by one. |
+| GroovyMajorVersionIncrementer | MajorVersionIncrementer | Increments the major version by one. |
+| GroovyConventionalCommitsVersionIncrementer | ConventionalCommitsVersionIncrementer | Increments the version according to [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). |
+
+## Custom Incrementer
+
+It's possible to implement your own incrementer by implementing the Gradle [Transformer interface](https://docs.gradle.org/current/javadoc/org/gradle/api/Transformer.html) with Version in and Version out.
+
+`build.gradle.kts`
+```kotlin
+incrementer = 
+    object : Transformer<Version, Version> {
+        override fun transform(version: Version): Version {
+            version.major += 1
+            version.minor += 1
+            version.patch += 1
+            return version
+        }
+    }
+```
+
+`build.gradle`
+```groovy
+incrementer = { 
+                it.major = it.major + 1
+                it.minor = it.minor + 1
+                it.patch = it.patch + 1
+                it 
+}
+```
 
 ## Release
 
@@ -95,7 +143,7 @@ git tag -a 1.0.0-alpha.1
 git push --tags
 ```
 
-Following commits without a release tag will have the `snapshotSuffix` (default `SNAPSHOT`) appended 
+Following commits without a release tag will have the global or branch specific `snapshotSuffix` (default `SNAPSHOT`) appended 
 and the version number bumped according to `incrementer` (default `minor`) strategy, e.g., `1.1.0-alpha.1-SNAPSHOT`.
 
 ## Version usage
@@ -180,6 +228,27 @@ Version minor: 1
 Version patch: 0
 Version pre release: none
 Version build: none
+```
+
+### `createVersionProperties`
+
+Creates a version properties file in the build directory with all version information.
+
+```properties
+branch.group=feature
+branch.id=feature-test
+branch.name=test
+commit=84da291157d470d82d8c69fd9c292a7a577ba532
+dirty=false
+last.tag=0.1.0
+short.commit=84da291
+tag=0.1.0
+version.build=none
+version.major=0
+version.minor=1
+version.patch=0
+version.prerelease=none
+version=0.1.0
 ```
 
 ## License

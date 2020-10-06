@@ -3,13 +3,15 @@ package io.wusa.incrementer
 import io.wusa.GitService
 import io.wusa.Version
 import io.wusa.extension.SemverGitPluginExtension
-import org.gradle.api.Project
+import org.gradle.api.Transformer
+import org.koin.java.KoinJavaComponent.inject
 
-class ConventionalCommitsIncrementer: IIncrementer {
-    override fun increment(version: Version, project: Project): Version {
-        val semverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
+object ConventionalCommitsVersionIncrementer : Transformer<Version, Version> {
+    private val gitService: GitService by inject(GitService::class.java)
+    private val semverGitPluginExtension by inject(SemverGitPluginExtension::class.java)
 
-        val listOfCommits = GitService.getCommitsSinceLastTag(project, semverGitPluginExtension.tagPrefix, semverGitPluginExtension.tagType)
+    override fun transform(version: Version): Version {
+        val listOfCommits = gitService.getCommitsSinceLastTag(semverGitPluginExtension.tagPrefix, semverGitPluginExtension.tagType)
         var major = 0
         var minor = 0
         var patch = 0

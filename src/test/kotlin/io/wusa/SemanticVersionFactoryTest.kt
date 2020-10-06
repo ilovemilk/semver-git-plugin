@@ -1,6 +1,5 @@
 package io.wusa
 
-import io.mockk.mockkObject
 import io.wusa.exception.NoValidSemverTagFoundException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -15,9 +14,8 @@ class SemanticVersionFactoryTest {
     @BeforeEach
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
-        mockkObject(GitService)
     }
-    
+
     @Test
     fun `parse version`() {
         val semanticVersionFactory: IVersionFactory = SemanticVersionFactory()
