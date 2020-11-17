@@ -1,5 +1,5 @@
 # :ghost: __semver-git-plugin__
-*Version your gradle projects with git tags and semantic versioning. Requires git 2.22 or higher*
+*Version your gradle projects with git tags and semantic versioning.*
 
 [![GitHub version](https://img.shields.io/github/tag/ilovemilk/semver-git-plugin.svg)](https://img.shields.io/github/tag/ilovemilk/semver-git-plugin.svg)
 [![License](https://img.shields.io/github/license/ilovemilk/semver-git-plugin.svg)](https://img.shields.io/github/license/ilovemilk/semver-git-plugin.svg)
