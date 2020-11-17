@@ -12,7 +12,7 @@ Gradle 2.1 and higher
 
 ```
 plugins {
-    id("io.wusa.semver-git-plugin").version("2.3.0")
+    id("io.wusa.semver-git-plugin").version("2.3.2")
 }
 ```
 
