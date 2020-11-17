@@ -94,95 +94,83 @@ class GitServiceTest {
 
     @Test
     fun `get current branch master`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "* master 5824168c73ba0618c1b6e384fbd7d61c5e8b8bc3"
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "(HEAD -> master)"
         Assertions.assertEquals("master", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-test`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "* feature/test 5824168c73ba0618c1b6e384fbd7d61c5e8b8bc3"
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "(HEAD -> feature/test)"
         Assertions.assertEquals("feature/test", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-test with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/test                cd55642b18ef34d976eda337d2b7abd296b37c8f remove code quality\n" +
-                "  remotes/origin/feature/test cd55642b18ef34d976eda337d2b7abd296b37c8f remove code quality"
+                "(HEAD -> feature/test, origin/feature/test)"
         Assertions.assertEquals("feature/test", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-reactiveTests with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/reactiveTests           831965a6c57434276c70c8e1134244dd6077b1fc fix tests with timeout\n" +
-                "  hotfix/codePrefix                4ad7116a019553ff19d0e338bf7e602374d72c04 [behind 1] fixed publish code test for added prefix\n" +
-                "  remotes/origin/develop           13fc04d392d51d9bc7b70c8d52b2d8cd6cc1199a Merge branch 'feature/reactive-tests' into 'develop'\n" +
-                "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection\n"
+                "(HEAD -> feature/reactiveTests)"
         Assertions.assertEquals("feature/reactiveTests", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch hotfix-codePrefix with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* hotfix/codePrefix                4ad7116a019553ff19d0e338bf7e602374d72c04 [behind 1] fixed publish code test for added prefix\n" +
-                "  remotes/origin/hotfix/codePrefix a3b40aa8be599003c8656d5cc9a460ffd61fe1f9 escaping / in regex for branch detection"
+                "(HEAD -> hotfix/codePrefix, origin/hotfix/codePrefix)"
         Assertions.assertEquals("hotfix/codePrefix", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-s-version-3 with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/s-version-3                9ea487bb167c89a6453fd2e72740a492c6782887 use kebab case\n" +
-                "  remotes/origin/feature/s-version-3 9ea487bb167c89a6453fd2e72740a492c6782887 use kebab case"
+                "(HEAD -> feature/s-version-3, origin/feature/s-version-3)"
         Assertions.assertEquals("feature/s-version-3", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch feature-abcd-10847-abcde-abc with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/abcd-10847-abcde-abc                9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/feature/abcd-10847-abcde-abc 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> feature/abcd-10847-abcde-abc, origin/feature/abcd-10847-abcde-abc)"
         Assertions.assertEquals("feature/abcd-10847-abcde-abc", GitService.currentBranch(project))
     }
 
     @Test
     fun `get current branch hotfix-5-3-1 with origin`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* hotfix/5.3.1              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/hotfix/5.3.1 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> hotfix/5.3.1, origin/hotfix/5.3.1)"
         Assertions.assertEquals("hotfix/5.3.1", GitService.currentBranch(project))
     }
 
     @Test
     fun `issue-35 fix branch regex`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/bellini/test-branch-version              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/feature/bellini/test-branch-version 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> feature/bellini/test-branch-version, origin/feature/bellini/test-branch-version)"
         Assertions.assertEquals("feature/bellini/test-branch-version", GitService.currentBranch(project))
     }
 
     @Test
     fun `camelCase branch`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/camelCase              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/feature/camelCase 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> feature/camelCase, remotes/origin/feature/camelCase)"
         Assertions.assertEquals("feature/camelCase", GitService.currentBranch(project))
     }
 
     @Test
     fun `UPPER_CASE branch`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/UPPER_CASE              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/feature/UPPER_CASE 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> feature/UPPER_CASE, origin/feature/UPPER_CASE)"
         Assertions.assertEquals("feature/UPPER_CASE", GitService.currentBranch(project))
     }
 
     @Test
     fun `PascalCase branch`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
-                "* feature/PascalCase              9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc\n" +
-                "  remotes/origin/feature/PascalCase 9ea487bb167c89a6453fd2e72740a492c6782887 abcd-10847-abcde-abc"
+                "(HEAD -> feature/PascalCase, origin/feature/PascalCase)"
         Assertions.assertEquals("feature/PascalCase", GitService.currentBranch(project))
     }
 

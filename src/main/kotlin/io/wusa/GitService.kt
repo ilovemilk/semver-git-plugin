@@ -9,8 +9,7 @@ class GitService {
         @Throws(NoCurrentBranchFoundException::class)
         fun currentBranch(project: Project): String {
             return try {
-                val branches = getCurrentBranch(project)
-                filterCurrentBranch(branches)
+                getCurrentBranch(project)
             } catch (ex: GitException) {
                 throw NoCurrentBranchFoundException(ex)
             } catch (ex: KotlinNullPointerException) {
@@ -71,12 +70,12 @@ class GitService {
 
         fun getCommitsSinceLastTag(project: Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): List<String> {
             var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
-            if (tagType == TagType.LIGHTWEIGHT){
+            if (tagType == TagType.LIGHTWEIGHT) {
                 cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
             }
             return try {
                 val lastTag = GitCommandRunner.execute(project.projectDir, cmdArgs)
-                GitCommandRunner.execute(project.projectDir, arrayOf("git", "log", "--pretty=format:%s %(trailers:separator=%x2c)", "$lastTag..@")).lines()
+                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--pretty=format:%s %(trailers:separator=%x2c)", "$lastTag..@")).lines()
             } catch (ex: GitException) {
                 emptyList()
             }
@@ -101,16 +100,9 @@ class GitService {
             }
         }
 
-        private fun filterCurrentBranch(branches: String) =
-                """(\*)? +(.*?) +(.*?)?""".toRegex().find(branches)!!.groupValues[2]
-
         private fun getCurrentBranch(project: Project): String {
-            val branchName = GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--show-current"))
-            return GitCommandRunner.execute(project.projectDir, arrayOf("branch", branchName, "--verbose", "--no-abbrev", "--contains"))
-        }
-
-        private fun getAllBranches(project: Project): String {
-            return GitCommandRunner.execute(project.projectDir, arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
+            val head = GitCommandRunner.execute(project.projectDir, arrayOf("log", "-n", "1", "--pretty=%d", "HEAD"))
+            return """\(HEAD -> (.*?)[,|)]""".toRegex().find(head)!!.groupValues[1]
         }
     }
 }
