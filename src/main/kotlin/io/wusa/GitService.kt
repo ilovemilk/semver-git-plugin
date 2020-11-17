@@ -76,7 +76,7 @@ class GitService {
             }
             return try {
                 val lastTag = GitCommandRunner.execute(project.projectDir, cmdArgs)
-                GitCommandRunner.execute(project.projectDir, arrayOf("log", "--oneline", "$lastTag..@")).lines()
+                GitCommandRunner.execute(project.projectDir, arrayOf("git", "log", "--pretty=format:%s %(trailers:separator=%x2c)", "$lastTag..@")).lines()
             } catch (ex: GitException) {
                 emptyList()
             }
