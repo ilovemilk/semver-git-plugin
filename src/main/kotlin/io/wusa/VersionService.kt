@@ -5,6 +5,7 @@ import io.wusa.extension.SemverGitPluginExtension
 import io.wusa.incrementer.VersionIncrementer
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
 
 class VersionService(private var project: Project) {
     private val semverGitPluginExtension: SemverGitPluginExtension = project.extensions.getByType(SemverGitPluginExtension::class.java)
@@ -19,6 +20,22 @@ class VersionService(private var project: Project) {
             throw GradleException("The current tag is not a semantic version.")
         } catch (ex: NoCurrentTagFoundException) {
             handleNoCurrentTagFound(versionFactory, project)
+        } catch (ex: DirtyWorkingTreeException) {
+            handleDirtyWorkingTree(versionFactory, project)
+        }
+    }
+
+    @Throws(GradleException::class)
+    private fun handleDirtyWorkingTree(versionFactory: IVersionFactory, project: Project): Version {
+        return try {
+            val lastVersion = getLastVersion(versionFactory)
+            incrementVersion(lastVersion, project)
+        } catch (ex: NoValidSemverTagFoundException) {
+            throw GradleException(ex.localizedMessage)
+        } catch (ex: NoIncrementerFoundException) {
+            throw GradleException(ex.localizedMessage)
+        } catch (ex: NoLastTagFoundException) {
+            buildInitialVersion(versionFactory)
         }
     }
 
@@ -70,6 +87,10 @@ class VersionService(private var project: Project) {
         val curTag = GitService.currentTag(project, tagPrefix, tagType = semverGitPluginExtension.tagType)
         if ( !curTag.startsWith(tagPrefix)) {
             throw NoCurrentTagFoundException("$curTag doesn't match $tagPrefix")
+        }
+        val isDirty = GitService.isDirty(project)
+        if (isDirty) {
+            throw DirtyWorkingTreeException("The current working tree is dirty.")
         }
 
         return versionFactory.createFromString(curTag.substring(tagPrefix.length))

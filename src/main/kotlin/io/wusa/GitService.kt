@@ -41,9 +41,9 @@ class GitService {
 
         @Throws(NoLastTagFoundException::class)
         fun lastTag(project : Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): String {
-            var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+            var cmdArgs = arrayOf("describe", "--abbrev=7", "--match", "$tagPrefix*")
             if (tagType == TagType.LIGHTWEIGHT){
-                cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+                cmdArgs = arrayOf("describe", "--tags", "--abbrev=7", "--match", "$tagPrefix*")
             }
             return try {
                 GitCommandRunner.execute(project.projectDir, cmdArgs)
@@ -69,9 +69,9 @@ class GitService {
         }
 
         fun getCommitsSinceLastTag(project: Project, tagPrefix : String = "", tagType : TagType = TagType.ANNOTATED): List<String> {
-            var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            var cmdArgs = arrayOf("describe", "--abbrev=0", "--match", "$tagPrefix*")
             if (tagType == TagType.LIGHTWEIGHT) {
-                cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+                cmdArgs = arrayOf("describe", "--tags", "--abbrev=0", "--match", "$tagPrefix*")
             }
             return try {
                 val lastTag = GitCommandRunner.execute(project.projectDir, cmdArgs)
@@ -81,8 +81,10 @@ class GitService {
             }
         }
 
-        private fun isGitDifferent(project: Project) =
-                GitCommandRunner.execute(project.projectDir, arrayOf("diff", "--stat")) != ""
+        private fun isGitDifferent(project: Project): Boolean {
+            print(GitCommandRunner.execute(project.projectDir, arrayOf("status", "-s")))
+            return GitCommandRunner.execute(project.projectDir, arrayOf("status", "-s")).isNotBlank()
+        }
 
         private fun getCurrentCommit(project: Project): String {
             return try {

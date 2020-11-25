@@ -2,7 +2,6 @@ package io.wusa.formatter
 
 import io.wusa.Info
 import io.wusa.RegexResolver
-import io.wusa.Suffix
 import io.wusa.extension.Branches
 import io.wusa.extension.SemverGitPluginExtension
 import org.gradle.api.Transformer
@@ -12,12 +11,12 @@ class SemanticVersionFormatter {
         fun format(info: Info, branches: Branches, snapshotSuffix: String, dirtyMarker: String): String {
             if (!hasFirstCommit(info)) return appendSuffix(buildVersionString(info), snapshotSuffix)
 
-            if (hasTag(info)) {
+            if (hasTag(info) && !isDirty(info)) {
                 return formatVersionWithTag(info)
             }
 
-            val formattedVersion = formatVersionWithoutTag(branches, info, dirtyMarker)
-            if (!hasTag(info)) {
+            val formattedVersion = formatVersion(branches, info, dirtyMarker)
+            if (!hasTag(info) || hasTag(info) && isDirty(info)) {
                 return appendSuffix(formattedVersion, snapshotSuffix)
             }
             return formattedVersion
@@ -48,18 +47,24 @@ class SemanticVersionFormatter {
 
         private fun buildVersionString(info: Info) = "${info.version.major}.${info.version.minor}.${info.version.patch}"
 
-        private fun formatVersionWithoutTag(branches: Branches, info: Info, dirtyMarker: String): String {
+        private fun formatVersion(branches: Branches, info: Info, dirtyMarker: String): String {
             val regexFormatterPair = RegexResolver.findMatchingRegex(branches, info.branch.name)
             var formattedVersion = transform(SemverGitPluginExtension.DEFAULT_FORMATTER, info)
-            formattedVersion = appendDirtyMarker(formattedVersion, info.version.suffix, dirtyMarker)
+            if (isDirty(info)) {
+                formattedVersion = appendDirtyMarker(formattedVersion, dirtyMarker)
+            }
             regexFormatterPair?.let {
                 formattedVersion = transform(regexFormatterPair.formatter, info)
-                formattedVersion = appendDirtyMarker(formattedVersion, info.version.suffix, dirtyMarker)
+                if (isDirty(info)) {
+                    formattedVersion = appendDirtyMarker(formattedVersion, dirtyMarker)
+                }
             }
             return formattedVersion
         }
 
         private fun hasTag(info: Info) = info.version.suffix == null
+
+        private fun isDirty(info: Info) = info.dirty
 
         private fun hasVersionBuildInformation(info: Info) = info.version.build != ""
 
@@ -79,12 +84,9 @@ class SemanticVersionFormatter {
             return true
         }
 
-        private fun appendDirtyMarker(version: String, suffix: Suffix?, dirtyMarker: String): String {
-            if (suffix != null && suffix.dirty) {
-                if (dirtyMarker != "") {
-                    return "$version-$dirtyMarker"
-                }
-                return version
+        private fun appendDirtyMarker(version: String, dirtyMarker: String): String {
+            if (dirtyMarker != "") {
+                return "$version-$dirtyMarker"
             }
             return version
         }
