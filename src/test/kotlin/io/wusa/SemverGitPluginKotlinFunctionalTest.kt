@@ -649,4 +649,84 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         println(result.output)
         Assertions.assertTrue(result.output.contains("Version: 2.1.0-SNAPSHOT"))
     }
+
+    @Test
+    fun `issue-59 increment minor by one with a dirty working tree`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+          import io.wusa.Info
+          import io.wusa.TagType
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = ""
+              tagType = TagType.ANNOTATED
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory, "2.0.42")
+        git.commit().setMessage("feat: another commit").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        git.commit().setMessage("feat: added semver plugin incrementer parameter").call()
+        val dirty = File(testProjectDirectory, "dirty.file")
+        dirty.writeText("dirty")
+        git.add().addFilepattern(".").call()
+
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 2.1.0-dirty-SNAPSHOT"))
+    }
+
+    @Test
+    fun `issue-59 dirty working tree with no commits`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+          import io.wusa.Info
+          import io.wusa.TagType
+
+          plugins {
+              id("io.wusa.semver-git-plugin")
+          }
+
+          semver {
+              tagPrefix = ""
+              tagType = TagType.ANNOTATED
+              branches {
+                  branch {
+                      regex = ".+"
+                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                  }
+              }
+          }
+      """)
+        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory, "2.0.42")
+        val dirty = File(testProjectDirectory, "dirty.file")
+        dirty.writeText("dirty")
+        git.add().addFilepattern(".").call()
+
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showInfo")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 2.0.43-dirty-SNAPSHOT"))
+    }
 }
