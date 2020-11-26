@@ -8,8 +8,9 @@ class GitCommandRunner {
     companion object {
         fun execute(projectDir: File, args: Array<String>): String {
             val process = startGitProcess(args, projectDir)
+            val output = readProcessOutput(process)
             waitForGitProcess(process)
-            if (processFinishedWithoutErrors(process)) return readProcessOutput(process)
+            if (processFinishedWithoutErrors(process)) return output
 
             throw GitException("Executing git command failed with " + process.exitValue())
         }
