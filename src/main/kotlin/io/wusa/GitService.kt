@@ -82,7 +82,6 @@ class GitService {
         }
 
         private fun isGitDifferent(project: Project): Boolean {
-            print(GitCommandRunner.execute(project.projectDir, arrayOf("status", "-s")))
             return GitCommandRunner.execute(project.projectDir, arrayOf("status", "-s")).isNotBlank()
         }
 
