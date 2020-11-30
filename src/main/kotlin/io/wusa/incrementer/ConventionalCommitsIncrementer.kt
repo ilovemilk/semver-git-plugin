@@ -16,7 +16,7 @@ class ConventionalCommitsIncrementer: IIncrementer {
         val optionalScope   = "(\\(.*?\\))?"
         val feat            = "^feat$optionalScope"
         val fix             = "^fix$optionalScope"
-        val breakingChange  = "\\bBREAKING CHANGE\\b:"
+        val breakingChange = "\\bBREAKING[ _-]CHANGE\\b:"
 
         if (semverGitPluginExtension.info.dirty) patch = 1
 
