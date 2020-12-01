@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.6]
+### Fixed
+- Fix BREAKING CHANGE regex to also accept BREAKING-CHANGE and BREAKING_CHANGE due to an incompatibility between the Conventional commit specification and the git trailers convention:
+git trailers only detect keywords which do not contain space character (e.g. BREAKING-CHANGE is detected but not BREAKING CHANGE) whereas Conventional commit specification specified BREAKING CHANGE with a space.
+
 ## [2.3.5]
 ### Fixed
 - Fix large process outputs could lead to a timeout in the command runner due to the reading buffer running full and blocking the process.
