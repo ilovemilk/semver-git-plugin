@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.7]
+### Fixed
+- Fix regex to match grafted branches.
+
 ## [2.3.6]
 ### Fixed
 - Fix BREAKING CHANGE regex to also accept BREAKING-CHANGE and BREAKING_CHANGE due to an incompatibility between the Conventional commit specification and the git trailers convention:

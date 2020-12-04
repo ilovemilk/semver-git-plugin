@@ -175,6 +175,13 @@ class GitServiceTest {
     }
 
     @Test
+    fun `issue-65 grafted branch`() {
+        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+                "(grafted, HEAD -> release-workflows, origin/release-workflows)"
+        Assertions.assertEquals("release-workflows", GitService.currentBranch(project))
+    }
+
+    @Test
     fun `get current branch with null pointer exception`() {
         every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
         Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
