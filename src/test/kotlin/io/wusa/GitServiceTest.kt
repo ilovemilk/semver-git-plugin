@@ -1,8 +1,7 @@
 package io.wusa
 
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
+import io.mockk.*
+import io.mockk.impl.annotations.MockK
 import io.wusa.exception.*
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -13,186 +12,190 @@ class GitServiceTest {
 
     private lateinit var project: Project
 
+    private lateinit var gitCommandRunner: GitCommandRunner
+
+    private lateinit var gitService: GitService
+
     @BeforeEach
     internal fun setUp() {
         project = ProjectBuilder.builder().build()
-        mockkObject(GitCommandRunner)
+        gitCommandRunner = mockkClass(GitCommandRunner::class)
+        gitService = GitService(gitCommandRunner)
     }
 
     @AfterEach
     internal fun tearDown() {
-        unmockkObject(GitCommandRunner)
     }
 
     @Test
     fun `git is dirty`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "modified"
-        Assertions.assertEquals(true, GitService.isDirty(project))
+        every { gitCommandRunner.execute(args = any()) } returns "modified"
+        Assertions.assertEquals(true, gitService.isDirty())
     }
 
     @Test
     fun `git is not dirty`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
-        Assertions.assertEquals(false, GitService.isDirty(project))
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
+        Assertions.assertEquals(false, gitService.isDirty())
     }
 
     @Test
     fun `get last tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "modified"
-        Assertions.assertEquals("modified", GitService.lastTag(project))
+        every { gitCommandRunner.execute(args = any()) } returns "modified"
+        Assertions.assertEquals("modified", gitService.lastTag())
     }
 
     @Test
     fun `no last tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
         Assertions.assertThrows(NoLastTagFoundException::class.java) {
-            GitService.lastTag(project)
+            gitService.lastTag()
         }
     }
 
     @Test
     fun `get current tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "modified"
-        Assertions.assertEquals("modified", GitService.currentTag(project))
+        every { gitCommandRunner.execute(args = any()) } returns "modified"
+        Assertions.assertEquals("modified", gitService.currentTag())
     }
 
     @Test
     fun `no current tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
         Assertions.assertThrows(NoCurrentTagFoundException::class.java) {
-            GitService.currentTag(project)
+            gitService.currentTag()
         }
     }
 
     @Test
     fun `get commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "5f68d6b1ba57fd183e2c0e6cb968c4353907fa17"
-        Assertions.assertEquals("5f68d6b1ba57fd183e2c0e6cb968c4353907fa17", GitService.currentCommit(project, false))
+        every { gitCommandRunner.execute(args = any()) } returns "5f68d6b1ba57fd183e2c0e6cb968c4353907fa17"
+        Assertions.assertEquals("5f68d6b1ba57fd183e2c0e6cb968c4353907fa17", gitService.currentCommit(false))
     }
 
     @Test
     fun `no current commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
         Assertions.assertThrows(NoCurrentCommitFoundException::class.java) {
-            GitService.currentCommit(project, false)
+            gitService.currentCommit(false)
         }
     }
 
     @Test
     fun `get short commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "916776"
-        Assertions.assertEquals("916776", GitService.currentCommit(project, true))
+        every { gitCommandRunner.execute(args = any()) } returns "916776"
+        Assertions.assertEquals("916776", gitService.currentCommit(true))
     }
 
     @Test
     fun `no current short commit sha`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
         Assertions.assertThrows(NoCurrentCommitFoundException::class.java) {
-            GitService.currentCommit(project, true)
+            gitService.currentCommit(true)
         }
     }
 
     @Test
     fun `get current branch master`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "(HEAD -> master)"
-        Assertions.assertEquals("master", GitService.currentBranch(project))
+        every { gitCommandRunner.execute(args = any()) } returns "(HEAD -> master)"
+        Assertions.assertEquals("master", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch feature-test`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns "(HEAD -> feature/test)"
-        Assertions.assertEquals("feature/test", GitService.currentBranch(project))
+        every { gitCommandRunner.execute(args = any()) } returns "(HEAD -> feature/test)"
+        Assertions.assertEquals("feature/test", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch feature-test with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/test, origin/feature/test)"
-        Assertions.assertEquals("feature/test", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/test", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch feature-reactiveTests with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/reactiveTests)"
-        Assertions.assertEquals("feature/reactiveTests", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/reactiveTests", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch hotfix-codePrefix with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> hotfix/codePrefix, origin/hotfix/codePrefix)"
-        Assertions.assertEquals("hotfix/codePrefix", GitService.currentBranch(project))
+        Assertions.assertEquals("hotfix/codePrefix", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch feature-s-version-3 with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/s-version-3, origin/feature/s-version-3)"
-        Assertions.assertEquals("feature/s-version-3", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/s-version-3", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch feature-abcd-10847-abcde-abc with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/abcd-10847-abcde-abc, origin/feature/abcd-10847-abcde-abc)"
-        Assertions.assertEquals("feature/abcd-10847-abcde-abc", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/abcd-10847-abcde-abc", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch hotfix-5-3-1 with origin`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> hotfix/5.3.1, origin/hotfix/5.3.1)"
-        Assertions.assertEquals("hotfix/5.3.1", GitService.currentBranch(project))
+        Assertions.assertEquals("hotfix/5.3.1", gitService.currentBranch())
     }
 
     @Test
     fun `issue-35 fix branch regex`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/bellini/test-branch-version, origin/feature/bellini/test-branch-version)"
-        Assertions.assertEquals("feature/bellini/test-branch-version", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/bellini/test-branch-version", gitService.currentBranch())
     }
 
     @Test
     fun `camelCase branch`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/camelCase, remotes/origin/feature/camelCase)"
-        Assertions.assertEquals("feature/camelCase", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/camelCase", gitService.currentBranch())
     }
 
     @Test
     fun `UPPER_CASE branch`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/UPPER_CASE, origin/feature/UPPER_CASE)"
-        Assertions.assertEquals("feature/UPPER_CASE", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/UPPER_CASE", gitService.currentBranch())
     }
 
     @Test
     fun `PascalCase branch`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "(HEAD -> feature/PascalCase, origin/feature/PascalCase)"
-        Assertions.assertEquals("feature/PascalCase", GitService.currentBranch(project))
+        Assertions.assertEquals("feature/PascalCase", gitService.currentBranch())
     }
 
     @Test
     fun `get current branch with null pointer exception`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws KotlinNullPointerException()
+        every { gitCommandRunner.execute(args = any()) } throws KotlinNullPointerException()
         Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
-            GitService.currentBranch(project)
+            gitService.currentBranch()
         }
     }
 
     @Test
     fun `no current branch`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } throws GitException("error")
+        every { gitCommandRunner.execute(args = any()) } throws GitException("error")
         Assertions.assertThrows(NoCurrentBranchFoundException::class.java) {
-            GitService.currentBranch(project)
+            gitService.currentBranch()
         }
     }
 
     @Test
     fun `get list of all commits since last tag`() {
-        every { GitCommandRunner.execute(projectDir = any(), args = any()) } returns
+        every { gitCommandRunner.execute(args = any()) } returns
                 "7356414 update gradle plugin publish due to security bugs\n" +
                 "45f65f6 update version an changelog\n" +
                 "67f03b1 Merge pull request #18 from ilovemilk/feature/support-multi-module\n" +
@@ -212,6 +215,6 @@ class GitServiceTest {
                 "73fc8b4 Add support for multi-module projects.",
                 "74e3eb1 add test for kebab-case with numbers",
                 "63ca60f add more tests")
-        Assertions.assertEquals(GitService.getCommitsSinceLastTag(project), listOfCommits)
+        Assertions.assertEquals(gitService.getCommitsSinceLastTag(), listOfCommits)
     }
 }
