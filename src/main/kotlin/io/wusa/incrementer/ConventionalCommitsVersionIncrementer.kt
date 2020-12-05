@@ -12,18 +12,22 @@ object ConventionalCommitsVersionIncrementer : Transformer<Version, Version> {
 
     override fun transform(version: Version): Version {
         val listOfCommits = gitService.getCommitsSinceLastTag(semverGitPluginExtension.tagPrefix, semverGitPluginExtension.tagType)
-        var major = 0
-        var minor = 0
-        var patch = 0
+
+        var major           = 0
+        var minor           = 0
+        var patch           = 0
+        val optionalScope   = "(\\(.*?\\))?"
+        val feat            = "^feat$optionalScope"
+        val fix             = "^fix$optionalScope"
+        val breakingChange  = "\\bBREAKING CHANGE\\b:"
+
         listOfCommits.forEach {
-            if (it.contains("""^[0-9a-f]{7} BREAKING CHANGE""".toRegex())) {
-                major += 1
-            }
-            if (it.contains("""^[0-9a-f]{7} feat""".toRegex())) {
-                minor += 1
-            }
-            if (it.contains("""^[0-9a-f]{7} fix""".toRegex())) {
-                patch += 1
+            when {
+                it.contains("$feat!:".toRegex())        -> major += 1
+                it.contains("$fix!:".toRegex())         -> major += 1
+                it.contains(breakingChange.toRegex())   -> major += 1
+                it.contains("$feat:".toRegex())         -> minor += 1
+                it.contains("$fix:".toRegex())          -> patch += 1
             }
         }
         if (patch > 0) {
