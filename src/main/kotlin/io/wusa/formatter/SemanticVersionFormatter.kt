@@ -8,8 +8,8 @@ import org.gradle.api.Transformer
 
 class SemanticVersionFormatter {
     companion object {
-        fun format(info: Info, branches: Branches, snapshotSuffix: String, dirtyMarker: String): String {
-            if (!hasFirstCommit(info)) return appendSuffix(buildVersionString(info), snapshotSuffix)
+        fun format(info: Info, branches: Branches, dirtyMarker: String): String {
+            if (!hasFirstCommit(info)) return appendSuffix(buildVersionString(info), branches, info)
 
             if (hasTag(info) && !isDirty(info)) {
                 return formatVersionWithTag(info)
@@ -70,11 +70,15 @@ class SemanticVersionFormatter {
 
         private fun hasVersionPrerelease(info: Info) = info.version.prerelease != ""
 
-        private fun appendSuffix(version: String, snapshotSuffix: String): String {
-            if (snapshotSuffix != "") {
-                return "$version-$snapshotSuffix"
+        private fun appendSuffix(version: String, branches: Branches, info: Info): String {
+            val regexFormatterPair = RegexResolver.findMatchingRegex(branches, info.branch.name)
+            regexFormatterPair?.let {
+                if (regexFormatterPair.snapshotSuffix != "") {
+                    return "$version-${regexFormatterPair.snapshotSuffix}"
+                }
+                return version
             }
-            return version
+            return "$version-${SemverGitPluginExtension.DEFAULT_SNAPSHOT_SUFFIX}"
         }
 
         private fun hasFirstCommit(info: Info): Boolean {

@@ -7,10 +7,11 @@ plugins {
 }
 
 group = "io.wusa"
-version = "2.3.3"
+version = "3.0.0"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.koin:koin-gradle-plugin:2.1.6")
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
     testImplementation("io.mockk:mockk:1.9")

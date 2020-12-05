@@ -10,14 +10,14 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
 
     private lateinit var gradleRunner: GradleRunner
 
-    @BeforeAll
+    @BeforeEach
     fun setUp() {
         gradleRunner = GradleRunner.create()
     }
 
-    @AfterAll
+    @AfterEach
     fun tearDown() {
-        gradleRunner.projectDir.deleteRecursively()
+        //gradleRunner.projectDir.deleteRecursively()
     }
 
     @Test
@@ -26,6 +26,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -35,8 +36,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -52,11 +54,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `version formatter for feature branches use specific`() {
+    fun `version properties`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -65,14 +68,55 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
             semver {
                 branches {
                     branch {
-                        regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
+                }
+            }
+        """)
+        initializeGitWithoutBranchAnnotated(testProjectDirectory)
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("createVersionProperties")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version properties file successfully created."))
+        val propertiesFile = testProjectDirectory.resolve("build/generated/version.properties")
+        val properties = propertiesFile.readText()
+        Assertions.assertTrue(properties.contains("version=0.1.0"))
+        Assertions.assertTrue(properties.contains("last.tag=0.1.0"))
+        Assertions.assertTrue(properties.contains("tag=0.1.0"))
+    }
+
+    @Test
+    fun `custom version incrementer`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.Version
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
-                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        incrementer = 
+                            object : Transformer<Version, Version> {
+                                override fun transform(version: Version): Version {
+                                    version.major += 1
+                                    version.minor += 1
+                                    version.patch += 1
+                                    return version
+                                }
+                            }
+                        formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                     }
                 }
             }
@@ -85,7 +129,210 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 .withPluginClasspath()
                 .build()
         println(result.output)
-        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT"))
+        Assertions.assertTrue(result.output.contains("Version: 1.1.2"))
+    }
+
+    @Test
+    fun `version formatter for feature branches use specific`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT-feature"
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-feature"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT-feature"
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-feature"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific which is empty`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = ""
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test"))
+    }
+
+    @Test
+    fun `snapshot suffix are both empty`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = ""
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = ""
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test"))
+    }
+
+    @Test
+    fun `snapshot suffix for feature branches use specific which is not set`() {
+        val testProjectDirectory = createTempDir()
+        val buildFile = File(testProjectDirectory, "build.gradle.kts")
+        buildFile.writeText("""
+            import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
+
+            plugins {
+                id("io.wusa.semver-git-plugin")
+            }
+
+            semver {
+                snapshotSuffix = "SNAPSHOT-global"
+                branches {
+                    branch {
+                        regex = "feature/.*"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                    }
+                    branch {
+                        regex = ".+"
+                        incrementer = MinorVersionIncrementer
+                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
+                    }
+                }
+            }
+        """)
+        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
+        git.commit().setMessage("").call()
+        val result = gradleRunner
+                .withProjectDir(testProjectDirectory)
+                .withArguments("showVersion")
+                .withPluginClasspath()
+                .build()
+        println(result.output)
+        Assertions.assertTrue(result.output.contains("Version: 0.1.0+branch.feature-test-SNAPSHOT-global"))
     }
 
     @Test
@@ -94,6 +341,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -103,13 +351,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -131,6 +381,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -140,13 +391,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -168,6 +421,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -177,13 +431,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -205,6 +461,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -214,13 +471,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -242,6 +501,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -251,13 +511,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -279,6 +541,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -288,13 +551,15 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".+"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                     branch {
                         regex = "feature/.*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+branch.${'$'}{info.branch.id}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -311,43 +576,12 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
     }
 
     @Test
-    fun `version wrong incrementer`() {
-        val testProjectDirectory = createTempDir()
-        val buildFile = File(testProjectDirectory, "build.gradle.kts")
-        buildFile.writeText("""
-            import io.wusa.Info
-
-            plugins {
-                id("io.wusa.semver-git-plugin")
-            }
-
-            semver {
-                branches {
-                    branch {
-                        regex = ".*"
-                        incrementer = "THIS_IS_NO_INCREMENTer"
-                        formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
-                    }
-                }
-            }
-        """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1")
-        git.commit().setMessage("").call()
-        Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
-            gradleRunner
-                    .withProjectDir(testProjectDirectory)
-                    .withArguments("showVersion")
-                    .withPluginClasspath()
-                    .build()
-        }
-    }
-
-    @Test
     fun `version no increment`() {
         val testProjectDirectory = createTempDir()
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.NoVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -357,8 +591,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "NO_VERSION_INCREMENTER"
+                        incrementer = NoVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -380,6 +615,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.PatchVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -389,8 +625,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "PATCH_INCREMENTER"
+                        incrementer = PatchVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -412,6 +649,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MinorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -421,8 +659,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MINOR_INCREMENTER"
+                        incrementer = MinorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -444,6 +683,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
             import io.wusa.Info
+            import io.wusa.incrementer.MajorVersionIncrementer
 
             plugins {
                 id("io.wusa.semver-git-plugin")
@@ -453,8 +693,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
                 branches {
                     branch {
                         regex = ".*"
-                        incrementer = "MAJOR_INCREMENTER"
+                        incrementer = MajorVersionIncrementer
                         formatter = Transformer<Any, Info>{ "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}+build.${'$'}{info.count}.sha.${'$'}{info.shortCommit}" }
+                        snapshotSuffix = "SNAPSHOT"
                     }
                 }
             }
@@ -476,6 +717,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
           import io.wusa.Info
+          import io.wusa.incrementer.MinorVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -486,8 +728,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "MINOR_INCREMENTER"
+                      incrementer = MinorVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }
@@ -508,6 +751,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
           import io.wusa.Info
+          import io.wusa.incrementer.MinorVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -518,8 +762,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "MINOR_INCREMENTER"
+                      incrementer = MinorVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }
@@ -543,6 +788,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         val buildFile = File(testProjectDirectory, "build.gradle.kts")
         buildFile.writeText("""
           import io.wusa.Info
+          import io.wusa.incrementer.MinorVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -553,8 +799,9 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "MINOR_INCREMENTER"
+                      incrementer = MinorVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
+                      snapshotSuffix = "SNAPSHOT"
                   }
               }
           }
@@ -579,6 +826,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -590,7 +838,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
@@ -617,6 +865,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -628,7 +877,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
@@ -657,6 +906,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -668,7 +918,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
@@ -699,6 +949,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
         buildFile.writeText("""
           import io.wusa.Info
           import io.wusa.TagType
+          import io.wusa.incrementer.ConventionalCommitsVersionIncrementer
 
           plugins {
               id("io.wusa.semver-git-plugin")
@@ -710,7 +961,7 @@ class SemverGitPluginKotlinFunctionalTest : FunctionalBaseTest() {
               branches {
                   branch {
                       regex = ".+"
-                      incrementer = "CONVENTIONAL_COMMITS_INCREMENTER"
+                      incrementer = ConventionalCommitsVersionIncrementer
                       formatter = Transformer<Any, Info>{ info:Info -> "${'$'}{info.version.major}.${'$'}{info.version.minor}.${'$'}{info.version.patch}" }
                   }
               }
