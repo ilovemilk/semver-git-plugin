@@ -17,7 +17,7 @@ class SemanticVersionFormatter {
 
             val formattedVersion = formatVersion(branches, info, dirtyMarker)
             if (!hasTag(info) || hasTag(info) && isDirty(info)) {
-                return appendSuffix(formattedVersion, snapshotSuffix)
+                return appendSuffix(formattedVersion, branches, info)
             }
             return formattedVersion
         }
