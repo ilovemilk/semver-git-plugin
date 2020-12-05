@@ -7,8 +7,7 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
     @Throws(NoCurrentBranchFoundException::class)
     fun currentBranch(): String {
         return try {
-            val branches = getCurrentBranch()
-            filterCurrentBranch(branches)
+            getCurrentBranch()
         } catch (ex: GitException) {
             throw NoCurrentBranchFoundException(ex)
         } catch (ex: KotlinNullPointerException) {
@@ -74,7 +73,7 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
         }
         return try {
             val lastTag = gitCommandRunner.execute(cmdArgs)
-            gitCommandRunner.execute(arrayOf("log", "--oneline", "$lastTag..@")).lines()
+            gitCommandRunner.execute(arrayOf("log", "--pretty=format:%s %(trailers:separator=%x2c)", "$lastTag..@")).lines()
         } catch (ex: GitException) {
             emptyList()
         }
@@ -99,15 +98,8 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
         }
     }
 
-    private fun filterCurrentBranch(branches: String) =
-            """(\*)? +(.*?) +(.*?)?""".toRegex().find(branches)!!.groupValues[2]
-
     private fun getCurrentBranch(): String {
-        val branchName = gitCommandRunner.execute(arrayOf("branch", "--show-current"))
-        return gitCommandRunner.execute(arrayOf("branch", branchName, "--verbose", "--no-abbrev", "--contains"))
-    }
-
-    private fun getAllBranches(): String {
-        return gitCommandRunner.execute(arrayOf("branch", "--all", "--verbose", "--no-abbrev", "--contains"))
+        val head = gitCommandRunner.execute(arrayOf("log", "-n", "1", "--pretty=%d", "HEAD"))
+        return """\(HEAD -> (.*?)[,|)]""".toRegex().find(head)!!.groupValues[1]
     }
 }

@@ -41,49 +41,63 @@ class ConventionalCommitsVersionIncrementerTest {
     }
 
     @Test
-    fun `patch should be increased by 1`() {
-        every { gitService.getCommitsSinceLastTag() } returns listOf(
-                "7356414 fix: update gradle plugin publish due to security bugs",
-                "45f65f6 fix: update version an changelog",
-                "67f03b1 feat: Merge pull request #18 from ilovemilk/feature/support-multi-module",
-                "fba5872 fix: add default tagPrefix behaviour",
-                "2d03c4b fix: Merge pull request #17 from jgindin/support-multi-module",
-                "f96697f fix: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop",
-                "73fc8b4 fix: Add support for multi-module projects.",
-                "74e3eb1 fix: add test for kebab-case with numbers",
-                "63ca60f fix: add more tests")
+    fun `minor should be increased by 1`() {
+        every { gitService.getCommitsSinceLastTag() } returns listOf("fix: update gradle plugin publish due to security bugs\n",
+                "fix: update version an changelog\n",
+                "feat: Merge pull request #18 from ilovemilk/feature/support-multi-module\n",
+                "fix: add default tagPrefix behaviour\n",
+                "fix: Merge pull request #17 from jgindin/support-multi-module\n",
+                "fix: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop\n",
+                "fix: Add support for multi-module projects.\n",
+                "fix: add test for kebab-case with numbers\n",
+                "fix: add more tests"
+        )
 
         Assertions.assertEquals(ConventionalCommitsVersionIncrementer.transform(Version(0, 0, 0, "", "", null)), Version(0, 1, 0, "", "", null))
     }
 
     @Test
-    fun `minor should be increased by 1`() {
-        every { gitService.getCommitsSinceLastTag() } returns listOf(
-                "7356414 fix: update gradle plugin publish due to security bugs",
-                "45f65f6 fix: update version an changelog",
-                "67f03b1 fix: Merge pull request #18 from ilovemilk/feature/support-multi-module",
-                "fba5872 fix: add default tagPrefix behaviour",
-                "2d03c4b fix: Merge pull request #17 from jgindin/support-multi-module",
-                "f96697f fix: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop",
-                "73fc8b4 fix: Add support for multi-module projects.",
-                "74e3eb1 fix: add test for kebab-case with numbers",
-                "63ca60f fix: add more tests")
+    fun `patch should be increased by 1`() {
+        every { gitService.getCommitsSinceLastTag() } returns listOf("fix: update gradle plugin publish due to security bugs\n",
+                "fix: update version an changelog\n",
+                "fix: Merge pull request #18 from ilovemilk/feature/support-multi-module\n",
+                "fix: add default tagPrefix behaviour\n",
+                "fix: Merge pull request #17 from jgindin/support-multi-module\n",
+                "fix: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop\n",
+                "fix: Add support for multi-module projects.\n",
+                "fix: add test for kebab-case with numbers\n",
+                "fix: add more tests")
 
         Assertions.assertEquals(ConventionalCommitsVersionIncrementer.transform(Version(0, 0, 0, "", "", null)), Version(0, 0, 1, "", "", null))
     }
 
     @Test
     fun `major should be increased by 1`() {
-        every { gitService.getCommitsSinceLastTag() } returns listOf(
-                "7356414 fix: update gradle plugin publish due to security bugs",
-                "45f65f6 BREAKING CHANGE: update version an changelog",
-                "67f03b1 fix: Merge pull request #18 from ilovemilk/feature/support-multi-module",
-                "fba5872 feat: add default tagPrefix behaviour",
-                "2d03c4b fix: Merge pull request #17 from jgindin/support-multi-module",
-                "f96697f feat: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop",
-                "73fc8b4 fix: Add support for multi-module projects.",
-                "74e3eb1 feat: add test for kebab-case with numbers",
-                "63ca60f fix: add more tests")
+        every { gitService.getCommitsSinceLastTag() } returns listOf("fix: update gradle plugin publish due to security bugs\n",
+                "BREAKING CHANGE: update version an changelog\n",
+                "fix: Merge pull request #18 from ilovemilk/feature/support-multi-module\n",
+                "feat: add default tagPrefix behaviour\n",
+                "fix: Merge pull request #17 from jgindin/support-multi-module\n",
+                "feat: Merge remote-tracking branch 'origin/feature/add-more-tests' into develop\n",
+                "fix: Add support for multi-module projects.\n",
+                "feat: add test for kebab-case with numbers\n",
+                "fix: add more tests")
+
+        Assertions.assertEquals(ConventionalCommitsVersionIncrementer.transform(Version(0, 0, 0, "", "", null)), Version(1, 0, 0, "", "", null))
+    }
+
+    @Test
+    fun `issue-56 breaking change with ! after the feat scope`() {
+        every { gitService.getCommitsSinceLastTag() } returns listOf("feat!: added semver plugin incrementer parameter\n",
+                "feat: added semver plugin incrementer parameter")
+
+        Assertions.assertEquals(ConventionalCommitsVersionIncrementer.transform(Version(0, 0, 0, "", "", null)), Version(1, 0, 0, "", "", null))
+    }
+
+    @Test
+    fun `issue-56 breaking change with ! after the fix scope`() {
+        every { gitService.getCommitsSinceLastTag() } returns listOf("fix!: added semver plugin incrementer parameter\n",
+                "feat: added semver plugin incrementer parameter")
 
         Assertions.assertEquals(ConventionalCommitsVersionIncrementer.transform(Version(0, 0, 0, "", "", null)), Version(1, 0, 0, "", "", null))
     }

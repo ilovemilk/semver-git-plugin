@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch specific snapshot suffixes.
 - Add task to create a properties file with all version information.
 
+## [2.3.2]
+### Fixed
+- Fix conventional commits incrementer for BREAKING CHANGES marked by a ! after the scope.
+- Improve conventional commits incrementer regex parsing.
+- Remove `git branch --show-current` to resolve detached HEAD problems and to improve Git < 2.22.0 compatibility.
+
 ## [2.3.1]
 ### Fixed
 - Fix conventional commits incrementer for windows and annotated and lightweight tags.
