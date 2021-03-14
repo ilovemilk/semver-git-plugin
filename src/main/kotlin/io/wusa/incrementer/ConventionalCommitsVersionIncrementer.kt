@@ -21,6 +21,8 @@ object ConventionalCommitsVersionIncrementer : Transformer<Version, Version> {
         val fix             = "^fix$optionalScope"
         val breakingChange  = "\\bBREAKING CHANGE\\b:"
 
+        if (semverGitPluginExtension.info.dirty) patch = 1
+
         listOfCommits.forEach {
             when {
                 it.contains("$feat!:".toRegex())        -> major += 1

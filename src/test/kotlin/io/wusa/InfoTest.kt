@@ -110,6 +110,7 @@ class InfoTest {
     fun `get version`() {
         val info = Info(semverGitPluginExtension)
         every { gitService.currentTag() } returns "0.1.0"
+        every { gitService.isDirty() } returns false
         Assertions.assertEquals("Version(major=0, minor=1, patch=0, prerelease=, build=, suffix=null)", info.version.toString())
     }
 
@@ -118,6 +119,7 @@ class InfoTest {
         semverGitPluginExtension.tagType = TagType.LIGHTWEIGHT
         val info = Info(semverGitPluginExtension)
         every { gitService.currentTag(any(), tagType = TagType.LIGHTWEIGHT) } returns "0.1.0"
+        every { gitService.isDirty() } returns false
         Assertions.assertEquals("Version(major=0, minor=1, patch=0, prerelease=, build=, suffix=null)", info.version.toString())
     }
 
@@ -126,6 +128,7 @@ class InfoTest {
         semverGitPluginExtension.tagPrefix = "prj_"
         val info = Info(semverGitPluginExtension)
         every { gitService.currentTag(any(), any()) } returns "prj_0.1.0"
+        every { gitService.isDirty() } returns false
         Assertions.assertEquals("Version(major=0, minor=1, patch=0, prerelease=, build=, suffix=null)", info.version.toString())
     }
 
@@ -143,6 +146,7 @@ class InfoTest {
     fun `current version has not tag with tag prefix`() {
         val info = Info(semverGitPluginExtension)
         every { gitService.currentTag() } returns "prj_0.1.0"
+        every { gitService.isDirty() } returns false
         Assertions.assertThrows(NoValidSemverTagFoundException::class.java ) {
             info.version
         }

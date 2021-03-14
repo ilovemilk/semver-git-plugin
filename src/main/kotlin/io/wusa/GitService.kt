@@ -39,9 +39,9 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
 
     @Throws(NoLastTagFoundException::class)
     fun lastTag(tagPrefix: String = "", tagType: TagType = TagType.ANNOTATED): String {
-        var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+        var cmdArgs = arrayOf("describe", "--abbrev=7", "--match", "$tagPrefix*")
         if (tagType == TagType.LIGHTWEIGHT) {
-            cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=7", "--match", "$tagPrefix*")
+            cmdArgs = arrayOf("describe", "--tags", "--abbrev=7", "--match", "$tagPrefix*")
         }
         return try {
             gitCommandRunner.execute(cmdArgs)
@@ -67,9 +67,9 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
     }
 
     fun getCommitsSinceLastTag(tagPrefix: String = "", tagType: TagType = TagType.ANNOTATED): List<String> {
-        var cmdArgs = arrayOf("describe", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+        var cmdArgs = arrayOf("describe", "--abbrev=0", "--match", "$tagPrefix*")
         if (tagType == TagType.LIGHTWEIGHT) {
-            cmdArgs = arrayOf("describe", "--tags", "--dirty", "--abbrev=0", "--match", "$tagPrefix*")
+            cmdArgs = arrayOf("describe", "--tags", "--abbrev=0", "--match", "$tagPrefix*")
         }
         return try {
             val lastTag = gitCommandRunner.execute(cmdArgs)
@@ -79,8 +79,10 @@ class GitService(private val gitCommandRunner: GitCommandRunner) {
         }
     }
 
-    private fun isGitDifferent() =
-            gitCommandRunner.execute(arrayOf("diff", "--stat")) != ""
+
+    private fun isGitDifferent(): Boolean {
+        return gitCommandRunner.execute(arrayOf("status", "-s")).isNotBlank()
+    }
 
     private fun getCurrentCommit(): String {
         return try {

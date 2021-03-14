@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch specific snapshot suffixes.
 - Add task to create a properties file with all version information.
 
+## [2.3.3]
+### Fixed
+- Fix dirty working tree in the conventional commits incrementer.
+
 ## [2.3.2]
 ### Fixed
 - Fix conventional commits incrementer for BREAKING CHANGES marked by a ! after the scope.

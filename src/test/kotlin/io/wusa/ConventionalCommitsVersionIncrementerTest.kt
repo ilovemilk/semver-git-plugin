@@ -30,6 +30,9 @@ class ConventionalCommitsVersionIncrementerTest {
         semverGitPluginExtension = mockkClass(SemverGitPluginExtension::class)
         every { semverGitPluginExtension.tagPrefix } returns ""
         every { semverGitPluginExtension.tagType } returns TagType.ANNOTATED
+        val info = Info(semverGitPluginExtension)
+        every { semverGitPluginExtension.info } returns info
+        every { gitService.isDirty() } returns false
         startKoin {
             modules(modules)
         }

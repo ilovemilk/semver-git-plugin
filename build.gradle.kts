@@ -2,7 +2,7 @@ plugins {
     `maven-publish`
     `java-gradle-plugin`
     `jacoco`
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.4.31"
     id("com.gradle.plugin-publish") version "0.11.0"
 }
 
@@ -10,12 +10,12 @@ group = "io.wusa"
 version = "3.0.0"
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8:1.4.31"))
     implementation("org.koin:koin-gradle-plugin:2.1.6")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.4.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
-    testImplementation("io.mockk:mockk:1.9")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("io.mockk:mockk:1.10.6")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
 }
 
 repositories {
