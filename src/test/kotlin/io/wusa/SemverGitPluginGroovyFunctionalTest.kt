@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertFalse
 import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     private lateinit var gradleRunner: GradleRunner
@@ -19,9 +19,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @BeforeEach
     fun setUp() {
+        testProjectDirectory = createTempDir()
         gradleRunner = GradleRunner.create()
-        testProjectDirectory = createTempDir("semver")
-        gradleRunner
+        gradleRunner.withProjectDir(testProjectDirectory)
         git = Git.init().setDirectory(testProjectDirectory).call()
         repository = Git.open(testProjectDirectory).repository
     }
@@ -29,7 +29,6 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
     @AfterEach
     fun tearDown() {
         testProjectDirectory.deleteOnExit()
-        //gradleRunner.projectDir.deleteRecursively()
     }
 
     @Test
