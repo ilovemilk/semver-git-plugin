@@ -1,6 +1,7 @@
 package io.wusa
 
 import org.gradle.internal.impldep.org.eclipse.jgit.api.Git
+import org.gradle.internal.impldep.org.eclipse.jgit.lib.Repository
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.*
@@ -12,29 +13,37 @@ import java.io.File
 class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     private lateinit var gradleRunner: GradleRunner
+    private lateinit var testProjectDirectory: File
+    private lateinit var git: Git
+    private lateinit var repository: Repository
 
-    @BeforeAll
+    @BeforeEach
     fun setUp() {
         gradleRunner = GradleRunner.create()
+        testProjectDirectory = createTempDir("semver")
+        gradleRunner
+        git = Git.init().setDirectory(testProjectDirectory).call()
+        repository = Git.open(testProjectDirectory).repository
     }
 
-    @AfterAll
+    @AfterEach
     fun tearDown() {
-        gradleRunner.projectDir.deleteRecursively()
+        testProjectDirectory.deleteOnExit()
+        //gradleRunner.projectDir.deleteRecursively()
     }
 
     @Test
     fun defaults() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -44,7 +53,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `custom version incrementer`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -74,10 +83,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -87,7 +96,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for all branches`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -108,9 +117,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -120,7 +129,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches use specific`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -147,10 +156,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -160,7 +169,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches with camelCase`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -187,10 +196,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/testAbc10")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/testAbc10")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -200,7 +209,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches with kebab-case`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -227,10 +236,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test-abc-10")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test-abc-10")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -240,7 +249,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches with PascalCase`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -267,10 +276,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/TestAbc10")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/TestAbc10")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -280,7 +289,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches with snake_case`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -307,10 +316,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test_abc_10")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test_abc_10")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -320,7 +329,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `version formatter for feature branches with UPPER_CASE`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -347,10 +356,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/TEST_ABC_10")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/TEST_ABC_10")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -360,17 +369,17 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `no existing tag`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = Git.init().setDirectory(testProjectDirectory).call()
-        git.commit().setMessage("").call()
+
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -381,7 +390,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `no existing tag with custom initial version`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
@@ -392,10 +401,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 initialVersion = '1.0.0'
             }
         """)
-        val git = Git.init().setDirectory(testProjectDirectory).call()
-        git.commit().setMessage("").call()
+
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -406,7 +415,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `no existing tag with configuration without commits`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyNoVersionIncrementer
@@ -427,9 +436,8 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        Git.init().setDirectory(testProjectDirectory).call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -439,7 +447,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `no existing tag with configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyNoVersionIncrementer
@@ -460,10 +468,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = Git.init().setDirectory(testProjectDirectory).call()
-        git.commit().setMessage("").call()
+
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -474,7 +482,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `patch release with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -495,9 +503,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.0.1")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.0.1")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -507,7 +515,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `minor release with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -528,9 +536,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory)
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -540,7 +548,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `major release with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -561,9 +569,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "1.0.0")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "1.0.0")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -573,7 +581,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `release alpha with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -594,9 +602,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.1.0-alpha")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -606,7 +614,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `release alpha beta with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -627,9 +635,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha.beta")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.1.0-alpha.beta")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -639,7 +647,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `release alpha 1 with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -660,9 +668,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-alpha.1")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.1.0-alpha.1")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -672,7 +680,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `release beta with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -693,9 +701,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-beta")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.1.0-beta")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -705,7 +713,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `release rc with custom configuration`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -726,9 +734,9 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        initializeGitWithoutBranchAnnotated(testProjectDirectory, "0.1.0-rc")
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory, "0.1.0-rc")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -738,7 +746,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `bump patch version`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyPatchVersionIncrementer
@@ -759,10 +767,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        git.commit().setMessage("").call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -772,7 +780,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `bump minor version`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -793,10 +801,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        git.commit().setMessage("").call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -806,7 +814,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `bump major version`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMajorVersionIncrementer
@@ -827,10 +835,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        git.commit().setMessage("").call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -841,7 +849,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `don't bump version`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyNoVersionIncrementer
@@ -862,10 +870,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        git.commit().setMessage("").call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -875,19 +883,19 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `non-semver tag`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        val commit = git.commit().setMessage("").call()
-        git.tag().setName("test-tag").setObjectId(commit).call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        val commit = Git(repository).commit().setMessage("").call()
+        Git(repository).tag().setName("test-tag").setObjectId(commit).call()
         Assertions.assertThrows(UnexpectedBuildFailure::class.java) {
             gradleRunner
-                    .withProjectDir(testProjectDirectory)
+
                     .withArguments("showVersion")
                     .withPluginClasspath()
                     .build()
@@ -896,17 +904,17 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `full info of master branch with one commit after the tag`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithoutBranchAnnotated(testProjectDirectory)
-        val commit = git.commit().setMessage("").call()
+        initializeGitWithoutBranchAnnotated(repository, testProjectDirectory)
+        val commit = Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -928,17 +936,17 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `full info of feature-test branch with one commit after the tag`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
-        val commit = git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test")
+        val commit = Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -960,17 +968,17 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `full info of feature-test branch with no commit after the tag`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             plugins {
                 id 'io.wusa.semver-git-plugin'
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "0.0.1", "feature/test")
-        val head = git.repository.allRefs["HEAD"]
+        initializeGitWithBranch(repository, testProjectDirectory, "0.0.1", "feature/test")
+        val head = Git(repository).repository.allRefs["HEAD"]
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -991,7 +999,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `issues-23 fix branch logic release branch`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -1032,10 +1040,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "release/5.3.0")
-        val commit = git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "5.2.1", "release/5.3.0")
+        val commit = Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -1058,7 +1066,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `issues-23 fix branch logic hotfix branch`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -1099,10 +1107,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "hotfix/5.3.1")
-        val commit = git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "5.2.1", "hotfix/5.3.1")
+        val commit = Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -1125,7 +1133,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `issues-35 fix branch regex`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyPatchVersionIncrementer
@@ -1147,10 +1155,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "5.2.1", "feature/bellini/test-branch-version")
-        val commit = git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "5.2.1", "feature/bellini/test-branch-version")
+        val commit = Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
@@ -1173,7 +1181,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `empty snapshotSuffix must not append a hyphen`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyMinorVersionIncrementer
@@ -1194,10 +1202,10 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithBranch(testProjectDirectory, "4.2.0")
-        git.commit().setMessage("").call()
+        initializeGitWithBranch(repository, testProjectDirectory, "4.2.0")
+        Git(repository).commit().setMessage("").call()
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+
                 .withArguments("showVersion")
                 .withPluginClasspath()
                 .build()
@@ -1208,7 +1216,7 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
 
     @Test
     fun `empty dirty marker must not append a hyphen`() {
-        val testProjectDirectory = createTempDir()
+
         val buildFile = File(testProjectDirectory, "build.gradle")
         buildFile.writeText("""
             import io.wusa.incrementer.GroovyNoVersionIncrementer
@@ -1230,15 +1238,15 @@ class SemverGitPluginGroovyFunctionalTest : FunctionalBaseTest() {
                 }
             }
         """)
-        val git = initializeGitWithoutBranchAndWithoutTag(testProjectDirectory)
-        git.commit().setMessage("").call()
+        initializeGitWithoutBranchAndWithoutTag(repository, testProjectDirectory)
+        Git(repository).commit().setMessage("").call()
         val dirtyFile = File(testProjectDirectory, "test.dirty")
         dirtyFile.writeText("""not dirty!""")
-        git.add().addFilepattern(".").call()
-        git.commit().setMessage("").call()
+        Git(repository).add().addFilepattern(".").call()
+        Git(repository).commit().setMessage("").call()
         dirtyFile.writeText("""dirty!""")
         val result = gradleRunner
-                .withProjectDir(testProjectDirectory)
+                
                 .withArguments("showInfo")
                 .withPluginClasspath()
                 .build()
