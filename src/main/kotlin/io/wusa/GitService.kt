@@ -102,8 +102,12 @@ class GitService {
         }
 
         private fun getCurrentBranch(project: Project): String {
-            val head = GitCommandRunner.execute(project.projectDir, arrayOf("log", "-n", "1", "--pretty=%d", "HEAD"))
-            return """\([grafted, ]{0,9}HEAD -> (.*?)[,|)]|\([grafted, ]{0,9}HEAD,.*origin\/(.*?)[,|)]""".toRegex().find(head)!!.groupValues[1]
+            var branchName: String? = System.getenv("BRANCH_NAME")
+            if (branchName == null) {
+                val head = GitCommandRunner.execute(project.projectDir, arrayOf("log", "-n", "1", "--pretty=%d", "HEAD"))
+                branchName = """\([grafted, ]{0,9}HEAD(?: -> |,)(?:(\S+),|\)|.*,(?: origin\/| )(\S+)\))""".toRegex().find(head)!!.groupValues.filter { it != "" }[1]
+            }
+            return branchName
         }
     }
 }
