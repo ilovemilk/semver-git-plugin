@@ -91,7 +91,7 @@ git push --tags
 
 To create a new lightweight release tag:
 ```bash
-git tag -a 1.0.0-alpha.1
+git tag 1.0.0-alpha.1
 git push --tags
 ```
 
