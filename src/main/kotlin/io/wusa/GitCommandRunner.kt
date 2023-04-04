@@ -36,6 +36,7 @@ class GitCommandRunner {
         private fun startGitProcess(args: Array<String>, projectDir: File): Process {
             return ProcessBuilder("git", *args)
                     .directory(projectDir)
+                    .apply { environment().putAll(System.getenv()) }
                     .redirectOutput(ProcessBuilder.Redirect.PIPE)
                     .redirectError(ProcessBuilder.Redirect.PIPE)
                     .start()
